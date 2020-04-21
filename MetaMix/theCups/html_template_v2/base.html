@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}OTU Results - Main{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito|Overpass|Oxygen|Paytone+One|Russo+One&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    {% block header_style %}
+    <style>
+        * {
+            font-family: Oxygen;
+        }
+
+        #title_header {
+            margin: 10px 10px;
+        }
+
+        #info_header {
+            /*Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#af234b+0,473280+33,1e2247+67,71c3d4+100*/
+            background: #af234b; /* Old browsers */
+            background: -moz-linear-gradient(left,  #af234b 0%, #473280 33%, #1e2247 67%, #71c3d4 100%); /* FF3.6-15 */
+            background: -webkit-linear-gradient(left,  #af234b 0%,#473280 33%,#1e2247 67%,#71c3d4 100%); /* Chrome10-25,Safari5.1-6 */
+            background: linear-gradient(to right, #af234b 0%, #473280 33%, #1e2247 67%, #71c3d4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#af234b', endColorstr='#71c3d4',GradientType=1 ); /* IE6-9 */
+            color: white;
+            height: 120px;
+        }
+
+        .download-date { color: red; font-size: 1.5em; }
+
+        #customer_img {
+            float: left;
+            position: relative;
+            top: -15px; left: 70px;
+        }
+
+        #customer_info {
+            margin: 5px 0px 5px 120px;
+            width: 500px;
+            height: 100px;
+            float: left;
+        }
+
+        #main {
+            clear: both;
+        }
+
+        .icon {
+            margin: 10px;
+            width: 120px; height: 120px;
+        }
+
+        #analysis > a {
+            display: block;
+            width: 150px; height: 160px;
+            float: left;
+        }
+
+        #analysis > a:hover {
+            border: 1px solid black;
+        }
+
+
+        #info_aside > a {
+            display: block;
+
+        }
+        #info_aside > a:hover {
+            border: 1px solid black;
+        }
+    </style>
+    {% endblock header_style %}
+    {% block header_bottom %}{% endblock header_bottom %}
+</head>
+<body>
+    {% block title_header %}
+    <header id="title_header">
+    <div class="col title text-right">
+        <h2>Amplicon Metagenome Analysis</h2>
+    </div>
+    </header>
+    {% endblock title_header %}
+    {% block info_header %}
+    <header id="info_header">
+        <h3>{% block info_header_title %}Raw Data Download{% endblock info_header_title %}</h3>
+    </header>
+    {% endblock info_header %}
+    </div>
+    {% block main %}
+    {% endblock main %}
+    {% block footer %}
+    <footer class="row">
+        <div class="col text-center">
+            <img src="macrogen_CI_01_f.png" weight="80px" height="80px">
+        </div>
+    </footer>
+    {% endblock footer %}
+    {% block body_script %}{% endblock body_script %}
+</body>
+</html>

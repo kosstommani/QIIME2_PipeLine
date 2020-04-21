@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NGS Analysis Report</title>
+<!--<link rel="stylesheet"   href="./OTU_Results/src/default.css"/>-->
+<link rel="stylesheet"   href="default.css"/>
+</head>
+<body>
+<div id="wrapper">
+	<div id="header">
+		<div class="title-sec">
+			<div class="title-inner-sec">
+<!--			<a href="http://www.macrogen.com/" target="_blank"><img src="./OTU_Results/src/img/logo.png" alt="MACROGEN" /></a>-->
+			<a href="http://www.macrogen.com/" target="_blank"><img src="src/img/logo.png" alt="MACROGEN" /></a>
+			<h1>NGS Analysis Report</h1>
+			</div>
+		</div>
+
+		<div class="info-sec">
+			<div class="info-inner-sec">
+				<table class="tb2">
+				<caption class="hide">Info</caption>
+				<colgroup>
+					<col width="30">
+					<col width="200">
+					<col width="250">
+					<col width="200">
+					<col width="200">
+				</colgroup>
+				<tr>
+					<th rowspan=4 style="border:0px;"></th>
+					<th>Company / Institution</th>
+					<td>{{organization}}</td>
+					<th>Target Region(Primer Set)</th>
+					<td>{{target_region}}</td>
+				</tr>
+				<tr>
+					<th>Customer</th>
+					<td>{{name}}</td>
+					<th>Length Filter(Assembled Read)</th>
+					<td>{{length_filter}}</td>
+				</tr>
+				<tr>
+					<th>Order Number</th>
+					<td>{{order_number}}</td>
+					<th>OTU Picking Method(Tool)</th>
+					<td>0000AAA-0000 OTU_Method</td>
+				</tr>
+				<tr>
+					<th>Number of Samples</th>
+					<td>{{sample_count}}</td>
+					<th>DB Version(Tool)</th>
+					<td>0000AAA-0000 DBversion</td>
+				</tr>
+				</table>
+			</div>
+			<div class="clear"></div>
+		</div>
+	</div><!-- // header END -->
+
+	<div class="clear"></div>
+
+	<div id="container" class="paddingT20">
+		<div class="content-sec01">
+			<h2 class="title">I. Analysis Procedure</h2>
+			<div class="workflow_wrap">
+				<span class="row">
+					<a href="https://data.macrogen.com/FLX/handbook/OTU_QIIME_Manual.pdf" target="_blank" class="btn_result"><span class="manual"><img src="./OTU_Results/src/img/download.png" height=20> <b>MANUAL Download</b></span></a>
+				</span>
+				<span class="row">
+					<span class="des3"></span>
+				</span>
+				<span class="row">
+					<span class='first-col'>Preprocessing</br>&</br>Clustering</span>
+					<span class="space"></span>
+					<span class='col'><img class='icon' src="./OTU_Results/src/img/Raw_Data.png"></span>
+					<span class='arrow-right'><img src="./OTU_Results/src/img/arrow_right.png" style="width: 20px; height:auto;"></span>
+					<span class='col'><img class='icon' src="./OTU_Results/src/img/Preprocessing.png" ></span>
+					<span class='arrow-right'><img src="./OTU_Results/src/img/arrow_right.png" style="width: 20px; height:auto;"></span>
+					<span class='col'><img class='icon' src="./OTU_Results/src/img/Clustering.png" ></span>
+					<span class='arrow-right'></span>
+					<span class='col'></span>
+					<span class='arrow-right'></span>
+					<span class='col'></span>
+				</span>
+				<span class="row">
+					<span class="des2"></span>
+					<span class='arrow'><img src="./OTU_Results/src/img/arrow_down.png" style="width: 30px; height:auto;"></span>
+				</span>
+				<span class="row">
+					<span class='first-col'>Taxonomic assignment</span>
+					<span class="space"></span>
+					<span class='col'><img class='icon' src="./OTU_Results/src/img/Alignment.png" ></span>
+					<span class='arrow-right'><img src="./OTU_Results/src/img/arrow_right.png" style="width: 20px; height:auto;"></span>
+					<span class='col'><img class='icon' src="./OTU_Results/src/img/taxonomy.png" ></span>
+					<span class='arrow-right'></span>
+					<span class='col'></span>
+					<span class='arrow-right'></span>
+					<span class='col'></span>
+					<span class='arrow-right'></span>
+					<span class='col'></span>
+				</span>
+				<span class="row">
+					<span class="des2"></span>
+					<span class="arrow"><img src="./OTU_Results/src/img/arrow_down.png" style="width: 30px; height:auto;"></span>
+				</span>
+				<span class="row">
+					<span class='first-col'>Diversity statistics</span>
+					<span class="space"></span>
+					<span class='col'><img class='icon' src="./OTU_Results/src/img/diversity_index.png" ></span>
+					<span class='arrow-right'><img src="./OTU_Results/src/img/arrow_bar.png" style="width:20px; height:auto;"></span>
+					<span class='col'><img class='icon' src="./OTU_Results/src/img/rarefaction.png" ></span>
+					<span class='arrow-right'><img src="./OTU_Results/src/img/arrow_bar.png" style="width:20px; height:auto;"></span>
+					<span class='col'><img class='icon' src="./OTU_Results/src/img/PCoA.png" ></span>
+					<span class='arrow-right'><img src="./OTU_Results/src/img/arrow_bar.png" style="width:20px; height:auto;"></span>
+					<span class='col'><img class='icon' src="./OTU_Results/src/img/dendrogram.png" ></span>
+					<span class='arrow-right'></span>
+					<span class='col'></span>
+				</span>
+			</div>
+		</div>
+
+		<div class="content-sec02">
+			<p class="paddingT70"><!---<img src=  border="0" width="620" height="470" />--->
+		</div>
+		<div class="clear"></div>
+
+		<div class="content-sec03 paddingT70">
+			<h2 class="title">II. Results of Analysis</h2>
+			<table class="tb1">
+				<caption class="hide">Results of Analysis</caption>
+				<colgroup>
+					<col width="300"/>
+					<col width="700"/>
+				</colgroup>
+				<!--tr>
+					<th class="alignL" style="padding-left:30px;">Assembly</th>
+					<td style="padding-left:15px;">
+					Results of Assembly <a href="./OTU_Results/STAT.html" target="_blank" class="btn_result">[ HTML ]</a>
+					<a href="./OTU_Results/STAT.xlsm" target="_blank" class="btn_result">[EXCEL ]</a>
+					</td>
+				</tr-->
+				<tr>
+					<th class="alignL" style="padding-left:30px;">Preprocessing & Clustering</th>
+					<td style="padding-left:15px;">
+					Summary <a href="./OTU_Results/otu_table_summary.html" target="_blank"class="btn_result">[ HTML ]</a>
+					</td>
+				</tr>
+				<tr>
+					<th class="alignL" style="padding-left:30px;">Taxonomic assignment</th>
+					<td style="padding-left:15px;">
+					Bar type <a href="./OTU_Results/Taxonomy_assignment/taxa_summary_plots/bar_charts.html" target="_blank" class="btn_result">[ HTML ]</a> <br/>
+					Area type <a href="./OTU_Results/Taxonomy_assignment/taxa_summary_plots/area_charts.html" target="_blank" class="btn_result">[ HTML ]</a> <br/>
+					Representative sequence (OTU) <a href="./OTU_Results/otus_rep.fasta" target="_blank" class="btn_result">[ Fasta ]</a> <br/>
+					OTU abundance <a href="./OTU_Results/Taxonomy_assignment/otu_table_shared_with_tax_assignment.xlsx" target="_blank" class="btn_result">[ EXCEL ]</a>
+					<Results_of_BLAST_EXCEL> / Results of BLAST <a href="./OTU_Results/Taxonomy_assignment/OTU_BLAST.xlsx" target="_blank" class="btn_result">[ EXCEL ]</a><br/>
+					Taxonomy abundance - Count <a href="./OTU_Results/Taxonomy_assignment/count_data/Taxonomy_abundance_count.xlsx" target="_blank" class="btn_result">[ EXCEL ]</a>
+							   / Ratio <a href="./OTU_Results/Taxonomy_assignment/Taxonomy_abundance_ratio.xlsx" target="_blank" class="btn_result">[ EXCEL ]</a>
+					</td>
+				</tr>
+				<tr>
+					<th class="alignL" style="padding-left:30px;">Diversity statistics</th>
+					<td style="padding-left:15px;">
+					Community richness & diversity <a href="./OTU_Results/Diversity_Index/adiv.html" target="_blank" class="btn_result">[ HTML ]</a>
+									   <a href="./OTU_Results/Diversity_Index/adiv.xlsm" target="_blank" class="btn_result">[ EXCEL ]</a><br/>
+					Rarefaction <a href="./OTU_Results/Alpha_rarefaction/alpha_rarefaction_plots/rarefaction_plots.html" target="_blank" class="btn_result">[ HTML ]</a> <br/>
+					PCoA(weighted unifrac) - 2D plot <a href="./OTU_Results/2D_PCoA/weighted_unifrac_pc_2D_PCoA_plots.html" target="_blank" class="btn_result">[ HTML ]</a>
+								   / 3D plot <a href="./OTU_Results/Beta_diversity/weighted_unifrac_emperor_pcoa_plot/index.html" target="_blank" class="btn_result">[ HTML ]</a>
+								   / PC value <a href="./OTU_Results/Beta_diversity/weighted_unifrac_pc.html" target="_blank" class="btn_result">[ HTML ]</a><br/>
+					UPGMA tree comparing samples <a href="./OTU_Results/UPGMAtree/upgma_cluster.html" target="_blank" class="btn_result">[ HTML ]</a>
+									 <a href="./OTU_Results/UPGMAtree/upgma_cluster.tre" target="_blank" class="btn_result">[ .tre ]</a><br/>
+					</td>
+				</tr>
+			</table>
+			<div class="clear"></div>
+			<!-- space --><div style="height:150px"></div>
+		</div>
+		<div class="clear"></div>
+	</div><!-- // container END -->
+	<div id="footer">
+		<div class="info-sec">
+			<div class="info-inner-sec">
+				<table class="tb2">
+				<caption class="hide">Info2</caption>
+				<colgroup>
+					<col width="450"/>
+					<col width="375"/>
+					<col width="25"/>
+					<col width="200"/>
+				</colgroup>
+				<tr>
+					<th rowspan=2>The data retention period is <span style="font-size:17px; color:#ff0000; font-weight:bold;">three months</span>, <br>please send an email(ngs@macrogen.com) or contact representative <br>if you want longer retention period.</th>
+					<th>Macrogen Korea</th>
+					<th></td>
+					<th>Contact</th>
+				</tr>
+				<tr>
+					<td>10F, 254 Beotkkot-ro, Geumcheon-gu, Seoul Rep. of Korea<br>Phone: +82-2-2113-7000</td>
+					<td></td>
+					<td>Web : <a href="{{e_mail}}" target="_blank">{{e_mail}}</a><br>Lims : <a href="https://dna.macrogen.com" target="_blank">https://dna.macrogen.com</a></td>
+				</tr>
+				</table>
+			</div>
+			<div class="clear"></div>
+		</div>
+	</div><!-- // footer END -->
+</div><!-- // wrapper END -->
+</body>
+</html>

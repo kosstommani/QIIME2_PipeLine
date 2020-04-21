@@ -1,0 +1,287 @@
+# ----------------------------------------------------------------------------------------------------------------------
+# 888b     d888          888             888b     d888 d8b
+# 8888b   d8888          888             8888b   d8888 Y8P
+# 88888b.d88888          888             88888b.d88888
+# 888Y88888P888  .d88b.  888888  8888b.  888Y88888P888 888 888  888
+# 888 Y888P 888 d8P  Y8b 888        "88b 888 Y888P 888 888 `Y8bd8P'
+# 888  Y8P  888 88888888 888    .d888888 888  Y8P  888 888   X88K
+# 888   "   888 Y8b.     Y88b.  888  888 888   "   888 888 .d8""8b.
+# 888       888  "Y8888   "Y888 "Y888888 888       888 888 888  888
+#
+# 작성자 : 박정원(JungWon Park, KOSST)
+# Version : 1.1.2
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+base_path:
+  rawdata_base_path:  /garnet/Analysis/Project
+  analysis_base_path: /garnet/Analysis/BI/AmpliconMetaGenome/PipeLine_Test
+
+
+PreMA_CORE:
+  n_base:
+    - !!float 0.1
+    - !!float 0.2
+  n_read: 10
+  sample_read: 100000
+  q30:
+    - 50
+    - 70
+  adapter_trim_tool: &id01 fastp
+  index_kit: auto
+  target_dir_suffix: '*_*_?'
+  #  kit_file: directory_path_kit.txt
+  sample_name_mode: all
+  R1_suffix: _1.fastq.gz
+  R2_suffix: _2.fastq.gz
+
+PreMA_DIR:
+  tree_level: 3
+
+PreMA_Adapter_Trim:
+  fastp: /garnet/Tools/Amplicon_MetaGenome/QIIME2/Miniconda3/bin/fastp
+  SeqPurge: /garnet/Tools/Amplicon_MetaGenome/QIIME2/Miniconda3/bin/SeqPurge
+  Scythe: /garnet/Tools/Amplicon_MetaGenome/Scythe/scythe
+  fastp_thread: 8
+
+PreMA_RawData_Handler:
+  FastQC: /garnet/Tools/Amplicon_MetaGenome/FastQC/fastqc   # FastQC v0.11.8
+  #  FastQC: /garnet/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/FastQC/fastqc  # RawData Team: FastQC v.0.11.6
+  MultiQC: /garnet/Tools/Amplicon_MetaGenome/QIIME2/Miniconda3/bin/multiqc  # MultiQC 1.8
+
+PreMA_PoolWorker: 30
+
+
+CoFI:
+  target_dir_suffix: 'RawData*/*'
+  analysis_dir_base_name: 'Analysis_{}'  # 형태: 이름{}. '{}' 필수.
+  adapter_trim_tool: *id01
+  R1_suffix: '_1.{trim}.fastq.gz'
+  R2_suffix: '_2.{trim}.fastq.gz'
+  read_length: !!int 301
+
+CoFI_FLASH:
+  percent_combined_alarm: !!float 40.0
+  min_overlap: null
+  max_overlap: null
+  length_filter: true
+  modify_header: true
+  pooled_sample_file: true
+
+CoFI_ReadAssembly:
+  FLASH: /garnet/Tools/Amplicon_MetaGenome/FLASH1/flash
+  #  FLASH: /garnet/Tools/Amplicon_MetaGenome/FLASH2/flash2
+  compress: '--compress-prog gzip'  # FLASH 프로그램 옵션 참조. ex) gzip, bzip2, xz
+  compress_suffix: '--suffix gz'    # gzip 권장(다른 형식에 비해 압축레벨(기본:6)이 높을수록 압축률 높고 및 속도 빠름)
+  FLASH_threads: 10
+
+CoFI_OTU:
+  cd-hit-otu:
+    path: /garnet/Tools/Amplicon_MetaGenome/cd-hit-otu-illumina-0.0.1
+    single: cd-hit-otu-all-single.pl
+    single_singleton: cd-hit-otu-all-single.cutoff_1.pl
+    single_doubleton: cd-hit-otu-all-single.cutoff_2.pl
+    clstr_sample_count: clstr_sample_count.pl
+    clstr_sample_count_matrix: clstr_sample_count_matrix.pl
+  otu_cutoff: !!float 0.97
+  trim_cutoff: !!float 1.0  # no trimming
+  check_chimera: true       # cd-hit-otu default
+  pcr_error: !!float 0.01   # cd-hit-otu default
+  closed_otu:
+    database:
+      NCBI_16S:
+        version: &NCBI_16S01 NCBI_16S_ribosomal_RNA_20200305
+        fasta: &NCBI_16S02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/16S_ribosomal_RNA_20200305/16S_ribosomal_RNA.fasta
+        taxon: &NCBI_16S03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/16S_ribosomal_RNA_20200305/16S_ribosomal_RNA.taxon
+      GreenGenes_97:
+        version: gg_otus-13_8-release_97
+        fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/GreenGenes/gg_otus-13_8-release/rep_set/97_otus.fasta
+        taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/GreenGenes/gg_otus-13_8-release/taxonomy/97_otu_taxonomy.txt
+      GreenGenes_99:
+        version: gg_otus-13_8-release_99
+        fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/GreenGenes/gg_otus-13_8-release/rep_set/99_otus.fasta
+        taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/GreenGenes/gg_otus-13_8-release/taxonomy/99_otu_taxonomy.txt
+#      UNITE:
+#        version: &UNITE01 'UNITE 7.2 2017-12-01'
+#        fasta: &UNITE02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/UNITE_public_01.12.2017.id.fasta
+#        taxon: &UNITE03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/UNITE_public_01.12.2017.id.tax.txt
+      UNITE_Fungi:
+        version: &UNITE_fungi01 'UNITE Fungi2 99% Clustering Ver.8.2 2020-02-20'
+        fasta: &UNITE_fungi02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_Fungi2/sh_refs_qiime_ver8_99_s_04.02.2020.fasta
+        taxon: &UNITE_fungi03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_Fungi2/sh_taxonomy_qiime_ver8_99_s_04.02.2020.txt
+      UNITE_All_eukaryotes:
+        version: &UNITE_eukaryotes01 'UNITE All Eukaryotes2 99% Clustering Ver.8.2 2020-02-20'
+        fasta: &UNITE_eukaryotes02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_All_eukaryotes2/sh_refs_qiime_ver8_99_s_all_04.02.2020.fasta
+        taxon: &UNITE_eukaryotes03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_All_eukaryotes2/sh_taxonomy_qiime_ver8_99_s_all_04.02.2020.txt
+      UNITE_INSD_Fungi:
+        version: &UNITE_INSD_Fungi01 'UNITE+INSD Fungi Ver.8.2 2020-02-04'
+        fasta: &UNITE_INSD_Fungi02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi/UNITE_public_04.02.2020.fasta
+        taxon: &UNITE_INSD_Fungi03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi/UNITE_public_04.02.2020.txt
+      UNITE_INSD_All_eukaryotes:
+        version: &UNITE_INSD_All_eukaryotes01 'UNITE+INSD All Eukaryotes Ver.8.2 2020-02-04'
+        fasta: &UNITE_INSD_All_eukaryotes02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes/UNITE_public_all_04.02.2020.fasta
+        taxon: &UNITE_INSD_All_eukaryotes03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes/UNITE_public_all_04.02.2020.txt
+      MIDORI_LONGEST:
+        version: 20180221_LONGEST
+        fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_LONGEST_20180221_COI.fasta
+        taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_LONGEST_20180221_COI.taxon
+      MIDORI_UNIQUE:
+        version: 20180221_UNIQUE
+        fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_UNIQUE_20180221_COI.fasta
+        taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_UNIQUE_20180221_COI.taxon
+      NCBI_NT:
+        version: NCBI_NT_20200306
+        fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/NCBI_NT_20200306/nt.fasta
+        taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/NCBI_NT_20200306/nt.taxon
+      NCBI_Probiotics:
+        version: &Probiotics01 NCBI_Probiotics19_20200305
+        fasta: &Probiotics02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics19_20200305/Probiotics19.fasta
+        taxon: &Probiotics03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics19_20200305/Probiotics19.taxon
+    jobs_to_start: 10
+    assembly_suffix: '.extendedFrags.fasta'
+
+CoFI_TAXONOMY:
+  blast_parser_path: /garnet/Tools/Amplicon_MetaGenome/InHouse_Program/run_blast_qsub/script
+  blast_parser_excel_path: /garnet/Tools/Amplicon_MetaGenome/InHouse_Program/16S_MetaGenome_BLAST_Parser
+  blast_path: /garnet/Tools/Amplicon_MetaGenome/blast/ncbi-blast-2.9.0+/bin
+  queue:
+    name: bi3m.q
+    nt_max_job: 20
+    read_per_job: 300
+  blast_option:
+    e_value: '1.0E-3'
+    num_alignments: 5
+  blast_db:
+    NCBI_16S:
+      version: NCBI_16S_ribosomal_RNA_20200305
+      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/16S_ribosomal_RNA_20200305/16S_ribosomal_RNA
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/16S_ribosomal_RNA_20200305/16S_Taxon
+    NCBI_NT:
+      version: NCBI_NT_20200306
+      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/NCBI_NT_20200306/nt
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/NCBI_NT_20200306/ntTaxon
+    NCBI_Probiotics:
+      version: *Probiotics01
+      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics19_20200305/Probiotics19
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics19_20200305/Probiotics19_taxon
+    UNITE_INSD_Fungi:
+      version: *UNITE_INSD_Fungi01
+      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi_BLAST/UNITE_public_04.02.2020.blast
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi_BLAST/UNITE_public_04.02.2020.taxon
+    UNITE_INSD_All_eukaryotes:
+      version: *UNITE_INSD_All_eukaryotes01
+      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes_BLAST/UNITE_public_all_04.02.2020.blast
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes_BLAST/UNITE_public_all_04.02.2020.taxon
+  uclust_db:
+    RDP:
+      version: 'RDP Release 11 Update 4 :: May 26, 2015'
+      fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/RDP/rdp_release11/16SrDNA.fasta
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/RDP/rdp_release11/16SrDNA.taxonomy
+    NCBI_16S:
+      version: *NCBI_16S01
+      fasta: *NCBI_16S02
+      taxon: *NCBI_16S03
+    NCBI_Probiotics:
+      version: *Probiotics01
+      fasta: *Probiotics02
+      taxon: *Probiotics03
+    UNITE_Fungi:
+      version: *UNITE_fungi01
+      fasta: *UNITE_fungi02
+      taxon: *UNITE_fungi03
+    UNITE_All_eukaryotes:
+      version: *UNITE_eukaryotes01
+      fasta: *UNITE_eukaryotes02
+      taxon: *UNITE_eukaryotes03
+    UNITE_INSD_Fungi:
+      version: *UNITE_INSD_Fungi01
+      fasta: *UNITE_INSD_Fungi02
+      taxon: *UNITE_INSD_Fungi03
+    UNITE_INSD_All_eukaryotes:
+      version: *UNITE_INSD_All_eukaryotes01
+      fasta: *UNITE_INSD_All_eukaryotes02
+      taxon: *UNITE_INSD_All_eukaryotes03
+    #    UNITE_Fungi:
+    #      version: *UNITE_fungi01
+    #      fasta: *UNITE_fungi02
+    #      taxon: *UNITE_fungi03
+    #    UNITE_All_eukaryotes:
+    #      version: *UNITE_eukaryotes01
+    #      fasta: *UNITE_eukaryotes02
+    #      taxon: *UNITE_eukaryotes03
+    iBOL:
+      version: 'iBOL_phase_6.50'
+      fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/iBOL/Animals_COI/iBOL_phase_6.50_COI.fasta
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/iBOL/Animals_COI/iBOL_phase_6.50_COI.txt
+
+CoFI_DADA2:
+  random_read: 1000000
+  p_trunc_len_f: 0
+  p_trunc_len_r: 0
+  p_trim_left_f: 20
+  p_trim_left_r: 20
+
+#  Batk(341F-805R) 설정값 - 속도 개선을 위해 FASTP 에서 작업하는 것을 고려 중.
+#  p_trunc_len_f: 250
+#  p_trunc_len_r: 250
+#  p_trim_left_f: 20
+#  p_trim_left_r: 20
+
+#CoFI_QIIME2: qiime
+CoFI_QIIME2: /garnet/Tools/Amplicon_MetaGenome/QIIME2/Miniconda3/envs/qiime2-2020.02/bin/qiime
+
+CoFI_PoolWorker: 50
+CoFI_FLASH_PoolWorker: 30
+CoFI_OTU_Closed_PoolWorker: 10
+
+
+theCups:
+  mothur: /garnet/Tools/Amplicon_MetaGenome/mothur_V1.42.0/mothur
+  MiSeq_V1:
+    template_path: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/html_template_v1
+  MiSeq_V2:
+    template_path: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/html_template_v2
+  Probiotics:
+    V1V2_report_dir: Analysis_1_Report
+    V1V2_report_num: Report_1
+    V3V4_report_dir: Analysis_2_Report
+    V3V4_report_num: Report_1
+    table_path_suffix: Taxonomy_assignment_blast_NCBI_Probiotics/otu_table.blast_NCBI_Probiotics_L7.txt
+    src_probiotics_path: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/src_probiotics
+    macrogen_logo_white: logo.png
+    process_jpg: process.jpg
+    tree_png: tree.png
+    cover_logo_jpg: cover_logo.jpg
+    reference_list: ReferenceList.txt
+    species_list: SpeciesList.txt
+
+
+MetaMix:
+  PreMA: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/PreMA.py
+  CoFI: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/CoFI.py
+  theCups: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups.py
+
+mamMetaMix:
+  analysis_base_path: /garnet/Analysis/BI/AmpliconMetaGenome_MAM
+#  analysis_base_path: /garnet/Tools/Amplicon_MetaGenome/MicrobeAndMe
+  Rscript: /garnet/Tools/Amplicon_MetaGenome/QIIME2/Miniconda3/qiime2_dada2_bin/Rscript
+
+
+Analysis_Dir_Name:
+  read_assembly: Read_Assembly
+  alignment: Alignment
+  cd_hit_otu: CD-HIT-OTU
+  closed: CLOSED
+  taxonomy_assignment: Taxonomy_Assignment
+  phylogeny: Phylogeny
+  biom: BIOM
+  r_dada2: R_DADA2
+  q2_dada2: Q2_DADA2
+
+Excel_VBA:
+  vba_adiv: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/vba_saveChart_adiv.bin
+  vba_stat: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/vba_saveChart_stat.bin
+
+Queue_List:
+  - bi3m.q
+  - meta.q

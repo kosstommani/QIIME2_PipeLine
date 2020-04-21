@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito|Overpass|Oxygen|Paytone+One|Russo+One&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+        * {
+            /*font-family: "Paytone One";*/
+            /*font-family: "Overpass";*/
+            font-family: Oxygen "Malgun Gothic";
+            /*font-family: Overpass;*/
+        }
+
+        .title {
+            margin: 20px 20px;
+            /*font-family: "Russo One";*/
+        }
+
+        .info {
+            /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#af234b+0,473280+33,1e2247+67,71c3d4+100 */
+            /*background: #af234b; !* Old browsers *!*/
+            /*background: -moz-linear-gradient(left,  #af234b 0%, #473280 33%, #1e2247 67%, #71c3d4 100%); !* FF3.6-15 *!*/
+            /*background: -webkit-linear-gradient(left,  #af234b 0%,#473280 33%,#1e2247 67%,#71c3d4 100%); !* Chrome10-25,Safari5.1-6 *!*/
+            background: linear-gradient(to right, #af234b 0%, #473280 33%, #1e2247 67%, #71c3d4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#af234b', endColorstr='#71c3d4',GradientType=1 ); !* IE6-9 *!*/
+            color: white;
+            height: 120px;
+        }
+
+        /*.main { overflow: hidden; }*/
+
+        #customer_img {
+            float: left;
+            position: relative;
+            top: -15px; left: 70px;
+        }
+
+        #sample_info {
+            margin: 5px 0px 5px 120px;
+            width: 500px;
+            height: 100px;
+            float: left;
+        }
+        #analysis_info {
+            margin: 5px 30px 5px 0px;
+            height: 100px;
+            float: left;
+        }
+
+        .icon {
+            height: 150px; width: 150px;
+        }
+
+        .aside {
+            float: left;
+            width: 400px;
+        }
+
+        .data {
+            float: right;
+        }
+
+        .download-date { color: red; font-size: 1.5em; }
+
+        #footer { clear: both; }
+    </style>
+
+</head>
+<body>
+<div class="text-right title">
+    <h2>Amplicon Metagenome Analysis</h2>
+</div>
+<div class="info">
+<!--    <div id="sample_info">-->
+<!--        소속: 어딘신가?<br>-->
+<!--        고객이름: 고객님<br>-->
+<!--        수주번호: HN0010001<br>-->
+<!--        시료의 수: 10개-->
+<!--    </div>-->
+    <div id="customer_img">
+<!--        <img src="https://placehold.it/150x150">-->
+        <img src="customer3.png" height="150px" weight="150px">
+    </div>
+    <div id="sample_info">
+        <table height="110px">
+            <colgroup>
+                <col width="200">
+                <col width="300">
+            </colgroup>
+            <tr>
+                <td>Company / Institution</td>
+                <td>Macrogen Crop. Japan</td>
+            </tr>
+            <tr>
+                <td>Customer</td>
+                <td>Macrogen Japan</td>
+            </tr>
+            <tr>
+                <td>Order Number</td>
+                <td>HN00102266</td>
+            </tr>
+            <tr>
+                <td>Number of Samples</td>
+                <td>80Samples</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<br>
+<div class="main">
+<!--    <div class="jumbotron text-center" height="150px">-->
+    <div class="alert alert-secondary text-center">
+<!--    <div class="alert text-center">-->
+        <h3>당신의 데이터를 다운로드하세요!</h3>
+        <a href="#"><h1>Raw Data - FASTQ</h1></a>
+        <p> 다운로드는 <span class="download-date">10월 30일</span>까지 가능합니다.</p>
+    </div>
+    <div class="alert">
+        <br>
+    </div>
+    <div class="container aside">
+        <div class="alert alert-secondary text-center">
+            <strong><span class="download-date">Research Use Only</span></strong>
+        </div>
+        <div class="alert alert-secondary" data-toggle="popover" title="V3V4 Primer" data-content="Bakt341F: ACADCADCCD">
+            Target Region: V3V4<br>
+            Primer Set: Bakt341F-Bakt805R
+        </div>
+        <div class="alert alert-secondary">
+            OTU Picking Method: de novo<br>
+            Tool: CD-HIT-OTU
+        </div>
+        <div class="alert alert-secondary">
+            Database: NCBI 16S<br>
+            Version: 2019.10.20<br>
+            Tool: BLAST<br>
+        </div>
+        <div class="alert alert-secondary">
+            2D PCoA, 3D PCoA 결과가 없습니다.
+        </div>
+    </div>
+
+    <div class="container data">
+        <div class="row">
+            <div class="col-sm-3">
+                <img src="Raw_Data.png" class="icon">
+            </div>
+            <div class="col-sm-3">
+                <img src="Alignment.png" class="icon">
+            </div>
+            <div class="col-sm-3">
+                <img src="Clustering.png" class="icon">
+            </div>
+        </div>
+        <div class="row">
+            <br>
+            <br>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <img src="taxonomy.png" class="icon">
+            </div>
+            <div class="col-sm-3">
+                <img src="krona.png" class="icon">
+            </div>
+            <div class="col-sm-3">
+                <a href="#"><img src="dendrogram.png" class="icon"></a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="text-center" id="footer">
+    <br>
+    <br>
+    <br>
+    <img src="macrogen_CI_01_f.png" weight="100px" height="100px">
+</div>
+<script>
+    $(document).ready(() => {
+        $('[data-toggle="popover"]').popover();
+    });
+</script>
+</body>
+</html>
+
+

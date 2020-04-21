@@ -1,0 +1,19 @@
+1	Lactobacillus acidophilus
+2	Lactobacillus casei
+3	Lactobacillus gasseri
+4	Lactobacillus delbrueckii ssp. bulgaricus
+5	Lactobacillus helveticus
+6	Lactobacillus fermentum
+7	Lactobacillus paracasei
+8	Lactobacillus plantarum
+9	Lactobacillus reuteri
+10	Lactobacillus rhamnosus
+11	Lactobacillus salivarius
+12	Lactococcus lactis
+13	Enterococcus faecium
+14	Enterococcus faecalis
+15	Streptococcus thermophilus
+16	Bifidobacterium bifidum
+17	Bifidobacterium breve
+18	Bifidobacterium longum
+19	Bifidobacterium animalis ssp. lactis

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Summary{% endblock title %}
+{% block head_bottom %}
+    <link rel="stylesheet" href="./src/default.css">
+{% endblock head_bottom %}
+{% block logo %}
+    <a href="http://www.macrogen.com/" target="_blank">
+        <img src="./src/img/logo.png" alt="MACROGEN">
+    </a>
+    <h1>NGS Analysis Report - OTU</h1>
+{% endblock logo %}
+{% block INFO %}{% endblock INFO %}
+{% block MAIN_DATA %}
+    <div id="container" class="paddingT20">
+        <h2 class="title">Summary - Preprocessing & Clustering (by {{clustering_tool}})</h2>
+        <h2>OTU Picking Method: Closed-Reference</h2>
+        <table width=1000>
+            <tr>
+                <td width="490" class="top"><table class="tb1">
+                    <colgroup>
+                        <col width="90"/>
+                        <col width="200"/>
+                        <col width="200"/>
+                    </colgroup>
+                    <tr>
+                        <th class="tbtop" colspan=3>- Results of Clustering (cutoff : {{cutoff}}%)</th>
+                    <tr>
+                    <tr>
+                        <th class="tbtop">No.</th>
+                        <th class="tbtop">SampleName</th>
+                        <th class="tbtop">Read Count</th>
+                    </tr>
+                {% for sample_data in sample_data_list %}
+                    <tr>
+                        <td class="alignC">{{loop.index}}</td>
+                        <td class="alignC">{{sample_data[0]}}</td>
+                        <td class="alignC">{{sample_data[1]}}</td>
+                    </tr>
+                {% endfor %}
+                </table></td>
+                <td width="490" class="top"><table class="tb1">
+                    <colgroup>
+                        <col width="240"/>
+                        <col width="250"/>
+                    </colgroup>
+                    <tr>
+                        <th class="tbtop" colspan=2>- Results of Preprocessing</th>
+                    </tr>
+                    <tr>
+                        <th class="tbtop">Sample Count</th>
+                        <td class="tbtop" style="padding-left:10px">{{sample_count}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tbtop" colspan=2></td>
+                        </tr>
+                    <tr>
+                        <th class="tbtop">Read Count</th>
+                        <td class="tbtop" style="padding-left:10px">{{read_count}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tbtop" colspan=2></td>
+                    </tr>
+                    <tr>
+                        <th class="tbtop">Gamma-diversity</th>
+                        <td class="tbtop" style="padding-left:10px">{{gamma_diversity}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tbtop" colspan=2></td>
+                    </tr>
+                    <tr>
+                        <th class="tbtop" colspan=2>Counts/sample summary</th>
+                    </tr>
+                    <tr>
+                        <th class="tbtop">Min<br/>Max<br/>Median<br/>Mean</th>
+                        <td class="tbtop" style="padding-left:10px">{{min}}<br/>{{max}}<br/>{{median}}<br/>{{mean}}</td>
+                    </tr>
+                    <tr>
+                        <td class="alignC" colspan=2></td>
+                    </tr>
+                    <tr>
+                        <th class="tbtop" colspan=2>Filtered Read Count</th>
+                    </tr>
+                    <tr>
+                        <th class="tbtop">Failure</td>
+                        <td class="tbtop" style="padding-left:10px">{{failures}}</td>
+                    </tr>
+                </table></td>
+            </tr>
+            <tr>
+                <td class="tbtop" colspan=2 width="1000"><br/><table class="tb1" width="1000">
+                    <tr>
+                        <td class="alignL" style="padding-left:10px">
+                        * Sample Count : The total number of sample<br/>
+                        * Read Count : The total number of sequence reads<br/>
+                        * Gamma-diversity represents the diversity across an entire landscape. &nbsp&nbsp(alpha + beta diversity)<br/>
+                        * Alpha-diversity corresponds to species diversity in sites/habitats at a local scale<br/>
+                        * Beta-diversity comprises species diversity among sites/habitats<br/>
+                        * Min : Minimum number of sequence per samples<br/>
+                        * Max : Maximum number of sequence per samples<br/>
+                        * Median : The number separating the higher half of a data samples<br/>
+                        * Mean : The average number of the sequence of samples<br/>
+                        * Failure : Filtered seqs with failure from OTU Picking<br/>
+                        </td>
+                    </tr>
+                </table></td>
+            </tr>
+        </table>
+        <!-- space--><div style="height:1080px"></div>
+    </div><!-- // container END -->
+{% endblock MAIN_DATA %}
+{% block FOOTER %}{% endblock FOOTER %}

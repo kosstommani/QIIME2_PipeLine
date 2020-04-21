@@ -1,34 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="mybiome" uuid="e72b7036-c748-48c6-8be8-01f95c01c5d1">
-      <driver-ref>mysql</driver-ref>
-      <synchronize>true</synchronize>
-      <remarks>MyBiomeStory</remarks>
-      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://211.192.85.228:3306/my-biomestory</jdbc-url>
-      <driver-properties>
-        <property name="autoReconnect" value="true" />
-        <property name="zeroDateTimeBehavior" value="convertToNull" />
-        <property name="tinyInt1isBit" value="false" />
-        <property name="characterEncoding" value="utf8" />
-        <property name="characterSetResults" value="utf8" />
-        <property name="yearIsDateType" value="false" />
-      </driver-properties>
-    </data-source>
-    <data-source source="LOCAL" name="MyBiomeStory" uuid="f0e89da8-8db7-4681-9ffd-ef8de8a33d95">
+    <data-source source="LOCAL" name="Microbe&amp;Me" uuid="772daa6d-f9c5-42a8-86e2-72c0a66209e7">
       <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>
+      <remarks>DTC - 장내미생물 모니터링</remarks>
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mariadb://172.19.87.50:3306</jdbc-url>
-      <driver-properties>
-        <property name="autoReconnect" value="true" />
-        <property name="zeroDateTimeBehavior" value="convertToNull" />
-        <property name="tinyInt1isBit" value="false" />
-        <property name="characterEncoding" value="utf8" />
-        <property name="characterSetResults" value="utf8" />
-        <property name="yearIsDateType" value="false" />
-      </driver-properties>
     </data-source>
   </component>
 </project>

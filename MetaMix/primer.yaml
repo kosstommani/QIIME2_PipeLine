@@ -1,0 +1,171 @@
+# 888b     d888          888             888b     d888 d8b
+# 8888b   d8888          888             8888b   d8888 Y8P
+# 88888b.d88888          888             88888b.d88888
+# 888Y88888P888  .d88b.  888888  8888b.  888Y88888P888 888 888  888
+# 888 Y888P 888 d8P  Y8b 888        "88b 888 Y888P 888 888 `Y8bd8P'
+# 888  Y8P  888 88888888 888    .d888888 888  Y8P  888 888   X88K
+# 888   "   888 Y8b.     Y88b.  888  888 888   "   888 888 .d8""8b.
+# 888       888  "Y8888   "Y888 "Y888888 888       888 888 888  888
+#
+# 작성자 : 박정원(JungWon Park, KOSST)
+# Version : 1.0.0
+
+Archaea_16S:
+  Arch(344F-806R):
+    344F: ACGGGGYGCAGCAGGCGCGA
+    806R: GGACTACVSGGGTATCTAAT
+    target_size: null
+    length_filer:
+      - false
+      - false
+  ARC(787F-1059R):
+    787F: ATTAGATACCCSBGTAGTCC
+    1059R: GCCATGCACCWCCTCT
+    target_size: null
+    length_filer:
+      - false
+      - false
+  Arch(517F-958R):
+    517F: GCCTAAARCGTYCGTAGC
+    958R: CCGGCGTTGANTCCAATT
+    target_size: null
+    length_filer:
+      - false
+      - false
+
+
+Bacteria_16S:
+  Bakt(341F-805R):
+    default: true
+    Bakt_341F: CCTACGGGNGGCWGCAG
+    Bakt_805R: GACTACHVGGGTATCTAATCC
+    target_size: 465
+    length_filter:
+      - 400
+      - 500
+    comment:
+      - V3V4
+      - 유산균 분석
+  27F-Bact338:
+    default: true
+    27F: GAGTTTGATCMTGGCTCAG
+    Bact338: GCTGCCTCCCGTAGGAGT
+    target_size: 370
+    length_filter:
+      - 300
+      - 400
+    comment:
+      - V1V2
+      - 유산균 분석
+  16S_mini:
+    16SF_tF: AYAAGACGAGAAGACCC
+    16SR_tR: GATTGCGCTGTTATTCC
+    target_size: null
+    length_filer:
+      - false
+      - false
+    comment:
+      - 엠에스바이오랩 1803AMI-0010 강한승
+    reference:
+      - Advances in DNA metabarcoding for food and wildlife forensic species identification(doi:10.1007/s00216-016-9595-8)
+  16S(V3f-800R):
+    V3f: CCTACGGGNGGCWGCAG
+    800R: TACCAGGGTATCTAATCC
+    target_size: 460
+    legnth_filter:
+      - 400
+      - 500
+    comment:
+      - 한국해양과학기술원 정승원(1806KMI-0042)
+      - V3f와 Bakt_341F 동일
+      - 800-341+1
+  16S(515F-926R):
+    515F: GTGYCAGCMGCCGCGGTA
+    926R: CCGYCAATTYMTTTRAGTTT
+    target_size: 412
+    length_filetr:
+      - 400
+      - 420
+    comment:
+      - 충북대학교 곽주한 고객 사용(주로 라이브러리 상태로 등록)
+      - probeBase에 해당 프라이머 서열이 등록되어 있지 않음.
+      - probeBase에 등록된 515F, 926R의 변형된 서열.
+
+
+Fungi_ITS:
+  ITS(3F-4R):
+    default: true
+    3F: GCATCGATGAAGAACGCAGC
+    4R: TCCTCCGCTTATTGATATGC
+    target_size: 430
+    length_filter:
+      - 300
+      - 500
+    comment:
+      - 5.8S(83+-2bp) + ITS2(310+-67bp) + LSU  = (51+-2-->대략) + (310+-67) + 20 = 381 +- 69 = 312 ~ 450
+      - 3F(20bp), 4R(20bp)
+  ITS(1F-2R):
+    1F: CTTGGTCATTTAGAGGAAGTAA
+    2R: GCTGCGTTCTTCATCGATGC
+    target_size: null
+    length_filer:
+      - false
+      - false
+
+
+18S:
+  18S_V4(F-R):
+    565F: CCAGCAGCCGCGGTAATTCC
+    981R: ACTTTCGTTCTTGATYRA
+    target_size: null
+    length_filer:
+      - false
+      - false
+    comment:
+      - 경북대학교 박종수(1802KMI-0057) -->  Eukaryota 나옴
+  18S_V4(F-R)2:
+    F: CCAGCASCYGCGGTAATTCC
+    R: ACTTTCGTTCTTGATTAA
+    target_size: 431
+    length_filer:
+      - false
+      - false
+    comment:
+      - target size ~431bp
+      - 국립낙동강생물자원관 유정남(1712KMI-0037)
+      - 한국해양과학기술원 황진익(1802KMI-0045, 1805KMI-0055)
+      - 한양대학교 박나연(1803KMI-0022) --> Eukaryota 나옴
+      - 한국해양과학기술원 정승원(1806KMI-0042)(Forward TAReuk454FWD, Reverse TAReukREV3 와 동일)
+    reference:
+      - Design and Evaluation of Illumina MiSeq-Compatible, 18S rRNA Gene-Specific Primers for Improved Characterization of Mixed Phototrophic Communities
+  18S_V9(F-R):
+    1380F: CCCTGCCHTTTGTACACAC
+    1510R: CCTTCYGCAGGTTCACCTAC
+    target_size: null
+    length_filer:
+      - false
+      - false
+  18S(528F-706R):
+    528F: GCGGTAATTCCAGCTCCAA
+    706R: AATCCRAGAATTTCACCTCT
+    target_size: 450
+    length_filer:
+      - 300
+      - false
+    comment:
+      - min_overlap(140)
+      - max_overlap(160)
+      - percent_combined(97.78%)
+      - 김대근(1805KMI-0038, 1806KMI-0021)
+
+
+COI:
+  mlCOIintF-jgHCO2198:
+    mlCOIintF: GGWACWGGWTGAACWGTWTAYCCYCC
+    jgHCO2198: TAIACYTCIGGRTGICCRAARAAYCA
+    target_size: 313
+    length_filer:
+      - false
+      - false
+    comment:
+      - 한국해양과학기술원 정승원(1810AMI-0002)

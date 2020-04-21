@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block header_style %}
+    {{ super() }}
+    <style>
+        .chart {
+            height: 400px;
+        }
+
+    </style>
+{% endblock header_style %}
+{% block title %}Length Filter{% endblock title %}
+{% block info_header_title %}Length Filter of Assembled Reads{% endblock info_header_title %}
+{% block main %}
+<div id="main">
+    <div id="bar_length_filter" class="chart"></div>
+    <div id="bar_percentage" class="chart"></div>
+    <br>
+    <br>
+    <div id="table_length_filter" class="text-center"></div>
+</div>
+{% endblock main %}
+{% block body_script %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart', 'table']});
+        google.charts.setOnLoadCallback(drawChart_Table);
+
+        function drawChart_Table() {
+            // Bar Chart - STAT
+            var stat = google.visualization.arrayToDataTable([
+        {% for row in filter_stat %}
+            {% if loop.first %}
+                ['{{ row[0] }}', '{{ row[1] }}', '{{ row[3] }}', '{{ row[2] }}'],
+            {% else %}
+                ['{{ row[0] }}', {{ row[1] }}, {{ row[3] }}, {{ row[2] }}],
+            {% endif %}
+        {% endfor %}
+            ]);
+
+            var stat_options = {
+                title: 'Length Filter - STAT',
+                titleTextStyle: {fontSize: 30},
+                hAxis: {title: 'Sample Name'},
+                vAxis: {title: 'Read Count', minValue: 0},
+                legend: {position: 'bottom'},
+                colors: ['#67B7DC', '#1BC419', '#CC4748'],
+            };
+            var stat_chart = new google.visualization.ColumnChart(document.getElementById('bar_length_filter'));
+            stat_chart.draw(stat, stat_options);
+
+            // Bar Chart - Percentage
+            var percentage = google.visualization.arrayToDataTable([
+        {% for row in filter_percentage %}
+            {% if loop.first %}
+                ['{{ row[0] }}', 'Remove_Percentage'],
+            {% else %}
+                ['{{ row[0] }}', {{ row[1]|float() * 100 }}],
+            {% endif %}
+        {% endfor %}
+            ]);
+
+            var percentage_options = {
+                title: 'Length Filter - Removed Percentage',
+                titleTextStyle: {fontSize: 30},
+                hAxis: {title: 'Sample Name'},
+                vAxis: {title: '%', minValue: 0},
+                legend: {position: 'bottom'},
+                colors: ['#67B7DC'],
+            };
+            var percentage_chart = new google.visualization.ColumnChart(document.getElementById('bar_percentage'));
+            percentage_chart.draw(percentage, percentage_options);
+
+            // Table - Length Filter STAT
+            var table_data = google.visualization.arrayToDataTable([
+        {% for row in filter_table %}
+            {% if loop.first %}
+                ['{{ row[0] }}', '{{ row[1] }}', '{{ row[5] }}', '{{ row[2] }}', '{{ row[3] }}', '{{ row[4] }}', 'Remove_Percentage', '{{ row[7]|title() }}', '{{ row[8]|title() }}'],
+            {% else %}
+                ['{{ row[0] }}', {{ row[1] }}, {{ row[5] }}, {{ row[2] }}, {{ row[3] }}, {{ row[4] }}, {{ row[6]|float() * 100 }}, {{ row[7] }}, {{ row[8] }}],
+            {% endif %}
+        {% endfor %}
+            ]);
+
+            var table_options = {
+                title: 'Length Filter - Table',
+                showRowNumber: true,
+                width: '80%', height: '100%',
+            };
+
+            var table = new google.visualization.Table(document.getElementById('table_length_filter'));
+            table.draw(table_data, table_options)
+
+            // 이벤트 연결
+            google.visualization.events.addListener(table, 'select', function() {
+				stat_chart.setSelection(table.getSelection());
+				percentage_chart.setSelection(table.getSelection());
+			});
+        }
+    </script>
+    <script type="text/javascript">
+		$(window).resize(function() {
+			location.reload();
+		});
+    </script>
+{% endblock body_script %}

@@ -1,0 +1,24 @@
+customer:
+  organization: 한국지질자원연구원
+  name: 김동훈
+  country: South Korea
+orderNumber:
+  - 1808KMI-0057
+
+analysis:
+  rawdata: /crystal/Analysis/BI/AmpliconMetagenomics/PipeLine_Test/1808KMI-0057/RawData/180910_BVPP3_1
+  ASVs:
+    - DATA2
+    - Deblur
+  OTU:
+    read_assembly:
+      - FLASH
+      - vsearch
+    cluster:
+      - denovo:
+          - CD-HIT-OTU
+          - vsearch cluster-features-de-novo
+      - closed:
+          - vsearch cluster-features-closed-reference
+      - open:
+          - vsearch cluster-feadtures-open-reference

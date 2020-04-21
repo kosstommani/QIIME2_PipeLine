@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OTU Results - Main</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito|Overpass|Oxygen|Paytone+One|Russo+One&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+        * {
+            font-family: Oxygen;
+        }
+
+        #title_header {
+            margin: 10px 10px;
+        }
+
+        #info_header {
+            /*Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#af234b+0,473280+33,1e2247+67,71c3d4+100*/
+            background: #af234b; /* Old browsers */
+            background: -moz-linear-gradient(left,  #af234b 0%, #473280 33%, #1e2247 67%, #71c3d4 100%); /* FF3.6-15 */
+            background: -webkit-linear-gradient(left,  #af234b 0%,#473280 33%,#1e2247 67%,#71c3d4 100%); /* Chrome10-25,Safari5.1-6 */
+            background: linear-gradient(to right, #af234b 0%, #473280 33%, #1e2247 67%, #71c3d4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#af234b', endColorstr='#71c3d4',GradientType=1 ); /* IE6-9 */
+            color: white;
+            height: 120px;
+        }
+
+        .download-date { color: red; font-size: 1.5em; }
+
+        #customer_img {
+            float: left;
+            position: relative;
+            top: -15px; left: 70px;
+        }
+
+        #customer_info {
+            margin: 5px 0px 5px 120px;
+            width: 500px;
+            height: 100px;
+            float: left;
+        }
+
+        #main {
+            clear: both;
+        }
+
+        .icon {
+            margin: 10px;
+            width: 120px; height: 120px;
+        }
+
+        #analysis > a {
+            display: block;
+            width: 150px; height: 160px;
+            float: left;
+        }
+
+        #analysis > a:hover {
+            border: 1px solid black;
+        }
+
+
+        #info_aside > a {
+            display: block;
+
+        }
+        #info_aside > a:hover {
+            border: 1px solid black;
+        }
+
+    </style>
+</head>
+<body>
+    <header id="title_header">
+        <div class="col title text-right">
+            <h2>Amplicon Metagenome Analysis</h2>
+        </div>
+    </header>
+    <header id="info_header">
+        <div id="customer_img">
+            <img src="customer3.png" height="150px" weight="150px">
+        </div>
+        <div id="customer_info">
+            <table height="110px">
+                <colgroup>
+                    <col width="200">
+                    <col width="300">
+                </colgroup>
+                <tr>
+                    <td>Company / Institution</td>
+                    <td>Macrogen Crop. Japan</td>
+                </tr>
+                <tr>
+                    <td>Customer</td>
+                    <td>Macrogen Japan</td>
+                </tr>
+                <tr>
+                    <td>Order Number</td>
+                    <td>HN00102266</td>
+                </tr>
+                <tr>
+                    <td>Number of Samples</td>
+                    <td>80Samples</td>
+                </tr>
+            </table>
+        </div>
+    </header>
+    <br>
+    <div id="main" class="container-fluid">
+        <section id="download" class="row">
+            <div class="col alert alert-secondary text-center">
+                 <h3>당신의 데이터를 다운로드하세요!</h3>
+                 <a href="RawData.html" target="_blank"><h1>Raw Data - FASTQ</h1></a>
+                 <p> 다운로드는 <span class="download-date">10월 30일</span>까지 가능합니다.</p>
+            </div>
+        </section>
+        <div id="content" class="row">
+            <aside id="info_aside" class="col-lg-2">
+                <div class="alert alert-secondary text-center">
+                    <span class="download-date">Research Use Only</span>
+                </div>
+                <a href="#">
+                    <div class="alert alert-secondary"  data-toggle="popover" title="V3V4 Primer"
+                     data-content="Bakt341F: CCTACGGGNGGCWGCAG Bakt805R: GACTACHVGGGTATCTAATCC">
+                    Target Region: V3V4<br>
+                    Primer Set: Bakt341F-Bakt805R
+                </div>
+                </a>
+                <div class="alert alert-secondary">
+                    OTU Picking Method: de novo<br>
+                    Tool: CD-HIT-OTU
+                </div>
+                <div class="alert alert-secondary" data-toggle="popover" title="NCBI DB Version"
+                 data-content="database: 16s microbial sequences. posted date:  oct 13, 2019  12:00 am.
+                 number of letters in database: 30,286,662. number of sequences in database:  20,829">
+                    Database: NCBI 16S<br>
+                    Version: 2019.10.20<br>
+                    Tool: BLAST<br>
+                </div>
+                <div class="alert alert-secondary">
+                    2D PCoA, 3D PCoA 결과가 없습니다.
+                </div>
+            </aside>
+            <!--공백-->
+            <div class="col-lg-2"></div>
+            <section id="analysis" class="col-lg-6">
+                <a href="#"><img src="변경_아이콘/Dendrogram.png" class="icon"></a>
+                <a href="#"><img src="변경_아이콘/DiversityIndex.png" class="icon"></a>
+                <a href="#"><img src="변경_아이콘/HeatMap.png" class="icon"></a>
+                <a href="#"><img src="변경_아이콘/Krona.png" class="icon"></a>
+                <a href="#"><img src="변경_아이콘/PCAbiplot.png" class="icon"></a>
+                <a href="#"><img src="변경_아이콘/PCoA.png" class="icon"></a>
+                <a href="#"><img src="변경_아이콘/Preprocessing.png" class="icon"></a>
+                <a href="#"><img src="변경_아이콘/Rarefaction.png      " class="icon"></a>
+                <a href="#"><img src="변경_아이콘/RawData.png          " class="icon"></a>
+                <a href="#"><img src="변경_아이콘/SampleComposition.png" class="icon"></a>
+                <a href="#"><img src="변경_아이콘/Statistics.png       " class="icon"></a>
+                <a href="#"><img src="변경_아이콘/Taxonomy.png         " class="icon"></a>
+                <a href="#"><img src="변경_아이콘/Taxonomy1.png        " class="icon"></a>
+<!--                <a href="#"><img src="변경_아이콘/Taxonomy1_2.png      " class="icon"></a>-->
+<!--                <a href="#"><img src="변경_아이콘/Taxonomy1_3.png      " class="icon"></a>-->
+<!--                <a href="#"><img src="변경_아이콘/Taxonomy2.png        " class="icon"></a>-->
+<!--                <a href="#"><img src="변경_아이콘/Taxonomy3.png        " class="icon"></a>-->
+<!--                <a href="#"><img src="변경_아이콘/Taxonomy3_2.png      " class="icon"></a>-->
+<!--                <a href="#"><img src="변경_아이콘/Taxonomy4.png        " class="icon"></a>-->
+<!--                <a href="#"><img src="변경_아이콘/Taxonomy4_2.png      " class="icon"></a>-->
+<!--                <a href="#"><img src="변경_아이콘/Taxonomy5.png        " class="icon"></a>-->
+<!--                <a href="#"><img src="변경_아이콘/Taxonomy5_2.png      " class="icon"></a>-->
+                <a href="#"><img src="변경_아이콘/WordTree.png         " class="icon"></a>
+<!--                <a href="#"><img src="변경_아이콘/VennDiagram2(1).png  " class="icon"></a>-->
+<!--                <a href="#"><img src="변경_아이콘/VennDiagram2.png     " class="icon"></a>-->
+                <a href="#"><img src="변경_아이콘/VennDiagram_15.png         " class="icon"></a>
+<!--                <a href="#"><img src="변경_아이콘/VennDiagram_20.png         " class="icon"></a>-->
+                <!--중복-->
+                <a href="#"><img src="아이콘/Raw_Data.png" class="icon"></a>
+                <a href="#"><img src="아이콘/Clustering.png" class="icon"></a>
+                <a href="#"><img src="아이콘/Alignment.png" class="icon"></a>
+                <a href="#"><img src="아이콘/taxonomy.png" class="icon"></a>
+                <a href="#"><img src="아이콘/diversity_index.png" class="icon"></a>
+                <a href="#"><img src="아이콘/krona.png" class="icon"></a>
+                <a href="#"><img src="아이콘/PCAbiplot.png" class="icon"></a>
+                <a href="#"><img src="아이콘/Smaple_Composition.png" class="icon"></a>
+                <a href="#"><img src="아이콘/rarefaction.png" class="icon"></a>
+                <a href="#"><img src="아이콘/dendrogram.png" class="icon"></a>
+                <a href="#"><img src="아이콘/VennDiagram.png" class="icon"></a>
+                <a href="#"><img src="아이콘/diversity_index.png" class="icon"></a>
+                <a href="#"><img src="아이콘/krona.png" class="icon"></a>
+                <a href="#"><img src="아이콘/PCAbiplot.png" class="icon"></a>
+                <a href="#"><img src="아이콘/Smaple_Composition.png" class="icon"></a>
+<!--                중복-->
+<!--                <a href="#"><div class="icon_div"><img src="Taxonomy1.png" class="icon">Taxonomy - Bar</div></a>-->
+<!--                <a href="#"><div class="icon_div"><img src="Taxonomy1_2.png" class="icon">Taxonomy - Bar</div></a>-->
+<!--                <a href="#"><div class="icon_div"><img src="Taxonomy1_3.png" class="icon">Taxonomy - Bar</div></a>-->
+<!--                <a href="#"><img src="Taxonomy2.png" class="icon"></a>-->
+<!--                <a href="#"><img src="Taxonomy3.png" class="icon"></a>-->
+<!--                <a href="#"><img src="Taxonomy4.png" class="icon"></a>-->
+<!--                <a href="#"><img src="Taxonomy5.png" class="icon"></a>-->
+<!--                <a href="#"><img src="Taxonomy2_2.png" class="icon"></a>-->
+<!--                <a href="#"><img src="Taxonomy3_2.png" class="icon"></a>-->
+<!--                <a href="#"><img src="Taxonomy4_2.png" class="icon"></a>-->
+<!--                <a href="#"><img src="Taxonomy5_2.png" class="icon"></a>-->
+            </section>
+            <div class="col-lg-1"></div>
+        </div>
+        <br>
+        <br>
+        <footer class="row">
+            <div class="col text-center">
+                <img src="macrogen_CI_01_f.png" weight="80px" height="80px">
+            </div>
+        </footer>
+    </div>
+    <script>
+        $(document).ready(() => {
+            $('[data-toggle="popover"]').popover();
+        });
+    </script>
+</body>
+</html>

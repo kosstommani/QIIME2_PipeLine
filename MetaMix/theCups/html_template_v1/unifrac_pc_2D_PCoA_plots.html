@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}PCoA - 2D{% endblock title %}
+{% block head_bottom %}
+    <link rel="stylesheet" href="../src/default.css">
+	{{style}}
+	{{script}}
+{% endblock head_bottom %}
+{% block logo %}
+    <a href="http://www.macrogen.com/" target="_blank">
+        <img src="../src/img/logo.png" alt="MACROGEN">
+    </a>
+    <h1>NGS Analysis Report - OTU</h1>
+{% endblock logo %}
+{% block INFO %}{% endblock INFO %}
+{% block MAIN_DATA %}
+	<div class="clear"></div>
+	<div id="container" class="paddingT20">
+		<h2 class="title">PCoA Graph - {{unifrac}} unifrac</h2>
+		{{pcoa_data}}
+		<table class="tb1" width=1000>
+			<tr>
+				<td class="alignL" style="padding-left:10px">
+					Principal Coordinate Analysis (PCoA) is a technique that helps to extract and visualize a few
+					highly informative components of variation from complex, multidimensional data. <br/>This is a
+					transformation that maps the samples present in the distance matrix to a new set of
+					orthogonal axes such that a maximum amount of variation is explained by the first principal
+					coordinate, the second largest amount of variation is explained by the second principal
+					coordinate. <br/>The two dimensional principal coordinates provide an intuitive visualization of the
+					data structure and look at differences between the samples.
+				</td>
+			</tr>
+		</table>
+		<div class="clear"></div>
+        <!-- space-->
+        <div style="height:1080px"></div>
+    </div><!-- container END -->
+{% endblock MAIN_DATA %}
+{% block FOOTER %}{% endblock FOOTER %}

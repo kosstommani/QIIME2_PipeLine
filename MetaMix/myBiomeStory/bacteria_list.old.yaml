@@ -1,0 +1,158 @@
+#                           888b     d888          888             888b     d888 d8b
+#                           8888b   d8888          888             8888b   d8888 Y8P
+#                           88888b.d88888          888             88888b.d88888
+#    88888b.d88b.  888  888 888Y88888P888  .d88b.  888888  8888b.  888Y88888P888 888 888  888
+#    888 "888 "88b 888  888 888 Y888P 888 d8P  Y8b 888        "88b 888 Y888P 888 888 `Y8bd8P'
+#    888  888  888 888  888 888  Y8P  888 88888888 888    .d888888 888  Y8P  888 888   X88K
+#    888  888  888 Y88b 888 888   "   888 Y8b.     Y88b.  888  888 888   "   888 888 .d8""8b.
+#    888  888  888  "Y88888 888       888  "Y8888   "Y888 "Y888888 888       888 888 888  888
+#                       888
+#                  Y8b d88P
+#                   "Y88P"
+# 작성자 : 박정원(JungWon Park, KOSST)
+# Version : 1.0
+
+Bacteria_List:
+  versoin: myBiomeRef.v.1.0
+  date: 20190322
+
+balance_index1:
+  L6:
+    - Bifidobacterium
+    - Lactobacillus
+    - Clostridium
+  L7:
+    - '[Clostridium]'
+
+balance_index2:
+  L6:
+    - Bifidobacterium
+    - Lactobacillus
+    - Bacillus
+    - Christensenellaceae
+    - Campylobacter
+    - Enterococcus
+    - Salmonella
+    - Vibrio
+    - Fusobacterium
+    - Porphyromonas
+    - Helicobacter
+  L7:
+    - Faecalibacterium prausnitzii
+    - Roseburia intestinalis
+    - Eubacterium hallii
+    - Akkermansia muciniphila
+    - Prevotella copri
+    - Clostridium difficile
+    - Anaerotruncus colihominis
+    - Methanobrevibacter smithii
+
+gut_type:
+  L6:
+    - Bacteroides
+    - Prevotella
+    - Ruminococcus
+
+probiotics:
+  L6:
+    - Lactobacillus
+    - Bifidobacterium
+  L7:
+    - Lactobacillus acidophilus
+    - Lactobacillus casei
+    - Lactobacillus gasseri
+    - Lactobacillus delbrueckii
+    - Lactobacillus fermentum
+    - Lactobacillus plantarum
+    - Lactobacillus reuteri
+    - Lactobacillus rhamnosus
+    - Lactobacillus salivarius
+    - Lactobacillus sakei
+    - Lactococcus lactis
+    - Enterococcus faecium
+    - Enterococcus faecalis
+    - Streptococcus thermophilus
+    - Bifidobacterium bifidum
+    - Bifidobacterium breve
+    - Bifidobacterium longum
+    - Bifidobacterium animalis
+
+health_index:
+  constipation:
+    L6:
+      - Bifidobacterium
+    L7:
+      - Methanobrevibacter smithii
+  diarrhea:
+    L6:
+      - Lactobacillus
+      - Campylobacter
+      - Shigella
+      - Salmonella
+    L7:
+      - Escherichia coli
+      - Vibrio parahaemolyticus
+  bloating:
+    L7:
+      - Faecalibacterium prausnitzii
+      - Catenibacterium mitsuokai
+      - Lachnoclostridium pacaense
+  obesity:
+    L2:
+      - Bacteroidetes
+      - Firmicutes
+    L7:
+      - Akkermansia muciniphila
+      - Blautia hydrogenotrophica
+      - Coprococcus catuss
+      - Eubacterium ventriosim
+      - Ruminococcus broomii
+      - Ruminococus obeum
+  blood_glucose:
+    L6:
+      - Akkermansia
+      - Roseburia
+      - Prevotella
+    L7:
+      - Faecalibacterium prausnitzii
+      - Bacteroides acidifaciens
+  cholesterol:
+    L6:
+      - Bifidobacterium
+      - Lactobacillus
+  non_alcoholic:
+    L6:
+      - Oscillibacter
+      - Lactobacillus
+      - Robinsoniella
+      - Roseburia
+      - Dorea
+  irritable_bowel:
+    L5:
+      - Actinomycetaceae
+      - Streptococcaceae
+    L6:
+      - Campylobacter
+      - Escherichia
+      - Shigella
+      - Veillonella
+    L7:
+      - Salmonella enterica
+  inflammatory_bowel:
+    L5:
+      - Clostridiaceae
+      - Lachnospiraceae
+    L6:
+      - Fusobacterium
+    L7:
+      - Desulfovibrio piger
+  crohn:
+    L5:
+      - Enterobacteriaceae
+      - Bifidobacteriaceae
+      - Eggerthellaceae
+    L6:
+      - Akkermansia
+      - Ruminococcus
+      - Escherichia
+      - Shigella

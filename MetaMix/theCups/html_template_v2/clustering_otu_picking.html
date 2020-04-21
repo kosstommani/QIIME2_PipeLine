@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block header_style %}
+    {{ super() }}
+    <style>
+        .chart {
+            height: 400px;
+        }
+
+    </style>
+{% endblock header_style %}
+{% block title %}Clustering{% endblock title %}
+{% block info_header_title %}Clustering & OTU Picking{% endblock info_header_title %}
+{% block main %}
+<div id="main">
+    <div id="bar_read_count" class="chart"></div>
+    <div id="bar_otu" class="chart"></div>
+    <div id="dashboard">
+        <div id="line_nat" class="chart"></div>
+        <div id="range_slider" class="text-center"></div>
+    </div>
+    <br>
+    <br>
+    <div id="table_clustering" class="text-center"></div>
+</div>
+{% endblock main %}
+{% block body_script %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart', 'table', 'controls']});
+        google.charts.setOnLoadCallback(drawChart_Table);
+        google.charts.setOnLoadCallback(drawChart_NAT);
+
+        function drawChart_Table() {
+            var table_data = google.visualization.arrayToDataTable([
+                ['Sample Name', 'Read Count'],
+            {% for sample_data in sample_data_list %}
+                ['{{ sample_data[0]}}', {{ sample_data[1] }}],
+            {% endfor %}
+            ]);
+
+            var table_options = {
+                showRowNumber: true,
+                width: '80%', height: '100%',
+            };
+
+            var count_options = {
+                title: 'Clustering & OTU Picking - Read Count',
+                titleTextStyle: {fontSize: 30},
+                hAxis: {title: 'Sample Name'},
+                vAxis: {title: 'Read Count', minValue: 0},
+                legend: {position: 'bottom'},
+                colors: ['#67B7DC'],
+            };
+
+            var read_count_chart = new google.visualization.ColumnChart(document.getElementById('bar_read_count'));
+            read_count_chart.draw(table_data, count_options);
+
+            var table = new google.visualization.Table(document.getElementById('table_clustering'));
+            table.draw(table_data, table_options);
+        }
+
+        function drawChart_NAT() {
+            var nat_data = google.visualization.arrayToDataTable([
+                [{{ nat_header_list|join(',') }}],
+            {% for nat in nat_data_list %}
+                [{{ nat|join(',') }}],
+            {% endfor %}
+            ]);
+
+            var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard'));
+            var range_slider = new google.visualization.ControlWrapper({
+                'controlType': 'NumberRangeFilter',
+                'containerId': 'range_slider',
+                'options': {'filterColumnLabel': 'NAT'}
+            });
+            var nat_chart = new google.visualization.ChartWrapper({
+                'chartType': 'LineChart',
+                'containerId': 'line_nat',
+                'option': {
+                    title: 'Clusering & OTU Picking = NAT',
+                    titleTextStyle: {fontSize: 20},
+                    hAxis: {minValue: 0, maxValue: 100},
+                    legend: {position: 'bottom'},
+                },
+            });
+            dashboard.bind(range_slider, nat_chart);
+            dashboard.draw(nat_data);
+        }
+    </script>
+{% endblock body_script %}

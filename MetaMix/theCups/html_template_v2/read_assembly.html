@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block header_style %}
+    {{ super() }}
+    <style>
+        .chart {
+            height: 400px;
+        }
+        .chart2 {
+            height: 600px;
+        }
+        .cssHeaderCell {
+            font-size: 15px;
+            color: red;
+        }
+    </style>
+{% endblock header_style %}
+{% block title %}Read Assembly{% endblock title %}
+{% block info_header_title %}Read Assembly(by FLASH){% endblock info_header_title %}
+{% block main %}
+<div id="main">
+    <div id="bar_read_assembly_stat" class="chart"></div>
+    <div id="bar_read_assembly_percent" class="chart"></div>
+    <div id="line_length_count" class="chart2"></div>
+    <div id="line_length_percentage" class="chart2"></div>
+    <br>
+    <br>
+    <div id="table_read_assembly" class="text-center"></div>
+</div>
+{% endblock main %}
+{% block body_script %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart', 'table']});
+        google.charts.setOnLoadCallback(drawChart_Table);
+
+        function drawChart_Table() {
+            // Bar Chart - STAT
+            var stat = google.visualization.arrayToDataTable([
+        {% for row in assembly_stat %}
+            {% if loop.first %}
+                ['{{ row[0] }}', '{{ row[1] }}' , '{{ row[2] }}', '{{ row[3] }}'],
+            {% else %}
+                ['{{ row[0] }}', {{ row[1] }}, {{ row[2] }}, {{ row[3] }}],
+            {% endif %}
+        {% endfor %}
+            ]);
+            var stat_options = {
+                title: 'Read Assembly - STAT',
+                titleTextStyle: {fontSize: 30},
+                hAxis: {title: "Sample Name"},
+                vAxis: {title: "Read Count", minValue:0},
+                legend: {position: "bottom"},
+                colors: ['#67B7DC', '#1BC419', '#CC4748']
+            };
+            var stat_chart = new google.visualization.ColumnChart(document.getElementById('bar_read_assembly_stat'));
+            stat_chart.draw(stat, stat_options);
+
+            // Bar Chart - Percentage
+            var percentage = google.visualization.arrayToDataTable([
+        {% for row in assembly_percent %}
+            {% if loop.first %}
+                ['{{ row[0] }}', '{{ row[1] }}'],
+            {% else %}
+                ['{{ row[0] }}', {{ row[1] }}],
+            {% endif %}
+        {% endfor %}
+                ]);
+            var percentage_options = {
+                title: 'Read Assembly - Percentage',
+                titleTextStyle: {fontSize: 30},
+                hAxis: {title: "Sample Name"},
+                vAxis: {title: "%", minValue:0},
+                legend: {position: "bottom"},
+                colors: ['#67B7DC']
+            };
+            var percentage_chart = new google.visualization.ColumnChart(document.getElementById('bar_read_assembly_percent'));
+            percentage_chart.draw(percentage, percentage_options);
+
+            // Line Chart - Length Distribution
+            var length_count = google.visualization.arrayToDataTable([
+                [{{ hist_header|join(',') }}],
+            {% for row in hist_count %}
+                [{{ row|join(',') }}],
+            {% endfor %}
+            ]);
+
+            var length_percentage = google.visualization.arrayToDataTable([
+                [{{ hist_header|join(',') }}],
+            {% for row in hist_percentage %}
+                [{{ row|join(',') }}],
+            {% endfor %}
+            ]);
+
+            var length_count_options = {
+                title: 'Read Assembly - Length Distribution',
+                titleTextStyle: {fontSize: 30},
+                hAxis: {title: 'Assembled Length'},
+                vAxis: {title: 'Read Count'},
+                curveType: 'none',
+                legend: { position: 'bottom' },
+                crosshair: {trigger: 'both'},
+            };
+
+            var length_percentage_options = {
+                title: 'Read Assembly - Length Distribution',
+                titleTextStyle: {fontSize: 30},
+                hAxis: {title: 'Assembled Length'},
+                vAxis: {title: 'Percentage(%)'},
+                curveType: 'none',
+                legend: { position: 'bottom' },
+                crosshair: {trigger: 'both'},
+            };
+
+            var length_count_chart = new google.visualization.LineChart(document.getElementById('line_length_count'));
+            length_count_chart.draw(length_count, length_count_options);
+            var length_percentage_chart = new google.visualization.LineChart(document.getElementById('line_length_percentage'));
+            length_percentage_chart.draw(length_percentage, length_percentage_options);
+
+            // Table
+            var table_data = google.visualization.arrayToDataTable([
+        {% for row in assembly_all %}
+            {% if loop.first %}
+                ['{{ row[0] }}', '{{ row[1] }}', '{{ row[2] }}', '{{ row[3] }}', '{{ row[4] }}'],
+            {% else %}
+                ['{{ row[0] }}', {{ row[1] }}, {{ row[2] }}, {{ row[3] }}, '{{ row[4] }}'],
+            {% endif %}
+        {% endfor %}
+            ]);
+
+            // var clssClassNames = {
+            //     'headerCell': 'cssHeaderCell',
+            // };
+
+            var table_options = {
+                showRowNumber: true,
+                width: '80%', height: '100%',
+                // cssClassNames: clssClassNames,
+            };
+
+            var table = new google.visualization.Table(document.getElementById('table_read_assembly'));
+            table.draw(table_data, table_options);
+
+            // 이벤트 연결
+            google.visualization.events.addListener(table, 'select', function() {
+				stat_chart.setSelection(table.getSelection());
+				percentage_chart.setSelection(table.getSelection());
+			});
+        }
+    </script>
+    <script type="text/javascript">
+		$(window).resize(function() {
+			location.reload();
+		});
+    </script>
+{% endblock body_script %}

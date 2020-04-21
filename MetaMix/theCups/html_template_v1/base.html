@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}NGS Analysis Report{% endblock title %}</title>
+{% block head_bottom %}
+    <link rel="stylesheet" href="./OTU_Results/src/default.css">
+{% endblock head_bottom %}
+</head>
+<body>
+    <div id="wrapper">
+        <div id="header">
+            <div class="title-sec">
+                <div class="title-inner-sec">
+            {% block logo %}
+    			<a href="http://www.macrogen.com/" target="_blank">
+                    <img src="./OTU_Results/src/img/logo.png" alt="MACROGEN">
+                </a>
+                <h1>NGS Analysis Report</h1>
+            {% endblock logo %}
+                </div>
+            </div>
+            {% block INFO %}{% endblock %}
+        </div><!-- // header END -->
+        {% block MAIN_DATA %}{% endblock %}
+        {% block FOOTER %}{% endblock FOOTER %}
+    </div><!-- // wrapper END -->
+</body>
+</html>

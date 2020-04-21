@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Rarefaction Curve{% endblock title %}
+{% block head_bottom %}
+    <link rel="stylesheet" href="../../src/default.css">
+    {{style}}
+    {{script}}
+{% endblock head_bottom %}
+{% block logo %}
+    <a href="http://www.macrogen.com/" target="_blank">
+        <img src="../../src/img/logo.png" alt="MACROGEN">
+    </a>
+    <h1>NGS Analysis Report - OTU</h1>
+{% endblock logo %}
+{% block INFO %}{% endblock INFO %}
+{% block MAIN_DATA %}
+	<div id="container" class="paddingT20">
+		<h2 class="title">Rarefaction Curve Graph</h2>
+        <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
+		<li>Alpha rarefaction graph shows whether the number of reads used in analysis was sufficient in identifying species/OTU.<br>
+		    If the curve becomes flatter to the right, it indicates that a reasonable number of reads have been used in the analysis,thus additional sequencing is not necessary.<br>
+		    In contrast, if the graph does not plateau, the additional reads is likely to discover more OTUs for the sample (x-axis: read number; y-axis: number of OTUS).<br>
+		    Below each plot is a table displaying average values for each measure of alpha diversity for each group of samples the specified category.<br><br>
+		    * Metrix : PD_whole_tree, chao1, observed_species(OTUs)<br>
+            * Category : SampleID, Group, etc
+        </li>
+        <br>
+        {{form}}
+        {{table}}
+        <br>
+        {{curve_data}}
+        <div class="clear"></div>
+        <!-- space-->
+        <div style="height:1080px"></div>
+    </div><!-- container END -->
+{% endblock MAIN_DATA %}
+{% block FOOTER %}{% endblock FOOTER %}

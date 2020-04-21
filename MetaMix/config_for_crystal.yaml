@@ -1,0 +1,235 @@
+# 888b     d888          888             888b     d888 d8b
+# 8888b   d8888          888             8888b   d8888 Y8P
+# 88888b.d88888          888             88888b.d88888
+# 888Y88888P888  .d88b.  888888  8888b.  888Y88888P888 888 888  888
+# 888 Y888P 888 d8P  Y8b 888        "88b 888 Y888P 888 888 `Y8bd8P'
+# 888  Y8P  888 88888888 888    .d888888 888  Y8P  888 888   X88K
+# 888   "   888 Y8b.     Y88b.  888  888 888   "   888 888 .d8""8b.
+# 888       888  "Y8888   "Y888 "Y888888 888       888 888 888  888
+#
+# 작성자 : 박정원(JungWon Park, KOSST)
+# Version : 1.0.1
+
+base_path:
+  rawdata_base_path:  /crystal/Analysis/Project
+  analysis_base_path:  /crystal/Analysis/BI/AmpliconMetagenomics/PipeLine_Test
+  #  analysis_base_path: /crystal/Analysis/BI/AmpliconMetagenomics
+
+
+PreMA_CORE:
+  n_base:
+    - !!float 0.1
+    - !!float 0.2
+  n_read: 10
+  sample_read: 100000
+  q30:
+    - 50
+    - 70
+  adapter_trim_tool: &id01 fastp
+  index_kit: auto
+  target_dir_suffix: '*_*_?'
+#  kit_file: directory_path_kit.txt
+  sample_name_mode: all
+  R1_suffix: _1.fastq.gz
+  R2_suffix: _2.fastq.gz
+
+PreMA_DIR:
+  tree_level: 3
+
+PreMA_Adapter_Trim:
+  fastp: /crystal/Tools/Amplicon_MetaGenome/QIIME2/Miniconda3/bin/fastp
+  SeqPurge: /crystal/Tools/Amplicon_MetaGenome/QIIME2/Miniconda3/bin/SeqPurge
+  Scythe: /lustre/Tools/macrogen_analysis_toolbox/scythe/vsbuffalo-scythe-20d3cff/scythe
+  fastp_thread: 8
+
+PreMA_RawData_Handler:
+  FastQC: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/FastQC/fastqc   # FastQC v0.11.8
+#  FastQC: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/FastQC/fastqc  # RawData Team: FastQC v.0.11.6
+  MultiQC: /crystal/Tools/Amplicon_MetaGenome/QIIME2/Miniconda3/envs/python2.7.14/bin/multiqc  # MultiQC 1.7
+
+PreMA_PoolWorker: 30
+
+
+CoFI:
+  target_dir_suffix: 'RawData*/*'
+  analysis_dir_base_name: 'Analysis_{}'  # 형태: 이름{}. '{}' 필수.
+  adapter_trim_tool: *id01
+  R1_suffix: '_1.{trim}.fastq.gz'
+  R2_suffix: '_2.{trim}.fastq.gz'
+  read_length: !!int 301
+
+CoFI_FLASH:
+  percent_combined_alarm: !!float 40.0
+  min_overlap: null
+  max_overlap: null
+  length_filter: true
+  modify_header: true
+  pooled_sample_file: true
+
+CoFI_ReadAssembly:
+  FLASH: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/FLASH1/flash
+#  FLASH: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/FLASH2/flash2
+  compress: '--compress-prog gzip'  # FLASH 프로그램 옵션 참조. ex) gzip, bzip2, xz
+  compress_suffix: '--suffix gz'    # gzip 권장(다른 형식에 비해 압축레벨(기본:6)이 높을수록 압축률 높고 및 속도 빠름)
+  FLASH_threads: 10
+
+CoFI_OTU:
+  cd-hit-otu:
+    path: /lustre/Tools/CD-HIT-OTU/cd-hit-otu-illumina-0.0.1/
+    single: cd-hit-otu-all-single.pl
+    single_singleton: cd-hit-otu-all-single.cutoff_1.pl
+    single_doubleton: cd-hit-otu-all-single.cutoff_2.pl
+    clstr_sample_count: clstr_sample_count.pl
+    clstr_sample_count_matrix: clstr_sample_count_matrix.pl
+  otu_cutoff: !!float 0.97
+  trim_cutoff: !!float 1.0  # no trimming
+  check_chimera: true       # cd-hit-otu default
+  pcr_error: !!float 0.01   # cd-hit-otu default
+  closed_otu:
+    database:
+      NCBI_16S:
+        version: &NCBI_16S01 NCBI_16S_20191013
+        fasta: &NCBI_16S02 /crystal/Tools/Amplicon_MetaGenome/NCBI_DB/NCBI_16S_20191013/16S.fasta
+        taxon: &NCBI_16S03 /crystal/Tools/Amplicon_MetaGenome/NCBI_DB/NCBI_16S_20191013/16S.taxon
+      GreenGenes_97:
+        version: gg_otus-13_8-release
+        fasta: /crystal/Tools/Amplicon_MetaGenome/GreenGenes/gg_otus-13_8-release/rep_set/97_otus.fasta
+        taxon: /crystal/Tools/Amplicon_MetaGenome/GreenGenes/gg_otus-13_8-release/taxonomy/97_otu_taxonomy.txt
+      GreenGenes_99:
+        version: gg_otus-13_8-release
+        fasta: /crystal/Tools/Amplicon_MetaGenome/GreenGenes/gg_otus-13_8-release/rep_set/99_otus.fasta
+        taxon: /crystal/Tools/Amplicon_MetaGenome/GreenGenes/gg_otus-13_8-release/taxonomy/99_otu_taxonomy.txt
+#      UNITE:
+#        version: &UNITE01 'UNITE 7.2 2017-12-01'
+#        fasta: &UNITE02 /lustre/Tools/qiime/UNITE/UNITE_public_01.12.2017.id.fasta
+#        taxon: &UNITE03 /lustre/Tools/qiime/UNITE/UNITE_public_01.12.2017.id.tax.txt
+      UNITE_Fungi:
+        version: &UNITE_fungi01 'UNITE Fungi Ver. 8.0 2018-11-18'
+        fasta: &UNITE_fungi02 /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_Fungi2/sh_refs_qiime_ver8_99_s_02.02.2019.fasta
+        taxon: &UNITE_fungi03 /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_Fungi2/sh_taxonomy_qiime_ver8_99_s_02.02.2019.txt
+      UNITE_All_eukaryotes:
+        version: &UNITE_eukaryotes01 'UNITE All eukaryotes Ver. 8.0 2018-11-18'
+        fasta: &UNITE_eukaryotes02 /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_All_eukaryotes2/sh_refs_qiime_ver8_99_s_all_02.02.2019.fasta
+        taxon: &UNITE_eukaryotes03 /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_All_eukaryotes2/sh_taxonomy_qiime_ver8_99_s_all_02.02.2019.txt
+      MIDORI_LONGEST:
+        version: 20180221_LONGEST
+        fasta: /crystal/Tools/Amplicon_MetaGenome/COI_MIDORI/20180221/MIDORI_LONGEST_20180221_COI.fasta
+        taxon: /crystal/Tools/Amplicon_MetaGenome/COI_MIDORI/20180221/MIDORI_LONGEST_20180221_COI.taxon
+      MIDORI_UNIQUE:
+        version: 20180221_UNIQUE
+        fasta: /crystal/Tools/Amplicon_MetaGenome/COI_MIDORI/20180221/MIDORI_UNIQUE_20180221_COI.fasta
+        taxon: /crystal/Tools/Amplicon_MetaGenome/COI_MIDORI/20180221/MIDORI_UNIQUE_20180221_COI.taxon
+      NCBI_NT:
+        version: NCBI_NT_20191012
+        fasta: /crystal/Tools/Amplicon_MetaGenome/NCBI_DB/NT_20191012/NT.fasta
+        taxon: /crystal/Tools/Amplicon_MetaGenome/NCBI_DB/NT_20191012/NT.taxon
+
+    jobs_to_start: 10
+    assembly_suffix: '.extendedFrags.fasta'
+
+CoFI_TAXONOMY:
+  blast_db:
+    NCBI_16S:
+      version: *NCBI_16S01
+      fasta: *NCBI_16S02
+      taxon: *NCBI_16S03
+    NCBI_NT: test
+    NCBI_Probiotics: test
+  uclust_db:
+    RDP:
+      version: 'RDP Release 11 Update 4 :: May 26, 2015'
+      fasta: /lustre/Tools/qiime/rdp_release11/16SrDNA.fasta
+      taxon: /lustre/Tools/qiime/rdp_release11/16SrDNA.taxonomy
+    NCBI_16S:
+      version: *NCBI_16S01
+      fasta: *NCBI_16S02
+      taxon: *NCBI_16S03
+#    UNITE:
+#      version: *UNITE01
+#      fasta: *UNITE02
+#      taxon: *UNITE03
+    UNITE_Fungi:
+      version: *UNITE_fungi01
+      fasta: *UNITE_fungi02
+      taxon: *UNITE_fungi03
+    UNITE_All_eukaryotes:
+      version: *UNITE_eukaryotes01
+      fasta: *UNITE_eukaryotes02
+      taxon: *UNITE_eukaryotes03
+    UNITE_Fungi_97:
+      version: *UNITE_fungi01
+      fasta: /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_Fungi2/sh_refs_qiime_ver8_97_s_02.02.2019.fasta
+      taxon: /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_Fungi2/sh_taxonomy_qiime_ver8_97_s_02.02.2019.txt
+    UNITE_Fungi_dynamic:
+      version: *UNITE_fungi01
+      fasta: /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_Fungi2/sh_refs_qiime_ver8_dynamic_s_02.02.2019.fasta
+      taxon: /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_Fungi2/sh_taxonomy_qiime_ver8_dynamic_s_02.02.2019.txt
+    UNITE_All_eukaryotes_97:
+      version: *UNITE_eukaryotes01
+      fasta: /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_All_eukaryotes2/sh_refs_qiime_ver8_97_s_all_02.02.2019.fasta
+      taxon: /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_All_eukaryotes2/sh_taxonomy_qiime_ver8_97_s_all_02.02.2019.txt
+    UNITE_All_eukaryotes_dynamic:
+      version: *UNITE_eukaryotes01
+      fasta: /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_All_eukaryotes2/sh_refs_qiime_ver8_dynamic_s_all_02.02.2019.fasta
+      taxon: /crystal/Tools/Amplicon_MetaGenome/UNITE/20181118_Ver8_All_eukaryotes2/sh_taxonomy_qiime_ver8_dynamic_s_all_02.02.2019.txt
+    iBOL:
+      version: 'iBOL_phase_6.50'
+      fasta: /crystal/Tools/Amplicon_MetaGenome/QIIME1/iBOL/Animals_COI/iBOL_phase_6.50_COI.fasta
+      taxon: /crystal/Tools/Amplicon_MetaGenome/QIIME1/iBOL/Animals_COI/iBOL_phase_6.50_COI.txt
+
+CoFI_DADA2:
+  random_read: 1000000
+  p_trunc_len_f: 0
+  p_trunc_len_r: 0
+  p_trim_left_f: 20
+  p_trim_left_r: 20
+
+#  Batk(341F-805R) 설정값 - 속도 개선을 위해 FASTP 에서 작업하는 것을 고려 중.
+#  p_trunc_len_f: 250
+#  p_trunc_len_r: 250
+#  p_trim_left_f: 20
+#  p_trim_left_r: 20
+
+CoFI_QIIME2: qiime
+#CoFI_QIIME2: /crystal/Tools/Amplicon_MetaGenome/QIIME2/Miniconda3/envs/qiime2-2018.11/bin/qiime
+
+CoFI_PoolWorker: 50
+CoFI_FLASH_PoolWorker: 30
+CoFI_OTU_Closed_PoolWorker: 10
+
+
+theCups:
+  mothur: /lustre/FLX/Analysis/mothur/mothur_1.35.0/mothur
+  Probiotics:
+    V1V2_report_dir: Analysis_1_Report
+    V1V2_report_num: Report_1
+    V3V4_report_dir: Analysis_2_Report
+    V3V4_report_num: Report_1
+    table_path_suffix: Taxonomy_assignment_blast_NCBI_Probiotics/otu_table.blast_NCBI_Probiotics_L7.txt
+    src_probiotics_path: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/MetaMix/theCups/src_probiotics
+    macrogen_logo_white: logo.png
+    process_jpg: process.jpg
+    tree_png: tree.png
+    cover_logo_jpg: cover_logo.jpg
+    reference_list: ReferenceList.txt
+    species_list: SpeciesList.txt
+
+
+MetaMix:
+  PreMA: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/MetaMix/PreMA.py
+  CoFI: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/MetaMix/CoFI.py
+  theCups: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/MetaMix/theCups.py
+
+
+Analysis_Dir_Name:
+  read_assembly: Read_Assembly
+  alignment: Alignment
+  cd_hit_otu: CD-HIT-OTU
+  closed: CLOSED
+  taxonomy_assignment: Taxonomy_Assignment
+  phylogeny: Phylogeny
+  biom: BIOM
+
+Excel_VBA:
+  vba_adiv: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/MetaMix/theCups/vba_saveChart_adiv.bin
+  vba_stat: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/MetaMix/theCups/vba_saveChart_stat.bin

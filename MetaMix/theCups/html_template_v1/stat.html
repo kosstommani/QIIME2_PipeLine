@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Results of Assembly{% endblock title %}
+{% block head_bottom %}
+    <link rel="stylesheet" href="./src/default.css"/>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+        google.charts.load("current", {"packages":["corechart", "bar"]});
+        google.charts.setOnLoadCallback(drawChart1);
+        google.charts.setOnLoadCallback(drawChart2);
+        function drawChart1() {
+            var data = google.visualization.arrayToDataTable([
+                ['Sample','Count'],
+            {% for ele in assembly_stat %}
+                ['{{ele[0]}}',{{ele[2]}}],
+            {% endfor %}
+            ]);
+            var options = {hAxis: {title: "Sample"}, vAxis: {title: "Read Count", minValue:0 }, legend: {position: "top"}, colors: ['#67B7DC']};
+            var chart = new google.visualization.ColumnChart(document.getElementById('bar_read_count'));
+            chart.draw(data, options);
+        }
+
+        function drawChart2() {
+            var data = google.visualization.arrayToDataTable([
+                ['Sample', 'Q20', 'Q30'],
+            {% for ele in assembly_stat %}
+                ['{{ele[0]}}', {{ele[5]}}, {{ele[6]}}],
+            {% endfor %}
+            ]);
+            var options = {hAxis: {title: "Sample"}, vAxis: {title: "%", minValue:0 }, legend: {position: "top"}, colors: ['#67B7DC', '#CC4748']};
+            var chart = new google.visualization.ColumnChart(document.getElementById('bar_Q20_Q30'));
+            chart.draw(data, options);
+        }
+    </script>
+{% endblock head_bottom %}
+{% block logo %}
+    <a href="http://www.macrogen.com/" target="_blank">
+        <img src="./src/img/logo.png" alt="MACROGEN">
+    </a>
+    <h1>NGS Analysis Report - OTU</h1>
+{% endblock logo %}
+{% block INFO %}{% endblock INFO %}
+{% block MAIN_DATA %}
+    <div id="container" class="paddingT20">
+        <h2 class="title">Results of Assembly (by FLASH)</h2>
+        <table class="tb1">
+            <tr>
+                <th class="tbtop" colspan=7><h2>Read Count by Sample</h2></th>
+            </tr>
+            <tr>
+                <td colspan=7><div id="bar_read_count"></div><td>
+            <tr>
+                <th class="tbtop" colspan=7><h2>Read Quality by Sample</h2></th>
+            </tr>
+            <tr>
+                <td colspan=7><div id="bar_Q20_Q30"></div><td>
+            </tr>
+            <caption class="hide">Results of Assembly (by FLASH)</caption>
+            <colgroup>
+                <col width="180"/>
+                <col width="180"/>
+                <col width="180"/>
+                <col width="115"/>
+                <col width="115"/>
+                <col width="115"/>
+                <col width="115"/>
+            </colgroup>
+            <tr>
+                <th class="tbtop">SampleName</th>
+                <th class="tbtop">Total Bases</th>
+                <th class="tbtop">Read Count</th>
+                <th class="tbtop">N(%)</th>
+                <th class="tbtop">GC(%)</th>
+                <th class="tbtop">Q20(%)</th>
+                <th class="tbtop">Q30(%)</th>
+            </tr>
+        {% for ele in assembly_stat %}
+            <tr>
+                <td class="alignC">{{ele[0]}}</td>
+                <td class="alignC">{{'{:,}'.format(ele[1])}}</td>
+                <td class="alignC">{{'{:,}'.format(ele[2])}}</td>
+                <td class="alignC">{{ele[3]}}</td>
+                <td class="alignC">{{ele[4]}}</td>
+                <td class="alignC">{{ele[5]}}</td>
+                <td class="alignC">{{ele[6]}}</td>
+            </tr>
+        {% endfor %}
+            <tr>
+                <td class="alignL" colspan=7 style="padding-left:10px">
+                * Total Bases : The total number of bases in reads indentified<br>
+                * Read Count : The total number of sequence reads<br>
+                * N(%) : The N percentage in sequence reads<br>
+                * GC(%) : The GC percentage in sequence reads<br>
+                * Q20(%) : The percentage of bases in which the phred score is above 20<br>
+                * Q30(%) : The percentage of bases in which the phred score is above 30<br>
+                </td>
+            </tr>
+        </table>
+        <div class="clear"></div>
+        <!-- space--><div style="height:1080px"></div>
+    </div><!-- container END -->
+{% endblock MAIN_DATA %}
+{% block FOOTER %}{% endblock FOOTER %}
+
+
+
+
+
+
+
+
+
+
+
+
+

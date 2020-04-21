@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}PCoA - PC value{% endblock title %}
+{% block head_bottom %}
+    <link rel="stylesheet" href="../src/default.css">
+{% endblock head_bottom %}
+{% block logo %}
+    <a href="http://www.macrogen.com/" target="_blank">
+        <img src="../src/img/logo.png" alt="MACROGEN">
+    </a>
+    <h1>NGS Analysis Report - OTU</h1>
+{% endblock logo %}
+{% block INFO %}{% endblock INFO %}
+{% block MAIN_DATA %}
+    <div class="clear"></div>
+    <div id="container" class="paddingT20">
+        <h2 class="title">PC value</h2>
+        <table class="tb1">
+            <tr>
+                <th class="tbtop">PC verctor number</th>
+            {% for pc in pc_list %}
+                <th class="tbtop">{{loop.index}}</th>
+            {% endfor %}
+            </tr>
+        {% for sample in pc_list %}
+            <tr>
+            {% for pc in sample %}
+                <td class="alignC">{{pc}}</td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+        <div class="clear"></div>
+        <!-- space-->
+        <div style="height:1080px"></div>
+    </div><!-- container END -->
+{% endblock MAIN_DATA %}
+{% block FOOTER %}{% endblock FOOTER %}

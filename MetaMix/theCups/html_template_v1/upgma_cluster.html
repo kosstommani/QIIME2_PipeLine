@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}UPGMA Tree{% endblock title %}
+{% block head_bottom %}
+    <link rel="stylesheet" href="../src/default.css">
+{% endblock head_bottom %}
+{% block logo %}
+    <a href="http://www.macrogen.com/" target="_blank">
+        <img src="../src/img/logo.png" alt="MACROGEN">
+    </a>
+    <h1>NGS Analysis Report - OTU</h1>
+{% endblock logo %}
+{% block INFO %}{% endblock INFO %}
+{% block MAIN_DATA %}
+	<div class="clear"></div>
+	<div id="container" class="paddingT20">
+		<h2 class="title">UPGMA Tree</h2>
+        <table class="tb1">
+    {% for tree in l_tree %}
+            <tr>
+                <th>
+                    <h2>{{tree.grouping_field}}:
+                    {% for group in tree.group_data %}
+                        <font color="{{tree.group_color_dic[group]}}">{{group}}</font>
+                    {% endfor %}
+                    </h2>
+                </th>
+            </tr>
+            <tr>
+                <td><img src="{{tree.new_tre_name}}.png"></td>
+            </tr>
+    {% endfor %}
+            <tr>
+            <td class="alignL" style="padding-left:10px">Unweighted Pair Group Method with Arithmetic mean (UPGMA) is type of hierarchical clustering method using average linkage and can be used to interpret the distance matrix (weighted_unifrac_pc.txt).<br/> The output is a file that can be opened with tree viewing software, such as FigTree.<br/> For your own purposes, the distance matrix file can be used to draw your own phylogenetic tree using a suitable tool</td>
+            </tr>
+        </table>
+
+		<div class="clear"></div>
+        <!-- space-->
+        <div style="height:1080px"></div>
+    </div><!-- container END -->
+{% endblock MAIN_DATA %}
+{% block FOOTER %}{% endblock FOOTER %}

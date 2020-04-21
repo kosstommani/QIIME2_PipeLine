@@ -1,0 +1,6 @@
+4d11b6873bc16664620626b45baea4fb  cover_logo.jpg
+4e8f0f18b80b1a37e86402fb0e069ab5  logo.png
+1367d93bbdb0a8e547c01f5c26a77046  process.jpg
+66057dba686dfdb4d9632c64fe4a3bba  ReferenceList.txt
+4da73a3a488939f259cdfc83ec36b274  SpeciesList.txt
+258b10f6e9abb236928109da09eeb682  tree.png

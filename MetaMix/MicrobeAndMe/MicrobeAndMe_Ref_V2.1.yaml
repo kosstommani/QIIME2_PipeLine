@@ -1,0 +1,281 @@
+# ----------------------------------------------------------------------------------------------------------------------
+#                                      888b     d888          888             888b     d888 d8b
+#                                      8888b   d8888          888             8888b   d8888 Y8P
+#                                      88888b.d88888          888             88888b.d88888
+# 88888b.d88b.   8888b.  88888b.d88b.  888Y88888P888  .d88b.  888888  8888b.  888Y88888P888 888 888  888
+# 888 "888 "88b     "88b 888 "888 "88b 888 Y888P 888 d8P  Y8b 888        "88b 888 Y888P 888 888 `Y8bd8P'
+# 888  888  888 .d888888 888  888  888 888  Y8P  888 88888888 888    .d888888 888  Y8P  888 888   X88K
+# 888  888  888 888  888 888  888  888 888   "   888 Y8b.     Y88b.  888  888 888   "   888 888 .d8""8b.
+# 888  888  888 "Y888888 888  888  888 888       888  "Y8888   "Y888 "Y888888 888       888 888 888  888
+#
+# 작성자 : 박정원(JungWon Park, KOSST)
+# ----------------------------------------------------------------------------------------------------------------------
+
+MicrobeAndMe_Ref:
+  version: 1.0
+  data: 2020.04.24
+
+# 다양성 점수
+shannon:
+  min: 1.184168046
+  max: 8.253117291
+  korean_mean: 57.90727241
+  # 주의/보통/안심 = 49.2|58.5
+  criterion_1: 49.2
+  criterion_2: 58.5
+
+# 장 건강
+intestinal_health:
+  constipation:  # 변비
+    negative:
+      min: 0.000693596
+      max: 0.062121086
+    positive:
+      min: 0.044989661
+      max: 0.33525
+    korean_mean: 50.5895229
+    # 주의/보통/안심 = 31.2|50
+    criterion_1: 31.2
+    criterion_2: 50
+  gas:  # 방귀
+    negative:
+      min: 0.03183695
+      max: 0.49184845
+    korean_mean: 58.36581204
+    # 주의/보통/안심 =  23.6|65
+    criterion_1: 23.6
+    criterion_2: 65
+  bloating:  # 복부팽만감
+    negative:
+      min: 0
+      max: 0.001198562
+    positive:
+      min: 0
+      max: 0.01469698
+    korean_mean: 52.82067509
+    # 주의/보통/안심 = 43.8|51.3
+    criterion_1: 43.8
+    criterion_2: 51.3
+  neurotic_abdominal_discomfort:  # 신경성 복부 불편감
+    negative:
+      min: 0.000494071
+      max: 0.070603908
+    positive:
+      min: 0.001853814
+      max: 0.095913716
+    korean_mean: 53.6376114
+    # 주의/보통/안심 = 43.5|51.8
+    criterion_1: 43.5
+    criterion_2: 51.8
+  diarrhea:  # 설사
+    negative:
+      min: 0
+      max: 0.014604968
+    positive:
+      min: 0
+      max: 0.000125687
+    korean_mean: 55.80378835
+    # 주의/보통/안심 = 50|50
+    criterion_1: 50
+    criterion_2: 50
+
+# 웰니스
+wellness:
+  happiness_index:  # 행복 지수
+    positive:
+      min: 0.000861765
+      max: 0.042630297
+    korean_mean: 31.94229482
+    # 주의/보통/안심 = 5|20.7
+    criterion_1: 5
+    criterion_2: 20.7
+  tireness_index:  # 피로 지수
+    negative:
+      min: 0.0019637
+      max: 0.047707272
+    positive:
+      min: 0.048363174
+      max: 0.530290469
+    korean_mean: 55.1891675
+    # 주의/보통/안심 = 37.3|53
+    criterion_1: 37.3
+    criterion_2: 53
+  immune_index:  # 면역 지수
+    negative:
+      min: 0
+      max: 0.014604968
+    positive:
+      min: 0
+      max: 0.017531557
+    korean_mean: 59.89481809
+    # 주의/보통/안심 = 50|52.1
+    criterion_1: 50
+    criterion_2: 52.1
+  obesity_index:  # 비만 지수
+    negative:
+      min: 0.003249817
+      max: 0.055738326
+    positive:
+      min: 0.048302774
+      max: 0.360829423
+    korean_mean: 53.57939776
+    # 주의/보통/안심 = 36.1|52.2
+    criterion_1: 36.1
+    criterion_2: 52.2
+  sleep_index:  # 수면 지수
+    negative:
+      min: 0
+      max: 0.04825561
+    positive:
+      min: 0
+      max: 0.037915849
+    korean_mean: 54.09751159
+    # 주의/보통/안심 = 46.4|52.4
+    criterion_1: 46.4
+    criterion_2: 52.4
+  aging_index:  # 노화 지수
+    negative:
+      min: 0.002104507
+      max: 0.092600309
+    positive:
+      min: 0.006958462
+      max: 0.257646953
+    korean_mean: 49.0475952
+    # 주의/보통/안심 = 29.7|48.7
+    criterion_1: 29.7
+    criterion_2: 48.7
+
+  # 장 환경 더 보기
+more_bowel_environments:
+  beneficial_bacteria:  # 유익균
+    min: 0.522472668
+    max: 1.323982684
+    korean_mean: 44.942831
+    # 주의/보통/안심 = 13.7|40.2
+    criterion_1: 13.7
+    criterion_2: 40.2
+  harmful_bacteria:  # 유해균
+    min: 0.002916452
+    max: 0.087931234
+    korean_mean: 70.814006
+    # 주의/보통/안심 = 48.4|82.7
+    criterion_1: 48.4
+    criterion_2: 82.7
+
+# 부록
+supplement:
+  dietary_fibre:  # 식이섬유
+    negative:
+      min: 0.000515364
+      max: 0.156832879
+    positive:
+      min: 0.090571212
+      max: 0.632551074
+    korean_mean: 57.50242828
+    # 주의/보통/안심 = 33|57.4
+    criterion_1: 33
+    criterion_2: 57.4
+  lactose:  # 유당
+    positive:
+      min: 0.008127871
+      max: 0.116694003
+    korean_mean: 31.71236313
+    # 주의/보통/안심 = 4.7|19.9
+    criterion_1: 4.7
+    criterion_2: 19.9
+  resistant_starch:  # 저항성 전분
+    positive:
+      min: 0.043110494
+      max: 0.332483657
+    korean_mean: 38.81416902
+    # 주의/보통/안심 = 7.4|30.6
+    criterion_1: 7.4
+    criterion_2: 30.6
+  protein:  # 단백질
+    positive:
+      min: 0.036742635
+      max: 0.497171311
+    korean_mean: 41.65480698
+    # 주의/보통/안심 = 6.8|34.4
+    criterion_1: 6.8
+    criterion_2: 34.4
+  essential_amino_acid:  # 필수아미노산(BCAA)
+    positive:
+      min: 0
+      max: 0.0116179
+    korean_mean: 23.04830958
+    # 주의/보통/안심 = 0|7.4
+    criterion_1: 0
+    criterion_2: 7.4
+  monoenoic_fatty_acid:  # 단쇄지방산
+    positive:
+      min: 0.156096808
+      max: 0.691007492
+    korean_mean: 48.44651721
+    # 주의/보통/안심 = 14|45.5
+    criterion_1: 14
+    criterion_2: 45.5
+  B1:  # 비타민B1(티아민)
+    positive:
+      min: 0.000377858
+      max: 0.038138506
+    korean_mean: 26.09377495
+    # 주의/보통/안심 = 2.2|11.9
+    criterion_1: 2.2
+    criterion_2: 11.9
+  B2:  # 비타민B2(리보플라빈)
+    positive:
+      min: 0.000731507
+      max: 0.450888367
+    korean_mean: 28.58462809
+    # 주의/보통/안심 = 0.3|5.7
+    criterion_1: 0.3
+    criterion_2: 5.7
+  B3:  # 비타민B3(나이아신)
+    positive:
+      min: 0.002725021
+      max: 0.451841401
+    korean_mean: 29.93321111
+    # 주의/보통/안심 = 0.7|9.2
+    criterion_1: 0.7
+    criterion_2: 9.2
+  B6:  # 비타민B6(피리독신)
+    positive:
+      min: 0.001119652
+      max: 0.451617992
+    korean_mean: 29.63925857
+    # 주의/보통/안심 = 0.4|8.4
+    criterion_1: 0.4
+    criterion_2: 8.4
+  B7:  # 비타민B7(비오틴)
+    positive:
+      min: 0
+      max: 0.013186969
+    korean_mean: 17.52634131
+    # 주의/보통/안심 = 0|0
+    criterion_1: 0
+    criterion_2: 0
+  B9:  # 비타민B9(엽산)
+    positive:
+      min: 0
+      max: 0.046405302
+    korean_mean: 25.01362599
+    # 주의/보통/안심 = 0.8|8.7
+    criterion_1: 0.8
+    criterion_2: 8.7
+  B12:  # 비타민B12(코발라민)
+    positive:
+      min: 0.023505212
+      max: 0.266077596
+    korean_mean: 36.34560346
+    # 주의/보통/안심 = 5.9|27.1
+    criterion_1: 5.9
+    criterion_2: 27.1
+  K2:
+    positive:
+      min: 0
+      max: 0.010407725
+    korean_mean: 19.97959818
+    # 주의/보통/안심 = 0|4.2
+    criterion_1: 0
+    criterion_2: 4.2

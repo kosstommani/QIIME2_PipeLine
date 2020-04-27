@@ -435,5 +435,19 @@ def insert(**kargs):
     pass
 
 
+@main.command('qdel', short_help='Queue Job 삭제')
+@click.argument('order_number')
+@click.argument('analysis_number')
+@click.option('--analysis_base_path', '-ap',
+              default=ANALYSIS_BASE_PATH,
+              show_default=True,
+              type=click.Path(exists=True),
+              help='기본값: {}'.format(ANALYSIS_BASE_PATH))
+@click.option('--target', '-t',
+              type=click.Choice(['R_DADA2', 'TAXONOMY']),
+              help='Queue에 등록된 작업번호 중 선택된 목표 명령어에 의해 생성된 작업번호를 삭제')
+def qdel(**kargs):
+    pass
+
 if __name__ == '__main__':
     main()

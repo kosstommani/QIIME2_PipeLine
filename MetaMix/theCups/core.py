@@ -18,7 +18,10 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
+
+# 1.0.2 - 2020.04.24
+# 2D PCoA Y축 제목 짤림 현상 해결 - x, y 크기 조절 옵션 추가
 
 import os
 from click import secho, echo, style
@@ -90,7 +93,12 @@ def miseq_report_pipeline_v1(kargs):
             secho('Error: 시료의 개수가 적어(<=2) 2D PCoA를 생성할 수 없습니다.', fg='red')
             exit()
         else:
-            report.make_2d_pcoa_plot_page(p_unifrac='weighted')
+            if (kargs['pcoa_2d_x_size'] is None) and (kargs['pcoa_2d_y_size'] is None):
+                report.make_2d_pcoa_plot_page(p_unifrac='weighted')
+            else:
+                report.make_2d_pcoa_plot_page(p_unifrac='weighted',
+                                              p_x_size=kargs['pcoa_2d_x_size'],
+                                              p_y_size=kargs['pcoa_2d_y_size'])
 
     if (kargs['drink'] is True) or (kargs['upgma_tree'] is True):
         if sample_count <= 2:

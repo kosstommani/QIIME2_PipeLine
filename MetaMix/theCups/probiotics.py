@@ -80,13 +80,13 @@ class Data:
         self.l_v3v4_sample_table_list = None
 
         # Table_L7 경로 설정
-        if all([self.v1v2_dir, self.v1v2_num]):
+        if (self.v1v2_dir is not None) and (self.v1v2_num is not None):
             self.v1v2_L7 = os.path.join(self.analysis_base_path, self.order_number,
                                         self.v1v2_dir, self.v1v2_num,
                                         'OTU_Results', self.table_path_suffix)
         else:
             self.v1v2_L7 = None
-        if all([self.v3v4_dir, self.v3v4_num]):
+        if (self.v3v4_dir is not None) and (self.v3v4_num is not None):
             self.v3v4_L7 = os.path.join(self.analysis_base_path, self.order_number,
                                         self.v3v4_dir, self.v3v4_num,
                                         'OTU_Results', self.table_path_suffix)
@@ -158,7 +158,6 @@ class Data:
             else:
                 secho('Error : V1V2 table_L7 파일 확인 불가', fg='red', blink=True)
                 echo(self.v1v2_L7)
-                exit()
         if self.v3v4_L7:
             if check_file_type(self.v3v4_L7, 'exists'):
                 secho('>>> V3V4 : table_L7 파일 확인', fg='blue')
@@ -166,7 +165,6 @@ class Data:
                 echo()
             else:
                 secho('Error : V3V4 table_L7 파일 확인 불가', fg='red', blink=True)
-                exit()
 
     def _parse_table_data(self, p_table_file):
         """

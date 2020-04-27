@@ -45,7 +45,11 @@ def get_dada2_r_cmd(p_kargs):
           f'{p_kargs["run_dir"]} ' \
           f'--analysis_base_path {p_kargs["analysis_base_path"]} ' \
           f'--multithread {p_kargs["multithread"]} ' \
-          f'--sample_name {p_kargs["sample_name"]}'
+          f'--sample_name {p_kargs["sample_name"]} ' \
+          f'--trimLeftF 17 ' \
+          f'--trimLeftR 21 ' \
+          f'--truncLenF 245 ' \
+          f'--truncLenR 245'
     return cmd
 
 

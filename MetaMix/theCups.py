@@ -18,7 +18,12 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
+
+# 1.0.2 : 2020.0424
+# 2D_PCoA : y축 제목 짤림 현상 해결
+#   - make_2d_plot_size.py 생성
+#   - theCups 옵션 추가
 
 import click
 import os
@@ -95,6 +100,12 @@ def main(**kargs):
 @click.option('--pcoa_2d',
               is_flag=True,
               help='beta diversity 데이터가 있어야 결과가 생성됩니다.')
+@click.option('--pcoa_2d_x_size',
+              type=click.FLOAT,
+              help='2D PCoA Y축 제목이 짤릴 경우 사용. 그래프의 X축 크기 조절(기본값 4.5).')
+@click.option('--pcoa_2d_y_size',
+              type=click.FLOAT,
+              help='2D PCoA Y축 제목이 짤릴 경우 사용. 그래프의 Y축 크기 조절(기본값 4.5).')
 @click.option('--diversity_index',
               is_flag=True,
               help='')
@@ -258,6 +269,14 @@ def probiotics(**kargs):
     # 수주번호 형식 확인
     if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
         pass
+    if kargs['v1v2_dir'] == 'None':
+        kargs['v1v2_dir'] = None
+    if kargs['v1v2_num'] == 'None':
+        kargs['v1v2_num'] = None
+    if kargs['v3v4_dir'] == 'None':
+        kargs['v3v4_dir'] = None
+    if kargs['v3v4_num'] == 'None':
+        kargs['v3v4_num'] = None
     from theCups.core import probiotics_report
     probiotics_report(kargs)
 

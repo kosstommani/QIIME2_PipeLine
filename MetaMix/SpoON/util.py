@@ -17,7 +17,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.1.1'
+__version__ = '1.1.2' # 2020.04.24
 
 from click import secho, echo, style
 import glob
@@ -794,3 +794,17 @@ def check_jobs_in_queue(l_job_id: list):
         echo(f'\rrunning: {len(s_running_job)},  {wait_job_text}, {done_job_text}'
              f' -- {run_time} 경과, 상태확인: {status_check}회', nl=False)
         sleep(1)
+
+
+def read_yaml(p_file):
+    """
+    yaml 파일을 읽어 딕션너리 객체로 반환한다.
+
+    :param p_file: yaml 파일
+    :return: data
+    """
+    import yaml
+    with open(p_file, 'r') as o_yaml:
+        data = yaml.safe_load(o_yaml)
+    return data
+

@@ -1,0 +1,397 @@
+# ----------------------------------------------------------------------------------------------------------------------
+#                                      888b     d888          888             888b     d888 d8b
+#                                      8888b   d8888          888             8888b   d8888 Y8P
+#                                      88888b.d88888          888             88888b.d88888
+# 88888b.d88b.   8888b.  88888b.d88b.  888Y88888P888  .d88b.  888888  8888b.  888Y88888P888 888 888  888
+# 888 "888 "88b     "88b 888 "888 "88b 888 Y888P 888 d8P  Y8b 888        "88b 888 Y888P 888 888 `Y8bd8P'
+# 888  888  888 .d888888 888  888  888 888  Y8P  888 88888888 888    .d888888 888  Y8P  888 888   X88K
+# 888  888  888 888  888 888  888  888 888   "   888 Y8b.     Y88b.  888  888 888   "   888 888 .d8""8b.
+# 888  888  888 "Y888888 888  888  888 888       888  "Y8888   "Y888 "Y888888 888       888 888 888  888
+#
+# 작성자 : 박정원(JungWon Park, KOSST)
+# ----------------------------------------------------------------------------------------------------------------------
+
+Items_and_Bacteria:
+  version: 1.0
+  data: 2020.04.22
+
+# 장 건강
+intestinal_health:
+  constipation:  # 변비
+    negative:
+      genus:
+        - Butyricimonas
+        - Coprococcus
+        - Holdemania
+        - Paraprevotella
+        - Phascolarctobacterium
+    positive:
+      genus:
+        - Bifidobacterium
+        - Lactobacillus
+        - Roseburia
+      speices:
+        - Faecalibacterium prausnitzii
+  gas:  # 방귀
+    negative:
+      genus:
+        - Desulfovibrio
+        - Bacteroides
+        - Clostridium
+        - Desulfovibrio
+      species:
+        - Methanobrevibacter smithii
+        - Clostridium butyricum
+        - Clostridium perfringens
+        - Desulfovibrio piger
+  bloating:  # 복부팽만감
+    negative:
+      species:
+        - Ruminococcus flavefaciens
+        - Butyrivibrio crossotus
+        - Anaerotruncus colihominis
+    positive:
+      species:
+        - Lactobacillus acidophilus
+        - Bifidobacterium animalis
+        - Bifidobacterium longum
+  neurotic_abdominal_discomfort:  # 신경성 복부 불편감
+    negative:
+      genus:
+        - Campylobacter
+        - Escherichia
+        - Salmonella
+        - Veillonella
+      species:
+        - Bacteroides thetaiotaomicron
+    positive:
+      genus:
+        - Bifidobacterium
+        - Lactobacillus
+      species:
+        - Collinsella aerofaciens
+  diarrhea:  # 설사
+    negative:
+      species:
+        - Staphylococcus aureus
+        - Clostridioides difficile
+        - Salmonella enterica
+    positive:
+      species:
+        - Lactobacillus gasseri
+        - Lactobacillus acidophilus
+        - Lactobacillus delbrueckii
+        - Lactobacillus plantarum
+        - Lactobacillus fermentum
+        - Lactobacillus reuteri
+
+# 웰니스
+wellness:
+  happiness_index:  # 행복 지수
+    positive:
+      genus:
+        - Butyricimonas
+        - Lactobacillus
+        - Odoribacter
+      species:
+        - Bifidobacterium angulatum
+        - Peptostreptococcus anaerobius
+        - Bifidobacterium dentium
+        - Bifidobacterium adolescentis
+  tireness_index:  # 피로 지수
+    negative:
+      genus:
+        - Clostridium
+        - Holdemania
+        - Roseburia
+    positive:
+      genus:
+        - Bacteroides
+        - Ruminococcus
+      species:
+        - '[Ruminococcus] gnavus'
+  immune_index:  # 면역 지수
+    negative:
+      species:
+        - Staphylococcus aureus
+        - Clostridioides difficile
+        - Salmonella enterica
+        - Escherichia coli
+    positive:
+      species:
+        - Lactobacillus acidophilus
+        - Lactobacillus plantarum
+        - '[Ruminococcus] gnavus'
+        - Flavonifractor plautii
+  obesity_index:  # 비만 지수
+    negative:
+      genus:
+        - Coprococcus
+        - Fusobacterium
+        - Lactobacillus
+      species:
+        - Methanosphaera stadtmanae
+        - Methanobrevibacter smithii
+        - Bacteroides thetaiotaomicron
+        - Blautia obeum
+    positive:
+      genus:
+        - Acidaminococcus
+        - Alistipes
+        - Bifidobacterium
+        - Desulfovibrio
+        - Faecalibacterium
+        - Lachnoanaerobaculum
+        - Olsenella
+      species:
+        - Roseburia inulinivorans
+        - Akkermansia muciniphila
+        - Ruminococcus bromii
+  sleep_index:  # 수면 지수
+    negative:
+      genus:
+        - Escherichia
+      species:
+        - Hafnia alvei
+        - Morganella morganii
+        - Klebsiella pneumoniae
+    positive:
+      genus:
+        - Acidaminococcus
+        - Butyricimonas
+        - Carnobacterium
+      species:
+        - Akkermansia muciniphila
+        - Ruminococcus bromii
+  aging_index:  # 노화 지수
+    negative:
+      family:
+        - Clostridiaceae
+      genus:
+        - Bacteroidetes
+        - Eubacterium
+        - Megamonas
+        - Peptoniphilus
+    positive:
+      phylum:
+        - Actinobacteria
+      family:
+        - Enterobacteriaceae
+      genus:
+        - Bifidobacterium
+        - Lactobacillus
+      species:
+        - '[Clostridium] leptum'
+
+# 장 환경 더 보기
+more_bowel_environments:
+  beneficial_bacteria:  # 유익균
+    genus:
+      positive:
+        - Acidaminococcus
+        - Alistipes
+        - Bacteroides
+        - Bifidobacterium
+        - Carnobacterium
+        - Clostridium
+        - Enterobacter
+        - Eubacterium
+        - Faecalibacterium
+        - Lachnoclostridium
+        - Lactobacillus
+        - Odoribacter
+        - Prevotella
+        - Roseburia
+        - Ruminococcus
+    species:
+      positive:
+        - Akkermansia muciniphila
+        - Anaerobutyricum hallii
+        - Enterococcus faecalis
+        - Faecalibacterium prausnitzii
+        - Fusobacterium varium
+        - Lactococcus lactis
+        - Leuconostoc mesenteroides
+        - Prevotella copri
+        - Roseburia inulinivorans
+        - Streptococcus thermophilus
+        - Weissella paramesenteroides
+  harmful_bacteria:  # 유해균
+    genus:
+      negative:
+        - Coprococcus
+        - Escherichia
+        - Holdemania
+        - Paraprevotella
+        - Salmonella
+    speices:
+      negative:
+        - Staphylococcus aureus
+        - Streptococcus pneumoniae
+        - Clostridioides difficile
+        - Erysipelothrix rhusiopathiae
+        - Salmonella enterica
+        - Escherichia albertii
+        - Fusobacterium varium
+        - Anaerotruncus colihominis
+        - Blautia obeum
+        - Butyrivibrio crossotus
+        - Clostridioides difficile
+        - Klebsiella pneumoniae
+        - Methanobrevibacter smithii
+        - Methanosphaera stadtmanae
+        - Staphylococcus aureus
+        - Streptococcus pneumoniae
+  enterotype:  # 장 유형
+    genus:
+      type1:
+        - Bacteroides
+      type2:
+        - Prevotella
+      type3:
+        - Ruminococcus
+
+# 부록
+supplement:
+  dietary_fibre:  # 식이섬유
+    negative:
+      species:
+        - Bacteroides intestinalis
+        - Bacteroides vulgatus
+    positive:
+      genus:
+        - Bifidobacterium
+        - Lactobacillus
+        - Prevotella
+        - Ruminococcus
+      species:
+        - Bacteroides ovatus
+        - Faecalibacterium prausnitzii
+  lactose:  # 유당
+    positive:
+      genus:
+        - Bifidobacterium
+        - Lactobacillus
+        - Roseburia
+      species:
+        - Streptococcus thermophilus
+  resistant_starch:  # 저항성 전분
+    positive:
+      genus:
+        - Bifidobacterium
+        - Roseburia
+      species:
+        - Ruminococcus bromii
+        - Faecalibacterium prausnitzii
+  protein:  # 단백질
+    positive:
+      genus:
+        - Bacteroides
+        - Clostridium
+        - Fusobacterium
+        - Streptococcus
+      species:
+        - Clostridium perfringens
+  essential_amino_acid:  # 필수아미노산(BCAA)
+    positive:
+      genus:
+        - Streptococcus
+      species:
+        - Weissella paramesenteroides
+        - Leuconostoc mesenteroides
+        - Lactobacillus fermentum
+        - Lactobacillus reuteri
+  monoenoic_fatty_acid:  # 단쇄지방산
+    positive:
+      genus:
+        - Alistipes
+        - Bacteroides
+        - Eubacterium
+        - Faecalibacterium
+        - Lachnoclostridium
+        - Lactobacillus
+        - Roseburia
+      species:
+        - Akkermansia muciniphila
+        - Anaerobutyricum hallii
+  B1:  # 비타민B1(티아민)
+    positive:
+      species:
+        - Lactobacillus plantarum
+        - Fusobacterium varium
+        - Ruminococcus lactaris
+        - Bacteroides fragilis
+        - Bifidobacterium longum
+  B2:  # 비타민B2(리보플라빈)
+    positive:
+      species:
+        - Lactobacillus plantarum
+        - Lactobacillus fermentum
+        - Ruminococcus lactaris
+        - Bacteroides fragilis
+        - Prevotella copri
+  B3:  # 비타민B3(나이아신)
+    positive:
+      species:
+        - Fusobacterium varium
+        - Ruminococcus lactaris
+        - Bacteroides fragilis
+        - Bifidobacterium longum
+        - Prevotella copri
+  B6:  # 비타민B6(피리독신)
+    positive:
+      species:
+        - Bacteroides fragilis
+        - Bifidobacterium longum
+        - Prevotella copri
+  B7:  # 비타민B7(비오틴)
+    positive:
+      species:
+        - Lactobacillus helveticus
+        - Fusobacterium varium
+        - Bacteroides fragilis
+  B9:  # 비타민B9(엽산)
+    positive:
+      species:
+        - Lactobacillus delbrueckii
+        - Lactobacillus reuteri
+        - Streptococcus thermophilus
+        - Bifidobacterium pseudocatenulatum
+        - Bifidobacterium adolescentis
+  B12:  # 비타민B12(코발라민)
+    positive:
+      species:
+        - Bifidobacterium animalis
+        - Bifidobacterium longum
+        - Faecalibacterium prausnitzii
+  K2:
+    positive:
+      genus:
+        - Enterobacter
+        - Veillonella
+      species:
+        - Enterococcus faecalis
+  probiotics_19:
+    positive:
+      species:
+        - Lactobacillus acidophilus
+        - Lactobacillus casei
+        - Lactobacillus paracasei
+        - Lactobacillus bulgaricus
+        - Lactobacillus helveticus
+        - Lactobacillus gasseri
+        - Lactobacillus fermentum
+        - Lactobacillus plantarum
+        - Lactobacillus reuteri
+        - Lactobacillus rhamnosus
+        - Lactobacillus salivarius
+        - Lactobacillus sakei
+        - Bifidobacterium bifidum
+        - Bifidobacterium breve
+        - Bifidobacterium longum
+        - Bifidobacterium animalis
+        - Bifidobacterium adolescentis
+        - Lactococcus lactis
+        - Streptococcus thermophilus
+        - Enterococcus faecium
+        - Enterococcus faecalis

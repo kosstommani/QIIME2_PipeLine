@@ -17,7 +17,10 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.3'
+__version__ = '1.0.4'
+
+# 1.0.4 - 2020.04.24
+# 2D PCoA Y축 제목 짤림 현상 해결 - x, y 크기 조절 옵션 추가
 
 import os
 from click import secho, echo, style
@@ -30,7 +33,7 @@ from theCups.clustering_and_otu_picking import SummaryForCdHitOtu, SummaryForClo
 from theCups.diversity_index import run_alpha_diversity
 from theCups.rarefaction import run_alpha_rarefaction
 from theCups.beta_diversity import run_beta_diversity_through_plots
-from theCups.pcoa import run_make_2d_pcoa
+from theCups.pcoa import run_make_2d_pcoa, run_make_2d_pcoa_size
 from theCups.upgma_tree import run_upgma_tree, TreeController
 from theCups.taxonomy import run_summarize_taxa, run_plot_taxa_summary, TaxonHTML, \
     TaxonomyAbundanceExcel, TaxonomySharedExcel, run_make_shared
@@ -1096,7 +1099,7 @@ class MiSeqReportV1(Report):
             echo()  # 빈 줄
             return False
 
-    def make_2d_pcoa_plot_page(self, p_unifrac='weighted'):
+    def make_2d_pcoa_plot_page(self, p_unifrac='weighted', p_x_size=None, p_y_size=None):
         """
         make_beta_diversity_page() 실행 후, 실행.
 
@@ -1124,7 +1127,19 @@ class MiSeqReportV1(Report):
             return False
 
         self.make_dir(self.report_paths.pcoa_2d_path)
-        run_status = run_make_2d_pcoa(unifrac_pc_file, metadata_file, self.report_paths.pcoa_2d_path)
+        if (p_x_size is None) and (p_y_size is None):
+            run_status = run_make_2d_pcoa(unifrac_pc_file, metadata_file, self.report_paths.pcoa_2d_path)
+        else:
+            if p_x_size is None:
+                x_size = 4.5
+            else:
+                x_size = p_x_size
+            if p_y_size is None:
+                y_size = 4.5
+            else:
+                y_size = p_y_size
+            run_status = run_make_2d_pcoa_size(unifrac_pc_file, metadata_file, self.report_paths.pcoa_2d_path,
+                                               x_size, y_size)
 
         # HTML 생성
         if run_status:

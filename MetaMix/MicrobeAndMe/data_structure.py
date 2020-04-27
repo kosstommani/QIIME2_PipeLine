@@ -55,12 +55,13 @@ class PathMAM(Path):
 
 
 class Microbe:
-    def __init__(self, kargs: dict, mode):
+    def __init__(self, kargs: dict, mode, analysis_type):
         """
         Microbe&Me 서비스를 위한 분석을 진행합니다.
 
         :param kargs:
         :param mode: [all | r_dada2 | taxonomy | biom] 분석 명령어
+        :param analysis_type: [NGS | MicrobeAndMe]
         """
         if mode == 'all':
             self._all(kargs)
@@ -76,6 +77,7 @@ class Microbe:
             self._summarize_taxa(kargs)
         else:
             raise ValueError(f'Microbe mode 설정 오류: {mode}')
+        self.analysis_type = analysis_type
 
     def _all(self, kargs):
         """
@@ -313,10 +315,20 @@ class Microbe:
 
     @property
     def run_dir_path(self):
+        """
+        Analysis --> RawData 디렉터리에 Run 디렉터리에서 1개만 선택되도록 지정한다.
+        MicrobeAndMe 분석에 적용된다.
+        :return:
+        """
         return glob_dir(self.order_dir_path, self.cofi_target_dir_suffix, 'only')
+
+    @property
+    def sample_count(self):
+        return sum([len(nt_run.samples) for nt_run in self.l_nt_run_list])
 
     def make_sample_list(self):
         """
+        분석을 진행할 시료들의 목록을 작성한다.
 
         :return: l_nt_run_list - named tuple인 RunData 를 원소로 가지는 리스트
                  RunData.path
@@ -325,10 +337,19 @@ class Microbe:
                             SampleList.path: 경로
                                       .name: 시료명
         """
+        if self.analysis_type == 'NGS':
+            pattern = self.cofi_target_dir_suffix
+        elif self.analysis_type == 'MicrboeAndMe':
+            pattern = f'RawData*/{os.path.basename(self.run_dir_path)}'
+        else:
+            secho('Error: self.analysis_type 지정이 잘못되었습니다.', fg='red', blink=True, err=True)
+            echo(f'self.analysis_type: {self.analysis_type}')
+            exit()
+
         self.l_nt_run_list = make_sample_list(
             self.analysis_base_path,
             self.order_number,
-            f'RawData/{os.path.basename(self.run_dir_path)}',
+            pattern,
             None,
         )
         if self.include is not None:
@@ -387,7 +408,7 @@ class Microbe:
             }, p_stdout=False, p_stderr=False, p_exit=True,
         )
 
-    def set_queue_mode(self, p_count):
+    def set_queue_mode(self, p_count: int):
         if self.queue_mode == 'auto':
             if p_count >= 50:
                 self.slots = 1
@@ -401,17 +422,21 @@ class Microbe:
                 raise ValueError('p_count는 양수.')
 
     def run_dada2_using_r(self):
-        # TODO: mamMetaMix => dada.R 분석 기본 디렉터리 적용
-        if len(self.l_nt_run_list) > 1:
-            secho('Error: Run Dir 의 개수가 1이 아닙니다.', fg='red', blink=True, err=True)
-            echo([nt_run.path for nt_run in self.l_nt_run_list], err=True)
-            exit(1)
-        self.set_queue_mode(len(self.l_nt_run_list[0].samples))
-        with progressbar(self.l_nt_run_list[0].samples, label='Run R_DADA2',
-                         fill_char=style('#', fg='green')) as bar_l_nt_samples:
-            run_dir = self.l_nt_run_list[0].path.split(self.order_number)[1]
-            d_return_code = dict()
-            for nt_sample in bar_l_nt_samples:
+        """
+
+        :param p_mode: ['MicrobeAndMe', 'NGS]
+        :return:
+        """
+        if self.analysis_type == 'MicrobeAndMe':
+            if len(self.l_nt_run_list) > 1:
+                secho('Error: Run Dir 의 개수가 1이 아닙니다.', fg='red', blink=True, err=True)
+                echo([nt_run.path for nt_run in self.l_nt_run_list], err=True)
+                exit(1)
+        self.set_queue_mode(self.sample_count)
+        d_return_code = dict()
+        for nt_run in tqdm(self.l_nt_run_list, desc='Run Dir', ascii=True):
+            run_dir = nt_run.path.split(self.order_number)[1]
+            for nt_sample in tqdm(nt_run.samples, desc='R_DADA2', ascii=True, leave=False):
                 return_code = run_dada2_r(
                     {
                         'order_number': self.order_number,
@@ -448,8 +473,7 @@ class Microbe:
     def check_jobs(self):
         if self.no_queue is False:
             l_job_id = list()
-            sample_count = len(self.l_nt_run_list[0].samples)
-            while sample_count != len(l_job_id):
+            while self.sample_count != len(l_job_id):
                 l_job_id = list()
                 l_qsub_log = glob_dir(self.i_path.analysis_number_path, '*_qsub.log', 'many')
                 if l_qsub_log is None:
@@ -467,10 +491,9 @@ class Microbe:
             echo()  # 빈 줄
 
     def assign_taxonomy(self):
-        with progressbar(self.l_nt_run_list[0].samples, label='Assign_Taxonomy',
-                         fill_char=style('#', fg='green')) as bar_l_nt_samples:
-            l_cmd = list()
-            for nt_sample in bar_l_nt_samples:
+        l_cmd = list()
+        for nt_run in tqdm(self.l_nt_run_list, desc='Run Dir', ascii=True):
+            for nt_sample in tqdm(nt_run.samples, desc='Assign_Taxonomy', ascii=True, leave=False):
                 asv_fasta_file = os.path.join(self.i_path.r_dada2_path(nt_sample.name), 'ASVs.fasta')
                 taxonomy_dir_path = self.i_path.taxonomy_assignment_path(nt_sample.name)
                 os.makedirs(taxonomy_dir_path)
@@ -486,11 +509,10 @@ class Microbe:
         launcher_cmd(l_cmd, 'Taxonomy Assignment', 50, False)
 
     def make_biom(self, p_db):
-        with progressbar(self.l_nt_run_list[0].samples, label=f'BIOM({p_db})',
-                         fill_char=style('#', fg='green')) as bar_l_nt_samples:
-            l_run_process = list()
-            base_biom_status = False
-            for nt_sample in bar_l_nt_samples:
+        l_run_process = list()
+        base_biom_status = False
+        for nt_run in tqdm(self.l_nt_run_list, desc='Run Dir', ascii=True):
+            for nt_sample in tqdm(nt_run.samples, desc=f'BIOM({p_db})', ascii=True, leave=False):
                 i_biom = Biom(
                     {
                         'r_dada2_path': self.i_path.r_dada2_path(nt_sample.name),
@@ -535,10 +557,9 @@ class Microbe:
             self.make_biom(db)
 
     def run_alpha_diversity(self):
-        with progressbar(self.l_nt_run_list[0].samples, label=f'Alpha Diversity',
-                         fill_char=style('#', fg='green')) as bar_l_nt_samples:
-            l_run_process = list()
-            for nt_sample in bar_l_nt_samples:
+        l_run_process = list()
+        for nt_run in tqdm(self.l_nt_run_list, desc='Run Dir', ascii=True):
+            for nt_sample in tqdm(nt_run.samples, desc=f'Alpha Diversity', ascii=True, leave=False):
                 biom = os.path.join(self.i_path.biom_path(nt_sample.name), 'ASVs.biom')
                 alpha_diversity_path = self.i_path.alpha_diversity_path(nt_sample.name)
                 os.makedirs(alpha_diversity_path)
@@ -572,10 +593,9 @@ class Microbe:
             echo()  # 빈 줄
 
     def summrize_taxa(self):
-        with progressbar(self.l_nt_run_list[0].samples, label=f'Summarize Taxa',
-                         fill_char=style('#', fg='green')) as bar_l_nt_samples:
-            l_run_process = list()
-            for nt_sample in bar_l_nt_samples:
+        l_run_process = list()
+        for nt_run in tqdm(self.l_nt_run_list, desc='Run Dir', ascii=True):
+            for nt_sample in tqdm(nt_run.samples, desc='Summarize Taxa', ascii=True, leave=False):
                 summarized_taxa_path = self.i_path.summarized_taxa_path(nt_sample.name)
                 os.makedirs(summarized_taxa_path)
                 biom_dir_path = self.i_path.biom_path(nt_sample.name)

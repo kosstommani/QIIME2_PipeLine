@@ -17,7 +17,10 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
+
+# 1.0.1 - 2020.04.24
+# 2D PCoA Y축 제목 짤림 현상 해결 - x, y 크기 조절 옵션 추가
 
 from SpoON.util import run_cmd, check_run_cmd
 
@@ -43,6 +46,33 @@ def run_make_2d_pcoa(p_pc, p_metadata, p_out_path):
             'run': run,
             'true_meg': '2D PCoA 완료',
             'false_meg': 'make_2d_plots',
+        }, p_exit=False, p_stdout=False,
+    )
+    if run.returncode == 0:
+        return True
+    else:
+        return False
+
+
+def get_make_2d_pcoa_size_cmd(p_pc, p_metadata, p_out_path, p_x_size, p_y_size):
+    cmd = \
+        'make_2d_plots_size.py ' \
+        f'-i {p_pc} ' \
+        f'-m {p_metadata} ' \
+        f'-o {p_out_path} ' \
+        f'--x_len {p_x_size} ' \
+        f'--y_len {p_y_size}'
+    return cmd
+
+
+def run_make_2d_pcoa_size(p_pc, p_metadata, p_out_path, p_x_size, p_y_size):
+    cmd = get_make_2d_pcoa_size_cmd(p_pc, p_metadata, p_out_path, p_x_size, p_y_size)
+    run = run_cmd(cmd)
+    check_run_cmd(
+        {
+            'run': run,
+            'true_meg': '2D PCoA Size 완료',
+            'false_meg': 'make_2d_plots_size',
         }, p_exit=False, p_stdout=False,
     )
     if run.returncode == 0:

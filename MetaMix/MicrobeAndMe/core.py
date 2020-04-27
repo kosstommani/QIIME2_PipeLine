@@ -27,7 +27,7 @@ COFI = CONFIG['MetaMix']['CoFI']
 
 
 def all_pipeline(kargs):
-    microbe = Microbe(kargs, mode='all')
+    microbe = Microbe(kargs, mode='all', analysis_type='MicrboeAndMe')
     microbe.run_prema()
     if (kargs['copy_rawdata'] is False) and (kargs['no_prema'] is False):
         exit()
@@ -43,7 +43,8 @@ def all_pipeline(kargs):
 
 
 def dada2_using_r(kargs):
-    microbe = Microbe(kargs, mode='r_dada2')
+    # microbe = Microbe(kargs, mode='r_dada2', analysis_type='MicrboeAndMe')
+    microbe = Microbe(kargs, mode='r_dada2', analysis_type='NGS')
     microbe.make_analysis_number_dir()
     microbe.set_path()
     microbe.make_sample_list()
@@ -69,28 +70,28 @@ def collect_files(kargs):
 
 
 def biom(kargs):
-    microbe = Microbe(kargs, mode='biom')
+    microbe = Microbe(kargs, mode='biom', analysis_type='MicrboeAndMe')
     microbe.set_path()
     microbe.make_sample_list()
     microbe.make_biom_by_db()
 
 
 def taxonomy(kargs):
-    microbe = Microbe(kargs, mode='taxonomy')
+    microbe = Microbe(kargs, mode='taxonomy', analysis_type='MicrboeAndMe')
     microbe.set_path()
     microbe.make_sample_list()
     microbe.assign_taxonomy()
 
 
 def alpha_diversity(kargs):
-    microbe = Microbe(kargs, mode='alpha_diversity')
+    microbe = Microbe(kargs, mode='alpha_diversity', analysis_type='MicrboeAndMe')
     microbe.set_path()
     microbe.make_sample_list()
     microbe.run_alpha_diversity()
 
 
 def summarize_taxa(kargs):
-    microbe = Microbe(kargs, mode='summarize_taxa')
+    microbe = Microbe(kargs, mode='summarize_taxa', analysis_type='MicrboeAndMe')
     microbe.set_path()
     microbe.make_sample_list()
     microbe.summrize_taxa()
@@ -102,3 +103,4 @@ def score():
 
 def insert():
     pass
+

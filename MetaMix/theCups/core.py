@@ -20,12 +20,18 @@
 __author__ = 'JungWon Park(KOSST)'
 __version__ = '1.0.2'
 
+# -----------------------------------
 # 1.0.2 - 2020.04.24
 # 2D PCoA Y축 제목 짤림 현상 해결 - x, y 크기 조절 옵션 추가
+# -----------------------------------
+# Ver. 1.0.2 - 2020.04.28
+# Probiotics21 DB 및 보고서 추가
+# -----------------------------------
 
-import os
+
+# import os
+# from time import time
 from click import secho, echo, style
-from time import time
 from SpoON.util import parse_config
 
 
@@ -214,9 +220,16 @@ def miseq_report_pipeline_v2(kargs):
     # TODO: 보고서 생성이 중단된 디렉터리 및 파일에 대한 삭제 코드 생성
 
 
-def probiotics_report(kargs):
-    from theCups.probiotics import Data, check_sample_name, Report
-    i_data = Data(kargs)
+def probiotics_report(kargs, p_type):
+    if p_type == 'Probiotics19':
+        from theCups.probiotics import Data, check_sample_name, Report19
+        Report = Report19
+    elif p_type == 'Probiotics21':
+        from theCups.probiotics import Data, check_sample_name, Report21
+        Report = Report21
+    else:
+        raise ValueError(f'p_type 파라미터의 값이 올바르지 않습니다. p_type: {p_type}')
+    i_data = Data(kargs, p_type)
     i_data.check_info_file()
     i_data.read_info_file()
     i_data.check_table_file()

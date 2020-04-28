@@ -16,9 +16,15 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
+
+# Ver. 1.0.2
 # 2020.04.17
 # TAXONOMY - blast parser 변경
+# ----------------------------
+# Ver. 1.0.3
+# 2020.04.28
+# TAXONOMY DB 다중 선택 기능 추가
 
 import os
 from time import time
@@ -741,40 +747,46 @@ def taxonomy_pipeline(kargs):
     if kargs['blast_db']:
         db_tool = 'blast'
         blast_method = 'blastn'
-        db_name = kargs['blast_db']
-        if len(kargs['remove_taxon']) != 0:
-            remove_taxon = ' '.join([f'-rm {x}' for x in kargs['remove_taxon']])
-        else:
-            remove_taxon = None
-        if len(kargs['keep_taxon']) != 0:
-            keep_taxon = ' '.join([f'-kt {x}' for x in kargs['keep_taxon']])
-        else:
-            keep_taxon = None
-        if (kargs['mode'] == 'blast') or (kargs['mode'] == 'all'):
-            blast_work_path = make_dir_using_input_file(taxa_path, f'{db_tool}_{db_name}', 0, p_check=True)
-        else:
-            blast_work_path = os.path.join(taxa_path, f'{db_tool}_{db_name}')
-        run_standalone_blast2(
-            {
-                'fasta': otus_rep_file,
-                'tool': blast_method,
-                'db': db_name,
-                'out_path': blast_work_path,
-                'remove_taxon': remove_taxon,
-                'keep_taxon': keep_taxon,
-                'query_coverage': kargs['query_coverage'],
-                'identity_percentage': kargs['identity_percentage'],
-                'read_per_job': kargs['read_per_job'],
-                'nt_max_job': kargs['nt_max_job'],
-                'queue': kargs['queue'],
-                'mode': kargs['mode'],
-            },
-        )
-        # secho('Error: blast 는 현재 지원되지 않습니다.', fg='red', err=True)
+        for db_name in kargs['blast_db']:
+            # db_name = kargs['blast_db']
+            secho('»-(¯`·.·´¯)->'.center(80), fg='red', bold=True, blink=True)
+            secho(f'++++++ ======= {db_name} ======= +++++'.center(80), fg='yellow')
+            if len(kargs['remove_taxon']) != 0:
+                remove_taxon = ' '.join([f'-rm {x}' for x in kargs['remove_taxon']])
+            else:
+                remove_taxon = None
+            if len(kargs['keep_taxon']) != 0:
+                keep_taxon = ' '.join([f'-kt {x}' for x in kargs['keep_taxon']])
+            else:
+                keep_taxon = None
+            if (kargs['mode'] == 'blast') or (kargs['mode'] == 'all'):
+                blast_work_path = make_dir_using_input_file(taxa_path, f'{db_tool}_{db_name}', 0, p_check=True)
+            else:
+                blast_work_path = os.path.join(taxa_path, f'{db_tool}_{db_name}')
+            run_standalone_blast2(
+                {
+                    'fasta': otus_rep_file,
+                    'tool': blast_method,
+                    'db': db_name,
+                    'out_path': blast_work_path,
+                    'remove_taxon': remove_taxon,
+                    'keep_taxon': keep_taxon,
+                    'query_coverage': kargs['query_coverage'],
+                    'identity_percentage': kargs['identity_percentage'],
+                    'read_per_job': kargs['read_per_job'],
+                    'nt_max_job': kargs['nt_max_job'],
+                    'queue': kargs['queue'],
+                    'mode': kargs['mode'],
+                },
+            )
+            # secho('Error: blast 는 현재 지원되지 않습니다.', fg='red', err=True)
     elif kargs['uclust_db']:
         db_tool = 'uclust'
-        db_name = kargs['uclust_db']
-        run_taxonomy_qiime1(otus_rep_file, db_tool, db_name, taxa_path)
+        for db_name in kargs['uclust_db']:
+            # db_name = kargs['uclust_db']
+            secho('»-(¯`·.·´¯)->'.center(80), fg='red', bold=True, blink=True)
+            secho(f'++++++ ======= {db_name} ======= +++++'.center(80), fg='yellow')
+            run_taxonomy_qiime1(otus_rep_file, db_tool, db_name, taxa_path)
 
 
 def biom_pipeline(kargs):

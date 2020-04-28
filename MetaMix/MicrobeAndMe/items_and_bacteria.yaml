@@ -30,7 +30,7 @@ intestinal_health:
         - Bifidobacterium
         - Lactobacillus
         - Roseburia
-      speices:
+      species:
         - Faecalibacterium prausnitzii
   gas:  # 방귀
     negative:
@@ -98,7 +98,7 @@ wellness:
         - Peptostreptococcus anaerobius
         - Bifidobacterium dentium
         - Bifidobacterium adolescentis
-  tireness_index:  # 피로 지수
+  tiredness_index:  # 피로 지수
     negative:
       genus:
         - Clostridium

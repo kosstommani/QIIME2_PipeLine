@@ -427,7 +427,8 @@ def summarize_taxa(**kargs):
 
 @main.command('SCORE', short_help='Score 생성')
 def score(**kargs):
-    pass
+    from MicrobeAndMe.core import score
+    score()
 
 
 @main.command('INSERT', short_help='DB 삽입')

@@ -17,7 +17,11 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.1.5'
+__version__ = '1.1.6'
+
+# Ver. 1.1.6
+# 2020.04.28
+# Taxonomy - DB 다중 선택 기능
 
 import click
 import os
@@ -1048,10 +1052,12 @@ def phylogeny_qiime1(**kargs):
               help='구성된 OTU를 생성한 방법. 값에 따라 대표서열을 인식하는 경로가 달라짐.')
 @click.option('--uclust_db', '-udb',
               type=click.Choice(UCLUST_DATABASE_LIST),
-              help='RDP DB')
+              multiple=True,
+              help='RDP DB. 다중 선택 가능. ex) -udb [DB] -udb [DB]')
 @click.option('--blast_db', '-bdb',
               type=click.Choice(BLAST_DATABASE_LIST),
-              help='BLAST DB. Probiotics DB 미설정(문의요망).')
+              multiple=True,
+              help='BLAST DB. 다중 선택 가능. ex) -dbd [DB] -bdb [DB]')
 @click.option('--mode', '-m',
               default='all',
               show_default=True,

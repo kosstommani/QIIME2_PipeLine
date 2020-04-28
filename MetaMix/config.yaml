@@ -9,7 +9,7 @@
 # 888       888  "Y8888   "Y888 "Y888888 888       888 888 888  888
 #
 # 작성자 : 박정원(JungWon Park, KOSST)
-# Version : 1.1.2
+# Version : 1.1.3
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -137,6 +137,10 @@ CoFI_OTU:
         version: &Probiotics01 NCBI_Probiotics19_20200305
         fasta: &Probiotics02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics19_20200305/Probiotics19.fasta
         taxon: &Probiotics03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics19_20200305/Probiotics19.taxon
+      NCBI_Probiotics21:
+        version: &Probiotics21_01 NCBI_Probiotics21_20200305
+        fasta: &Probiotics21_02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics21_20200305/Probiotics19.fasta
+        taxon: &Probiotics21_03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics21_20200305/Probiotics19.taxon
     jobs_to_start: 10
     assembly_suffix: '.extendedFrags.fasta'
 
@@ -164,6 +168,10 @@ CoFI_TAXONOMY:
       version: *Probiotics01
       db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics19_20200305/Probiotics19
       taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics19_20200305/Probiotics19_taxon
+    NCBI_Probiotics21:
+      version: *Probiotics21_01
+      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics21_20200305/Probiotics21
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics21_20200305/Probiotics21_taxon
     UNITE_INSD_Fungi:
       version: *UNITE_INSD_Fungi01
       db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi_BLAST/UNITE_public_04.02.2020.blast
@@ -185,6 +193,10 @@ CoFI_TAXONOMY:
       version: *Probiotics01
       fasta: *Probiotics02
       taxon: *Probiotics03
+    NCBI_Probiotics21:
+      version: *Probiotics21_01
+      fasta: *Probiotics21_02
+      taxon: *Probiotics21_03
     UNITE_Fungi:
       version: *UNITE_fungi01
       fasta: *UNITE_fungi02
@@ -242,18 +254,28 @@ theCups:
   MiSeq_V2:
     template_path: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/html_template_v2
   Probiotics:
-    V1V2_report_dir: Analysis_1_Report
-    V1V2_report_num: Report_1
-    V3V4_report_dir: Analysis_2_Report
-    V3V4_report_num: Report_1
+    V1V2_report_dir: &V1V2_dir Analysis_1_Report
+    V1V2_report_num: &V1V2_num Report_1
+    V3V4_report_dir: &V3V4_dir Analysis_2_Report
+    V3V4_report_num: &V3V4_num Report_1
+  Probiotics19:
     table_path_suffix: Taxonomy_assignment_blast_NCBI_Probiotics/otu_table.blast_NCBI_Probiotics_L7.txt
-    src_probiotics_path: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/src_probiotics
+    src_probiotics_path: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/src_probiotics19
     macrogen_logo_white: logo.png
     process_jpg: process.jpg
     tree_png: tree.png
     cover_logo_jpg: cover_logo.jpg
     reference_list: ReferenceList.txt
     species_list: SpeciesList.txt
+  Probiotics21:
+    table_path_suffix: Taxonomy_assignment_blast_NCBI_Probiotics21/otu_table.blast_NCBI_Probiotics21_L7.txt
+    src_probiotics_path: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/src_probiotics21
+    macrogen_logo_white: logo.png
+    process_jpg: process.jpg
+    tree_png: tree_21.png
+    cover_logo_jpg: cover_logo.jpg
+    reference_list: ReferenceList_21.txt
+    species_list: SpeciesList_21.txt
 
 
 MetaMix:

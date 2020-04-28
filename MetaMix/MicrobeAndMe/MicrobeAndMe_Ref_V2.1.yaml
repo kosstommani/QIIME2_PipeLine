@@ -89,7 +89,7 @@ wellness:
     # 주의/보통/안심 = 5|20.7
     criterion_1: 5
     criterion_2: 20.7
-  tireness_index:  # 피로 지수
+  tiredness_index:  # 피로 지수
     negative:
       min: 0.0019637
       max: 0.047707272

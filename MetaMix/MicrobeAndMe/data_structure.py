@@ -339,7 +339,7 @@ class Microbe:
         """
         if self.analysis_type == 'NGS':
             pattern = self.cofi_target_dir_suffix
-        elif self.analysis_type == 'MicrboeAndMe':
+        elif self.analysis_type == 'MicrobeAndMe':
             pattern = f'RawData*/{os.path.basename(self.run_dir_path)}'
         else:
             secho('Error: self.analysis_type 지정이 잘못되었습니다.', fg='red', blink=True, err=True)
@@ -612,7 +612,7 @@ class Microbe:
                         'summarize_taxa.py ' \
                         f'-i {i_biom.taxonomy_biom_file} ' \
                         f'-o {summarized_taxa_path} ' \
-                        f'-L 6,7'
+                        f'-L 2,5,6,7'
                     run = run_cmd(cmd)
                     l_run_process.append(run)
         failed_job = [run for run in l_run_process if run.returncode != 0]

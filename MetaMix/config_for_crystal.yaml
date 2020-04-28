@@ -206,13 +206,13 @@ theCups:
     V3V4_report_dir: Analysis_2_Report
     V3V4_report_num: Report_1
     table_path_suffix: Taxonomy_assignment_blast_NCBI_Probiotics/otu_table.blast_NCBI_Probiotics_L7.txt
-    src_probiotics_path: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/MetaMix/theCups/src_probiotics
+    src_probiotics_path: /crystal/Tools/Amplicon_MetaGenome/QIIME2_PipeLine/MetaMix/theCups/src_probiotics19
     macrogen_logo_white: logo.png
     process_jpg: process.jpg
     tree_png: tree.png
     cover_logo_jpg: cover_logo.jpg
-    reference_list: ReferenceList.txt
-    species_list: SpeciesList.txt
+    reference_list: ReferenceList_21.txt
+    species_list: SpeciesList_21.txt
 
 
 MetaMix:

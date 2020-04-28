@@ -17,7 +17,11 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
+# -----------------------------------
+# Ver. 1.0.2 - 2020.04.28
+# Probiotics21 DB 및 보고서 추가
+# -----------------------------------
 
 import os
 import xlsxwriter
@@ -29,15 +33,17 @@ from theCups.data_structure import ReportPath
 from SpoON.util import check_file_type, parse_config
 
 CONFIG = parse_config()
-PROBIOTICS_CONFIG = CONFIG['theCups']['Probiotics']
-SRC_PROBIOTICS_PATH = PROBIOTICS_CONFIG['src_probiotics_path']
+PROBIOTICS_19_CONFIG = CONFIG['theCups']['Probiotics19']
+SRC_PROBIOTICS_19_PATH = PROBIOTICS_19_CONFIG['src_probiotics_path']
+PROBIOTICS_21_CONFIG = CONFIG['theCups']['Probiotics21']
+SRC_PROBIOTICS_21_PATH = PROBIOTICS_21_CONFIG['src_probiotics_path']
 
 
 class SampleTable:
     def __init__(self, p_sample_name):
         """
         시료명과 L7 결과를 클래스 변수로 가진다.
-        
+
         :param p_sample_name: 시료명
         """
         self.sample_name = p_sample_name
@@ -45,14 +51,13 @@ class SampleTable:
 
 
 class Data:
-    def __init__(self, p_kargs):
+    def __init__(self, p_kargs: dict, p_type: str):
         """
         고객이 섞은 유산균 종 정보를 입력받고, OTU분석결과를 파싱하여 보고서 생성에 필요한 데이터를 생성한다.
 
         :param p_kargs: 프로그램 옵션 값을 가지는 딕션너리
+        :param p_type: [Probiotics19 | Probiotics21]
         """
-        global PROBIOTICS_CONFIG, SRC_PROBIOTICS_PATH
-
         self.analysis_base_path = p_kargs['analysis_base_path']
         self.order_number = p_kargs['order_number']
         self.table_path_suffix = p_kargs['table_path_suffix']
@@ -63,7 +68,12 @@ class Data:
         self.mixed_species_file = p_kargs['mixed_species']
 
         # Species List 파일
-        self.species_file = os.path.join(SRC_PROBIOTICS_PATH, PROBIOTICS_CONFIG['species_list'])
+        if p_type == 'Probiotics19':
+            global PROBIOTICS_19_CONFIG, SRC_PROBIOTICS_19_PATH
+            self.species_file = os.path.join(SRC_PROBIOTICS_19_PATH, PROBIOTICS_19_CONFIG['species_list'])
+        elif p_type == 'Probiotics21':
+            global PROBIOTICS_21_CONFIG, SRC_PROBIOTICS_21_PATH
+            self.species_file = os.path.join(SRC_PROBIOTICS_21_PATH, PROBIOTICS_21_CONFIG['species_list'])
 
         # 메서드 실행시 생성되는 클래스 변수
         self.info_file = None
@@ -113,7 +123,7 @@ class Data:
         sample_count: 시료의 개수
         target_region: 목표영역
         e_mail: 본사 이메일
-        
+
         # 이전 양식
         -- info.txt의 구조 --
         주영엔에스(주)         : 기관명
@@ -291,7 +301,7 @@ class Data:
                                     ex) 'Lactobacillus acidophilus': '1'
         self.d_species_list_index : 19종 유산균의 목록 가지는 딕셔너리. key(str): index(str).
                                     ex) '1': 'Lactobacillus acidophilus'
-                                    
+
         이전 경로
         /lustre/Tools/macrogen_analysis_toolbox2/OTU_customize/Probiotics/src/SpeciesList.txt
 
@@ -311,7 +321,7 @@ class Data:
     def check_mixed_species(self):
         """
         19종 유산균 리스트를 화면에 출력하여, 고객이 섞은 유산균 종 정보를 키보드로 입력받는다.
-        19종 유산균 리스트는 /lustre/Tools/macrogen_analysis_toolbox2/OTU_customize/Probiotics/src/SpeciesList.txt 파일을
+        19종 유산균 리스트는 /lustre/Tools/macrogen_analysis_toolbox2/OTU_customize/Probiotics/src/SpeciesList_21.txt 파일을
         파싱하여 출력한다.
 
         값 할당 클래스 변수
@@ -405,6 +415,99 @@ class Data:
         echo()
 
 
+def check_sample_name(p_name, p_region):
+    if p_region == 'v1v2':
+        a = 1
+        b = 2
+    elif p_region == 'v3v4':
+        a = 3
+        b = 4
+    else:
+        raise ValueError(
+            style('check_sample_name 함수의 p_region 매개변수의 값이 잘못되었습니다.', fg='red', bg='yellow', blink=True) \
+            + '\n' \
+            + 'p_region : %s' % p_region)
+
+    string = 'V{a}{b} v{a}{b} V{a}V{b} v{a}v{b} v{a}.{b} V{a}.{b} v{a}.v{b} V{a}.V{b}'.format(a=a, b=b)
+    region_string = string.split(' ')
+    for ele in region_string:
+        stat = p_name.find(ele)
+        if stat > -1:
+            return p_name.replace(ele, '').rstrip('.')
+    else:
+        separator = '.'
+        base, sep, suffix = p_name.rpartition(separator)
+        if (base == '') and (sep == ''):
+            return p_name
+        elif (base == '') and (sep == separator):
+            secho('Error: 시료명에 문제가 있습니다.', fg='red')
+            secho(f'{p_name} --> ({base}, {sep}, {suffix})', fg='cyan')
+            echo('base 값이 없습니다.')
+            exit()
+        else:
+            return base
+
+
+def read_reference_list(p_ref):
+    """
+    19종 유산균의 계통분류군을 정리한 파일을 읽는다.
+    '#'으로 시작하는 행은 주석처리되어 읽지 않는다.
+    첫행은 열제목으로 읽는다.
+
+    이전 경로
+    /lustre/Tools/macrogen_analysis_toolbox2/OTU_customize/Probiotics/src/ReferenceList_21.txt
+
+    :param p_ref: 19종 유산균의 계통분류군을 정리한 파일
+    :return data.header(list) : 열제목
+            data(nested list) : 19종 유산균의 계통분류군의 데이터
+    """
+    data = list()
+    data_header = None
+    with open(p_ref, 'r') as o_input:
+        header = False
+        for i in o_input:
+            if i.startswith('#'):
+                continue
+            elif header is False:
+                data_header = i.strip().split('\t')
+                header = True
+            elif header is True:
+                data.append(i.strip().split('\t'))
+            else:
+                raise ValueError(
+                    style('예상치 못한 조건을 실행하였습니다. '
+                          'ReferenceList.txt의 파일 양식을 확인하거나 개발자에게 문의하세요.',
+                          fg='red', blink=True)
+                )
+    return data_header, data
+
+
+def make_taxon_string(p_data):
+    string = None
+    for index, element in enumerate(p_data):
+        if index == 0:
+            string = element
+        else:
+            string = string + '__' + element
+    return string
+
+
+def return_region_text(p_region):
+    v1v2_text = 'V1-V2 [340-370bp]'
+    v3v4_text = 'V3-V4 [440-460bp]'
+    both_text = 'V1-V2 [340-370bp]  /  V3-V4 [440-460bp]'
+    if p_region == 'v1v2':
+        return v1v2_text
+    elif p_region == 'v3v4':
+        return v3v4_text
+    elif p_region == 'both':
+        return both_text
+    else:
+        secho('Warning: 등록된 Region 정보가 아닙니다. 개발자 문의!', fg='red')
+        secho('--> 등록되어진 정보로 대체합니다.')
+        return both_text
+
+
 class Report:
     def __init__(self, kargs):
         """
@@ -419,8 +522,6 @@ class Report:
                  d_species_list_index:
                  mixed_species:
         """
-        global PROBIOTICS_CONFIG, SRC_PROBIOTICS_PATH
-
         self.analysis_base_path = kargs['analysis_base_path']
         self.order_number = kargs['order_number']
         self.v1v2_sample_table = kargs['o_v1v2_sample_table']
@@ -454,15 +555,6 @@ class Report:
         self.d_species_list_index = kargs['d_species_list_index']
         self.mixed_species = kargs['mixed_species']
 
-        # 그림 파일
-        self.macrogen_logo_white = os.path.join(SRC_PROBIOTICS_PATH, PROBIOTICS_CONFIG['macrogen_logo_white'])
-        self.process_jpg = os.path.join(SRC_PROBIOTICS_PATH, PROBIOTICS_CONFIG['process_jpg'])
-        self.tree_png = os.path.join(SRC_PROBIOTICS_PATH, PROBIOTICS_CONFIG['tree_png'])
-        self.cover_logo_jpg = os.path.join(SRC_PROBIOTICS_PATH, PROBIOTICS_CONFIG['cover_logo_jpg'])
-
-        # 유산균 목록 파일
-        self.reference_file = os.path.join(SRC_PROBIOTICS_PATH, PROBIOTICS_CONFIG['reference_list'])
-
         # 공통 서식 설정
         self.font_size = 10
         self.default_border = 1
@@ -492,7 +584,6 @@ class Report:
             })  # Other Sheet
 
         # 메소드 실행시 생성되는 변수들
-
         self.report_data = None
         self.non_detection_counter = None
         self.outer_counter = None
@@ -536,28 +627,13 @@ class Report:
         # p_o_sheet.set_column('{last_next}:XFD'.format(last_next=xl_col_to_name(last_column_index+2)),
         # options={'hidden': True})
 
+    def return_taxon_text(self, p_key):
+        if int(p_key) < 10:
+            return '0{key}. {taxon}'.format(key=p_key, taxon=self.d_species_list_index[p_key])
+        else:
+            return '{key}. {taxon}'.format(key=p_key, taxon=self.d_species_list_index[p_key])
+
     def _make_info_sheet(self):
-        def return_region_text(p_region):
-            v1v2_text = 'V1-V2 [340-370bp]'
-            v3v4_text = 'V3-V4 [440-460bp]'
-            both_text = 'V1-V2 [340-370bp]  /  V3-V4 [440-460bp]'
-            if p_region == 'v1v2':
-                return v1v2_text
-            elif p_region == 'v3v4':
-                return v3v4_text
-            elif p_region == 'both':
-                return both_text
-            else:
-                secho('Warning: 등록된 Region 정보가 아닙니다. 개발자 문의!', fg='red')
-                secho('--> 등록되어진 정보로 대체합니다.')
-                return both_text
-
-        def return_taxon_text(p_key):
-            if int(p_key) < 10:
-                return '0{key}. {taxon}'.format(key=p_key, taxon=self.d_species_list_index[p_key])
-            else:
-                return '{key}. {taxon}'.format(key=p_key, taxon=self.d_species_list_index[p_key])
-
         # 서식 설정
         info_color = '#e7e1dc'
         border = 1
@@ -595,38 +671,7 @@ class Report:
         self.info_sheet.set_column('D:E', 36)  # 열넓이 설정
 
         # (서식, text1, text2)
-        l_sheet_text = [(None, None, None),
-                        ('title', '유산균 분석 보고서'),
-                        ('bottom', None, None),
-                        ('data', 'Company / Institution', self.info['organization']),
-                        ('data', 'Customer', self.info['name']),
-                        ('data', 'Order Number', self.info['order_number']),
-                        ('data', 'Sample(Product) Name',
-                         self.sample_name + "(" + self.product_name + ")"),
-                        ('top', None, None),
-                        ('bottom', None, None),
-                        ('data', 'Type of Sequencer', 'MiSeq System'),
-                        ('data', 'Sequencing Protocol', 'MiSeq System User Guide Part # 15027617 Rev. L'),
-                        ('data', 'Application', 'Amplicon Metagenome'),
-                        ('data', 'Target', return_region_text(self.region)),
-                        ('data', 'Analysis Type', 'OTU analysis'),
-                        ('data', 'Analysis Tool', 'OTU picking by CD-HIT-OTU'),
-                        ('data', '', 'Taxonomic assignment by BLAST to "유산균 제품을 위한 유산균 19종 DB"'),
-                        ('top', None, None),
-                        ('bottom', None, None),
-                        ('start', 'Probiotics Type'),
-                        ('list', '[식약청고시 제 2011-68호]'),
-                        ('list', ''),  # 3(species index)
-                        ('list', ''),  # 4
-                        ('list', ''),  # 5
-                        ('list', ''),  # 6
-                        ('list', ''),  # 7
-                        ('list', ''),  # 8
-                        ('list', ''),  # 9
-                        ('list', ''),  # 10
-                        ('list', ''),  # 11
-                        ('top', None, None)
-                        ]
+        l_sheet_text = self.l_sheet_text
 
         for row, element in enumerate(l_sheet_text, 1):
             if element[0] is None:
@@ -676,10 +721,16 @@ class Report:
             species_key_1 = str(index)  # species index
             species_key_2 = str(index + 11)
             self.info_sheet.write_string(row_index, info_header_col_index + 1,
-                                         return_taxon_text(species_key_1), normal_format)
-            if int(species_key_2) <= 19:
+                                         self.return_taxon_text(species_key_1), normal_format)
+            if isinstance(self, Report19):
+                probiotics_count = 19
+            elif isinstance(self, Report21):
+                probiotics_count = 21
+            else:
+                raise ValueError('인스턴스가 지원하지 않는 클래스에 의해서 생성되었습니다.')
+            if int(species_key_2) <= probiotics_count:
                 self.info_sheet.write_string(row_index, info_header_col_index + 2,
-                                             return_taxon_text(species_key_2), normal_format)
+                                             self.return_taxon_text(species_key_2), normal_format)
             else:
                 self.info_sheet.write_string(row_index, info_header_col_index + 2,
                                              '', normal_format)
@@ -1104,49 +1155,7 @@ class Report:
         self.taxonomy_sheet.print_area('A1:E45')
 
     def _make_reference_sheet(self):
-        def read_reference_list(p_ref):
-            """
-            19종 유산균의 계통분류군을 정리한 파일을 읽는다.
-            '#'으로 시작하는 행은 주석처리되어 읽지 않는다.
-            첫행은 열제목으로 읽는다.
-
-            이전 경로
-            /lustre/Tools/macrogen_analysis_toolbox2/OTU_customize/Probiotics/src/ReferenceList.txt
-
-            :param p_ref: 19종 유산균의 계통분류군을 정리한 파일
-            :return data.header(list) : 열제목
-                    data(nested list) : 19종 유산균의 계통분류군의 데이터
-            """
-            data = list()
-            data_header = None
-            with open(p_ref, 'r') as o_input:
-                header = False
-                for i in o_input:
-                    if i.startswith('#'):
-                        continue
-                    elif header is False:
-                        data_header = i.strip().split('\t')
-                        header = True
-                    elif header is True:
-                        data.append(i.strip().split('\t'))
-                    else:
-                        raise ValueError(
-                            style('예상치 못한 조건을 실행하였습니다. '
-                                  'ReferenceList.txt의 파일 양식을 확인하거나 개발자에게 문의하세요.',
-                                  fg='red', blink=True)
-                        )
-            return data_header, data
-
         reference_data_header, reference_data = read_reference_list(self.reference_file)
-
-        def make_taxon_string(p_data):
-            string = None
-            for index, element in enumerate(p_data):
-                if index == 0:
-                    string = element
-                else:
-                    string = string + '__' + element
-            return string
 
         # 서식 설정
         header_format = self.workbook.add_format(
@@ -1201,7 +1210,13 @@ class Report:
 
         # 데이터 입력
         self.reference_sheet.merge_range('A3:E3', '유산균 19종 Reference', self.title_format)
-        self.reference_sheet.insert_image('C5', self.tree_png, {'x_scale': 0.4, 'y_scale': 0.3, 'x_offset': -30})
+        if isinstance(self, Report19):
+            self.reference_sheet.insert_image('C5', self.tree_png, {'x_scale': 0.4, 'y_scale': 0.27, 'x_offset': -45})
+        elif isinstance(self, Report21):
+            self.reference_sheet.insert_image('C5', self.tree_png, {'x_scale': 0.4, 'y_scale': 0.25,
+                                                                    'x_offset': -45, 'y_offset': -15})
+        else:
+            raise ValueError('인스턴스가 지원하지 않는 클래스에 의해서 생성되었습니다.')
         start_row = 30
         self.reference_sheet.write_string(start_row, 0, reference_data_header[0], header_format)
         self.reference_sheet.merge_range(start_row, 1, start_row, 2, 'Phylum(문) ~ Family(과)',
@@ -1271,34 +1286,105 @@ class Report:
         self._save_excel()
 
 
-def check_sample_name(p_name, p_region):
-    if p_region == 'v1v2':
-        a = 1
-        b = 2
-    elif p_region == 'v3v4':
-        a = 3
-        b = 4
-    else:
-        raise ValueError(
-            style('check_sample_name 함수의 p_region 매개변수의 값이 잘못되었습니다.', fg='red', bg='yellow', blink=True) \
-            + '\n' \
-            + 'p_region : %s' % p_region)
+class Report19(Report):
+    def __init__(self, kargs):
+        global PROBIOTICS_19_CONFIG, SRC_PROBIOTICS_19_PATH
+        super().__init__(kargs)
+        
+        # 그림 파일
+        self.macrogen_logo_white = os.path.join(SRC_PROBIOTICS_19_PATH, PROBIOTICS_19_CONFIG['macrogen_logo_white'])
+        self.process_jpg = os.path.join(SRC_PROBIOTICS_19_PATH, PROBIOTICS_19_CONFIG['process_jpg'])
+        self.tree_png = os.path.join(SRC_PROBIOTICS_19_PATH, PROBIOTICS_19_CONFIG['tree_png'])
+        self.cover_logo_jpg = os.path.join(SRC_PROBIOTICS_19_PATH, PROBIOTICS_19_CONFIG['cover_logo_jpg'])
+        
+        # 유산균 목록 파일
+        self.reference_file = os.path.join(SRC_PROBIOTICS_19_PATH, PROBIOTICS_19_CONFIG['reference_list'])
 
-    string = 'V{a}{b} v{a}{b} V{a}V{b} v{a}v{b} v{a}.{b} V{a}.{b} v{a}.v{b} V{a}.V{b}'.format(a=a, b=b)
-    region_string = string.split(' ')
-    for ele in region_string:
-        stat = p_name.find(ele)
-        if stat > -1:
-            return p_name.replace(ele, '').rstrip('.')
-    else:
-        separator = '.'
-        base, sep, suffix = p_name.rpartition(separator)
-        if (base == '') and (sep == ''):
-            return p_name
-        elif (base == '') and (sep == separator):
-            secho('Error: 시료명에 문제가 있습니다.', fg='red')
-            secho(f'{p_name} --> ({base}, {sep}, {suffix})', fg='cyan')
-            echo('base 값이 없습니다.')
-            exit()
-        else:
-            return base
+    @property
+    def l_sheet_text(self):
+        # (서식, text1, text2)
+        l_sheet_text = [(None, None, None),
+                        ('title', '유산균 분석 보고서'),
+                        ('bottom', None, None),
+                        ('data', 'Company / Institution', self.info['organization']),
+                        ('data', 'Customer', self.info['name']),
+                        ('data', 'Order Number', self.info['order_number']),
+                        ('data', 'Sample(Product) Name',
+                         self.sample_name + "(" + self.product_name + ")"),
+                        ('top', None, None),
+                        ('bottom', None, None),
+                        ('data', 'Type of Sequencer', 'MiSeq System'),
+                        ('data', 'Sequencing Protocol', 'MiSeq System User Guide Part # 15027617 Rev. L'),
+                        ('data', 'Application', 'Amplicon Metagenome'),
+                        ('data', 'Target', return_region_text(self.region)),
+                        ('data', 'Analysis Type', 'OTU analysis'),
+                        ('data', 'Analysis Tool', 'OTU picking by CD-HIT-OTU'),
+                        ('data', '', 'Taxonomic assignment by BLAST to "유산균 제품을 위한 유산균 19종 DB"'),
+                        ('top', None, None),
+                        ('bottom', None, None),
+                        ('start', 'Probiotics Type'),
+                        ('list', '[식약청고시 제 2011-68호]'),
+                        ('list', ''),  # 3(species index)
+                        ('list', ''),  # 4
+                        ('list', ''),  # 5
+                        ('list', ''),  # 6
+                        ('list', ''),  # 7
+                        ('list', ''),  # 8
+                        ('list', ''),  # 9
+                        ('list', ''),  # 10
+                        ('list', ''),  # 11
+                        ('top', None, None)
+                        ]
+        return l_sheet_text
+
+
+class Report21(Report):
+    def __init__(self, kargs):
+        global PROBIOTICS_21_CONFIG, SRC_PROBIOTICS_21_PATH
+        super().__init__(kargs)
+
+        # 그림 파일
+        self.macrogen_logo_white = os.path.join(SRC_PROBIOTICS_21_PATH, PROBIOTICS_21_CONFIG['macrogen_logo_white'])
+        self.process_jpg = os.path.join(SRC_PROBIOTICS_21_PATH, PROBIOTICS_21_CONFIG['process_jpg'])
+        self.tree_png = os.path.join(SRC_PROBIOTICS_21_PATH, PROBIOTICS_21_CONFIG['tree_png'])
+        self.cover_logo_jpg = os.path.join(SRC_PROBIOTICS_21_PATH, PROBIOTICS_21_CONFIG['cover_logo_jpg'])
+
+        # 유산균 목록 파일
+        self.reference_file = os.path.join(SRC_PROBIOTICS_21_PATH, PROBIOTICS_21_CONFIG['reference_list'])
+
+    @property
+    def l_sheet_text(self):
+        # (서식, text1, text2)
+        l_sheet_text = [(None, None, None),
+                        ('title', '유산균 분석 보고서'),
+                        ('bottom', None, None),
+                        ('data', 'Company / Institution', self.info['organization']),
+                        ('data', 'Customer', self.info['name']),
+                        ('data', 'Order Number', self.info['order_number']),
+                        ('data', 'Sample(Product) Name',
+                         self.sample_name + "(" + self.product_name + ")"),
+                        ('top', None, None),
+                        ('bottom', None, None),
+                        ('data', 'Type of Sequencer', 'MiSeq System'),
+                        ('data', 'Sequencing Protocol', 'MiSeq System User Guide Part # 15027617 Rev. L'),
+                        ('data', 'Application', 'Amplicon Metagenome'),
+                        ('data', 'Target', return_region_text(self.region)),
+                        ('data', 'Analysis Type', 'OTU analysis'),
+                        ('data', 'Analysis Tool', 'OTU picking by CD-HIT-OTU'),
+                        ('data', '', 'Taxonomic assignment by BLAST to "유산균 제품을 위한 유산균 21종(19종+2종) DB"'),
+                        ('top', None, None),
+                        ('bottom', None, None),
+                        ('start', 'Probiotics Type'),
+                        ('list', '[식약청고시 제 2011-68호]'),
+                        ('list', ''),  # 3(species index)
+                        ('list', ''),  # 4
+                        ('list', ''),  # 5
+                        ('list', ''),  # 6
+                        ('list', ''),  # 7
+                        ('list', ''),  # 8
+                        ('list', ''),  # 9
+                        ('list', ''),  # 10
+                        ('list', ''),  # 11
+                        ('top', None, None)
+                        ]
+        return l_sheet_text

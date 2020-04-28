@@ -27,7 +27,7 @@ COFI = CONFIG['MetaMix']['CoFI']
 
 
 def all_pipeline(kargs):
-    microbe = Microbe(kargs, mode='all', analysis_type='MicrboeAndMe')
+    microbe = Microbe(kargs, mode='all', analysis_type='MicrobeAndMe')
     microbe.run_prema()
     if (kargs['copy_rawdata'] is False) and (kargs['no_prema'] is False):
         exit()
@@ -43,7 +43,7 @@ def all_pipeline(kargs):
 
 
 def dada2_using_r(kargs):
-    # microbe = Microbe(kargs, mode='r_dada2', analysis_type='MicrboeAndMe')
+    # microbe = Microbe(kargs, mode='r_dada2', analysis_type='MicrobeAndMe')
     microbe = Microbe(kargs, mode='r_dada2', analysis_type='NGS')
     microbe.make_analysis_number_dir()
     microbe.set_path()
@@ -98,7 +98,26 @@ def summarize_taxa(kargs):
 
 
 def score():
-    pass
+    from MicrobeAndMe.score import AndMe
+    path = '/garnet/Analysis/BI/AmpliconMetaGenome_MAM/HN00122513/Analysis_1/35.8/Summarized_Taxa'
+    and_me = AndMe(
+        {
+            'bact_file': '/garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/MicrobeAndMe/items_and_bacteria.yaml',
+            'dist_db_file': '/garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/MicrobeAndMe/MicrobeAndMe_Ref_V2.1.yaml',
+            'phylum_file': os.path.join(path, 'ASVs.NCBI_16S_L2.txt'),
+            'family_file': os.path.join(path, 'ASVs.NCBI_16S_L5.txt'),
+            'genus_file': os.path.join(path, 'ASVs.NCBI_16S_L6.txt'),
+            'species_file': os.path.join(path, 'ASVs.NCBI_16S_L7.txt'),
+            'sample_name': '35.8'
+        })
+    and_me.read_bacteria_file()
+    and_me.read_dist_db_file()
+    and_me.read_genus_file()
+    and_me.read_species_file()
+    and_me.compute_intestinal_health()
+    and_me.compute_wellness()
+    # DiversityIndex('/garnet/Analysis/BI/AmpliconMetaGenome_MAM/HN00122513/Analysis_1/35.8/Alpha_Diversity/adiv.txt')
+
 
 
 def insert():

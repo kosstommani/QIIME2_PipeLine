@@ -55,7 +55,7 @@ fileCat(infoText('파일 개수\n'), file=log.file, append=TRUE)
 fileCat(length(rds.files), file=log.file, append=TRUE)
 fileCat('\n')
 fileCat(infoText('파일명 개수\n'), file=log.file, append=TRUE)
-fileCat(legnth(samples.name), file=log.file, append=TRUE)
+fileCat(length(samples.name), file=log.file, append=TRUE)
 fileCat('\n')
 fileCat(successText('RDS 파일 목록화 완료\n'), file=log.file, append=TRUE)
 
@@ -67,7 +67,7 @@ for (sample in samples.name) {
   rownames(seqtab.noChimera) <- sample
   rds[[sample]] <- seqtab.noChimera
 }
-filecat(successText('RDS 파일 읽기 완료\n'), file=log.file, append=TRUE)
+fileCat(successText('RDS 파일 읽기 완료\n'), file=log.file, append=TRUE)
 
 # DADA2 라이브러리
 library(dada2)
@@ -80,13 +80,13 @@ fileCat('\n', file=log.file, append=TRUE)
 
 # DADA2 디렉터리 생성
 dada2.dir <- file.path(out_path, 'R_DADA2')
-dir.create(data2.dir, mode='0770')
+dir.create(dada2.dir, mode='0770')
 
 # ASVs 통합
 seqtab_all <- mergeSequenceTables(tables=rds)
 fileCat(successText('mergeSequenceTables 완료\n'), file=log.file, append=TRUE)
-seqtab_all.rds_name <- pasete0('all', '_', args$rds_name)
-seqtab_all.rds_file <- file.path(dada2_dir, seqtab_all.rds_file)
+seqtab_all.rds_name <- paste0('all', '_', args$rds_name)
+seqtab_all.rds_file <- file.path(dada2.dir, seqtab_all.rds_name)
 saveRDS(seqtab_all, seqtab_all.rds_file)
 fileCat(successText(paste(seqtab_all.rds_name, '저장 완료\n')))
 trans_st.all <- t(seqtab_all)

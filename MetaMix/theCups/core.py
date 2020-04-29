@@ -18,13 +18,13 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 
 # -----------------------------------
 # 1.0.2 - 2020.04.24
 # 2D PCoA Y축 제목 짤림 현상 해결 - x, y 크기 조절 옵션 추가
 # -----------------------------------
-# Ver. 1.0.2 - 2020.04.28
+# Ver. 1.0.3 - 2020.04.28
 # Probiotics21 DB 및 보고서 추가
 # -----------------------------------
 
@@ -254,7 +254,7 @@ def probiotics_report(kargs, p_type):
             v1v2_sample_name = check_sample_name(v1v2_sample.sample_name, 'v1v2')
             if kargs['mixed_species'] is None:
                 pass
-            elif i_data.d_mixed_species_from_file.has_key(v1v2_sample_name) is False:  # 보고서 생성 제외 시료 확인
+            elif v1v2_sample_name not in i_data.d_mixed_species_from_file.keys():  # 보고서 생성 제외 시료 확인
                 continue
             last_sample_indicator = len(i_data.l_v3v4_sample_table_list)
             for count, v3v4_sample in enumerate(i_data.l_v3v4_sample_table_list, 1):  # V1V2의 시료명과 V3V4의 시료명 확인

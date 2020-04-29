@@ -17,11 +17,16 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.1.6'
+__version__ = '1.1.7'
 
-# Ver. 1.1.6
-# 2020.04.28
+# ------------------------------------
+# Ver. 1.1.6  2020.04.28
 # Taxonomy - DB 다중 선택 기능
+# ------------------------------------
+# Ver. 1.1.7 2020.04.29
+# Taxonomy - remove keep : Archaea 추가
+# ------------------------------------
+
 
 import click
 import os
@@ -1063,13 +1068,14 @@ def phylogeny_qiime1(**kargs):
               show_default=True,
               type=click.Choice(['blast', 'parse', 'all']),
               help='BLAST DB 선택시 적용.')
-@click.option('--remove_taxon', '-rm',
+@click.option('--remove_taxon', '-rt',
               type=click.Choice(['no_hit', 'filtered', 'uncultured', 'environmental', 'bacterium',
-                                 'marine', 'unidentified', 'eukaryote', 'Cyanobacteria', 'all']),
+                                 'marine', 'unidentified', 'eukaryote', 'Cyanobacteria', 'Archaea',
+                                 'all']),
               multiple=True,
               help='taxon 제거 조건. 다중 선택 가능. ex) -rm no_hit -rm filtered')
-@click.option('--keep_taxon', '-k',
-              type=click.Choice(['Cyanobacteria']),
+@click.option('--keep_taxon', '-kt',
+              type=click.Choice(['Cyanobacteria', 'Archaea']),
               multiple=True,
               help='taxon 유지 조건. 다중 선택 가능. ex) -k Cyanobacteria')
 @click.option('--query_coverage', '-qc',

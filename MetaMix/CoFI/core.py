@@ -711,7 +711,7 @@ def phylogeny_qiime1_pipeline(kargs):
 
 
 def taxonomy_pipeline(kargs):
-    if (kargs['blast_db'] is None) and (kargs['uclust_db'] is None):
+    if (not kargs['blast_db']) and (not kargs['uclust_db']):
         secho('Error: --blast_db 또는 --rdp_db 옵션의 설정이 필요합니다.', fg='red', err=True)
         exit()
 
@@ -752,7 +752,7 @@ def taxonomy_pipeline(kargs):
             secho('»-(¯`·.·´¯)->'.center(80), fg='red', bold=True, blink=True)
             secho(f'++++++ ======= {db_name} ======= +++++'.center(80), fg='yellow')
             if len(kargs['remove_taxon']) != 0:
-                remove_taxon = ' '.join([f'-rm {x}' for x in kargs['remove_taxon']])
+                remove_taxon = ' '.join([f'-rt {x}' for x in kargs['remove_taxon']])
             else:
                 remove_taxon = None
             if len(kargs['keep_taxon']) != 0:

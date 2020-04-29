@@ -70,28 +70,28 @@ def collect_files(kargs):
 
 
 def biom(kargs):
-    microbe = Microbe(kargs, mode='biom', analysis_type='MicrboeAndMe')
+    microbe = Microbe(kargs, mode='biom', analysis_type='MicrobeAndMe')
     microbe.set_path()
     microbe.make_sample_list()
     microbe.make_biom_by_db()
 
 
 def taxonomy(kargs):
-    microbe = Microbe(kargs, mode='taxonomy', analysis_type='MicrboeAndMe')
+    microbe = Microbe(kargs, mode='taxonomy', analysis_type='MicrobeAndMe')
     microbe.set_path()
     microbe.make_sample_list()
     microbe.assign_taxonomy()
 
 
 def alpha_diversity(kargs):
-    microbe = Microbe(kargs, mode='alpha_diversity', analysis_type='MicrboeAndMe')
+    microbe = Microbe(kargs, mode='alpha_diversity', analysis_type='MicrobeAndMe')
     microbe.set_path()
     microbe.make_sample_list()
     microbe.run_alpha_diversity()
 
 
 def summarize_taxa(kargs):
-    microbe = Microbe(kargs, mode='summarize_taxa', analysis_type='MicrboeAndMe')
+    microbe = Microbe(kargs, mode='summarize_taxa', analysis_type='MicrobeAndMe')
     microbe.set_path()
     microbe.make_sample_list()
     microbe.summrize_taxa()
@@ -117,7 +117,6 @@ def score():
     and_me.compute_intestinal_health()
     and_me.compute_wellness()
     # DiversityIndex('/garnet/Analysis/BI/AmpliconMetaGenome_MAM/HN00122513/Analysis_1/35.8/Alpha_Diversity/adiv.txt')
-
 
 
 def insert():

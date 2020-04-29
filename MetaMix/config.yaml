@@ -115,12 +115,12 @@ CoFI_OTU:
         taxon: &UNITE_eukaryotes03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_All_eukaryotes2/sh_taxonomy_qiime_ver8_99_s_all_04.02.2020.txt
       UNITE_INSD_Fungi:
         version: &UNITE_INSD_Fungi01 'UNITE+INSD Fungi Ver.8.2 2020-02-04'
-        fasta: &UNITE_INSD_Fungi02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi/UNITE_public_04.02.2020.fasta
-        taxon: &UNITE_INSD_Fungi03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi/UNITE_public_04.02.2020.txt
+        fasta: &UNITE_INSD_Fungi02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi/UNITE_INSD_Fungi.fasta
+        taxon: &UNITE_INSD_Fungi03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi/UNITE_INSD_Fungi.taxon
       UNITE_INSD_All_eukaryotes:
         version: &UNITE_INSD_All_eukaryotes01 'UNITE+INSD All Eukaryotes Ver.8.2 2020-02-04'
-        fasta: &UNITE_INSD_All_eukaryotes02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes/UNITE_public_all_04.02.2020.fasta
-        taxon: &UNITE_INSD_All_eukaryotes03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes/UNITE_public_all_04.02.2020.txt
+        fasta: &UNITE_INSD_All_eukaryotes02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes/UNITE_INSD_eukaryotes.fasta
+        taxon: &UNITE_INSD_All_eukaryotes03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes/UNITE_INSD_eukaryotes.taxon
       MIDORI_LONGEST:
         version: 20180221_LONGEST
         fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_LONGEST_20180221_COI.fasta
@@ -174,12 +174,12 @@ CoFI_TAXONOMY:
       taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics21_20200305/Probiotics21_taxon
     UNITE_INSD_Fungi:
       version: *UNITE_INSD_Fungi01
-      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi_BLAST/UNITE_public_04.02.2020.blast
-      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi_BLAST/UNITE_public_04.02.2020.taxon
+      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi_BLAST/UNITE_INSD_Fungi
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi_BLAST/UNITE_INSD_Fungi_taxon
     UNITE_INSD_All_eukaryotes:
       version: *UNITE_INSD_All_eukaryotes01
-      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes_BLAST/UNITE_public_all_04.02.2020.blast
-      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes_BLAST/UNITE_public_all_04.02.2020.taxon
+      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes_BLAST/UNITE_INSD_eukaryotes
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes_BLAST/UNITE_INSD_eukaryotes_taxon
   uclust_db:
     RDP:
       version: 'RDP Release 11 Update 4 :: May 26, 2015'

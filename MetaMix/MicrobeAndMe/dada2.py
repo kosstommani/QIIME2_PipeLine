@@ -193,6 +193,7 @@ def run_merge_asvs(p_rds_dir: str, p_rds_name: str, p_queue: str, p_no_queue: bo
         # sleep(5)
         job_id = parse_job_id(out_path, 'qsub.log', 'only')
         check_jobs_in_queue([job_id])
+        echo()  # 빈 줄
     else:
         run = run_cmd(cmd)
         check_run_cmd(

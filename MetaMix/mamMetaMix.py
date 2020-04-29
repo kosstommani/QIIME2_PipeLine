@@ -227,11 +227,14 @@ def r_dada2(**kargs):
 @click.option('--analysis_base_path', '-ap',
               default=ANALYSIS_BASE_PATH,
               show_default=True,
-              type=click.Path(exists=True),
-              help='기본값: {}'.format(ANALYSIS_BASE_PATH))
+              type=click.Path(exists=True))
 @click.option('--order_number_file', '-of',
               required=True,
               help='ASVs 파일들을 통합할 수주들의 목록. 화이트스페이스 기준으로 구분.')
+@click.option('--dada2_dir_name', '-dn',
+              default='R_DADA2',
+              show_default=True,
+              help='DADA2 디렉터리 이름.')
 @click.option('--out_dir', '-o',
               required=True,
               help='결과를 저장할 디렉터리명. 해당 디렉터리 경로에 --dada2_dir_name 옵션의 디렉터리 생성.'

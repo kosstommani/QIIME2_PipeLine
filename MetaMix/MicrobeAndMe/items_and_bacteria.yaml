@@ -13,7 +13,8 @@
 
 Items_and_Bacteria:
   version: 1.0
-  data: 2020.04.22
+  date: 2020.04.22
+  report_version: myBiome.v.2.1
 
 # 장 건강
 intestinal_health:
@@ -44,7 +45,7 @@ intestinal_health:
         - Clostridium butyricum
         - Clostridium perfringens
         - Desulfovibrio piger
-  bloating:  # 복부팽만감
+  abdominal_distension:  # 복부팽만감
     negative:
       species:
         - Ruminococcus flavefaciens
@@ -110,7 +111,7 @@ wellness:
         - Ruminococcus
       species:
         - '[Ruminococcus] gnavus'
-  immune_index:  # 면역 지수
+  immunity_index:  # 면역 지수
     negative:
       species:
         - Staphylococcus aureus
@@ -186,8 +187,8 @@ wellness:
 # 장 환경 더 보기
 more_bowel_environments:
   beneficial_bacteria:  # 유익균
-    genus:
-      positive:
+    positive:
+      genus:
         - Acidaminococcus
         - Alistipes
         - Bacteroides
@@ -203,8 +204,7 @@ more_bowel_environments:
         - Prevotella
         - Roseburia
         - Ruminococcus
-    species:
-      positive:
+      species:
         - Akkermansia muciniphila
         - Anaerobutyricum hallii
         - Enterococcus faecalis
@@ -217,15 +217,14 @@ more_bowel_environments:
         - Streptococcus thermophilus
         - Weissella paramesenteroides
   harmful_bacteria:  # 유해균
-    genus:
-      negative:
+    negative:
+      genus:
         - Coprococcus
         - Escherichia
         - Holdemania
         - Paraprevotella
         - Salmonella
-    speices:
-      negative:
+      species:
         - Staphylococcus aureus
         - Streptococcus pneumoniae
         - Clostridioides difficile
@@ -243,12 +242,10 @@ more_bowel_environments:
         - Staphylococcus aureus
         - Streptococcus pneumoniae
   enterotype:  # 장 유형
-    genus:
-      type1:
+    type:
+      genus:
         - Bacteroides
-      type2:
         - Prevotella
-      type3:
         - Ruminococcus
 
 # 부록
@@ -371,7 +368,7 @@ supplement:
         - Veillonella
       species:
         - Enterococcus faecalis
-  probiotics_19:
+  probiotics_21:
     positive:
       species:
         - Lactobacillus acidophilus

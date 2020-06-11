@@ -19,7 +19,6 @@ import sys
 from SpoON.util import run_cmd, check_run_cmd, parse_config, \
     check_queue_node, run_cmd_qsub, check_jobs_in_queue, parse_job_id
 from click import secho, echo
-from time import sleep
 
 CONFIG = parse_config()
 R_SCRIPT = CONFIG['mamMetaMix']['Rscript']
@@ -45,11 +44,51 @@ def get_dada2_r_cmd(p_kargs):
           f'{p_kargs["run_dir"]} ' \
           f'--analysis_base_path {p_kargs["analysis_base_path"]} ' \
           f'--multithread {p_kargs["multithread"]} ' \
-          f'--sample_name {p_kargs["sample_name"]} ' \
-          f'--trimLeftF 17 ' \
-          f'--trimLeftR 21 ' \
-          f'--truncLenF 245 ' \
-          f'--truncLenR 245'
+          f'--sample_name {p_kargs["sample_name"]}'
+    return cmd
+
+
+def get_dada2_r_cmd_for_ngs(p_kargs):
+    """
+    
+    :param p_kargs:
+            order_number:
+            analysis_number:
+            run_dir:
+            analysis_base_path:
+            multithread:
+            sample_name:
+            trim_left_f:
+            trim_left_r:
+            trunc_len_f:
+            trunc_len_r:
+            max_n:
+            maxee_f:
+            maxee_r:
+            trunc_q:
+            min_overlap:
+            chimera_method:
+    :return:
+    """
+    global R_SCRIPT
+    dada2_r = '/garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/MicrobeAndMe/dada2.R'
+    cmd = f'{R_SCRIPT} {dada2_r} ' \
+          f'{p_kargs["order_number"]} ' \
+          f'{p_kargs["analysis_number"]} ' \
+          f'{p_kargs["run_dir"]} ' \
+          f'--analysis_base_path {p_kargs["analysis_base_path"]} ' \
+          f'--multithread {p_kargs["multithread"]} ' \
+          f'--trimLeftF {p_kargs["trim_left_f"]} ' \
+          f'--trimLeftR {p_kargs["trim_left_r"]} ' \
+          f'--truncLenF {p_kargs["trunc_len_f"]} ' \
+          f'--truncLenR {p_kargs["trunc_len_r"]} ' \
+          f'--maxN {p_kargs["max_n"]} ' \
+          f'--maxEEF {p_kargs["maxee_f"]} ' \
+          f'--maxEER {p_kargs["maxee_r"]} ' \
+          f'--truncQ {p_kargs["trunc_q"]} ' \
+          f'--minOverlap {p_kargs["min_overlap"]} ' \
+          f'--chimera_method {p_kargs["chimera_method"]} ' \
+          f'--sample_name {p_kargs["sample_name"]}'
     return cmd
 
 
@@ -71,8 +110,18 @@ def run_cmd_qsub_parallel(p_kargs):
         else:
             slots = p_kargs['slots']
     elif p_kargs['queue'] == 'meta.q':
+        if p_kargs['slots'] > 144:
+            slots = 144
+        else:
+            slots = p_kargs['slots']
+    elif p_kargs['queue'] == 'meta.q@denovo06':
         if p_kargs['slots'] > 48:
             slots = 48
+        else:
+            slots = p_kargs['slots']
+    elif p_kargs['queue'] == 'meta.q@denovo11':
+        if p_kargs['slots'] > 144:
+            slots = 144
         else:
             slots = p_kargs['slots']
     qsub_run = os.path.join(p_kargs['log_out_path'], f'{p_kargs["sample_name"]}_qsub.run')
@@ -107,7 +156,7 @@ def run_cmd_qsub_parallel(p_kargs):
         exit(1)
 
 
-def run_dada2_r(p_kargs):
+def run_dada2_r(p_kargs, p_mode):
     """
 
     :param p_kargs:
@@ -119,18 +168,53 @@ def run_dada2_r(p_kargs):
             queue: [bi3m.q|meta.q]
             no_queue:
             slots:
+            trim_left_f:
+            trim_left_r:
+            trunc_len_f:
+            trunc_len_r:
+            max_n:
+            maxee_f:
+            maxee_r:
+            trunc_q:
+            min_overlap:
+            chimera_method:
+    :param p_mode: [MicrobeAndMe | NGS]
     :return:
     """
-    dada2_r_cmd = get_dada2_r_cmd(
-        {
-            'order_number': p_kargs['order_number'],
-            'analysis_number': p_kargs['analysis_number'],
-            'run_dir': p_kargs['run_dir'],
-            'analysis_base_path': p_kargs['analysis_base_path'],
-            'multithread': p_kargs['slots'],
-            'sample_name': p_kargs['sample_name']
-        }
-    )
+    if p_mode == 'MicrobeAndMe':
+        dada2_r_cmd = get_dada2_r_cmd(
+            {
+                'order_number': p_kargs['order_number'],
+                'analysis_number': p_kargs['analysis_number'],
+                'run_dir': p_kargs['run_dir'],
+                'analysis_base_path': p_kargs['analysis_base_path'],
+                'multithread': p_kargs['slots'],
+                'sample_name': p_kargs['sample_name']
+            }
+        )
+    elif p_mode == 'NGS':
+        dada2_r_cmd = get_dada2_r_cmd_for_ngs(
+            {
+                'order_number': p_kargs['order_number'],
+                'analysis_number': p_kargs['analysis_number'],
+                'run_dir': p_kargs['run_dir'],
+                'analysis_base_path': p_kargs['analysis_base_path'],
+                'multithread': p_kargs['slots'],
+                'sample_name': p_kargs['sample_name'],
+                'trim_left_f': p_kargs['trim_left_f'],
+                'trim_left_r': p_kargs['trim_left_r'],
+                'trunc_len_f': p_kargs['trunc_len_f'],
+                'trunc_len_r': p_kargs['trunc_len_r'],
+                'max_n': p_kargs['max_n'],
+                'maxee_f': p_kargs['maxee_f'],
+                'maxee_r': p_kargs['maxee_r'],
+                'trunc_q': p_kargs['trunc_q'],
+                'min_overlap': p_kargs['min_overlap'],
+                'chimera_method': p_kargs['chimera_method'],
+            }
+        )
+    else:
+        raise ValueError(f'p_mode: {p_mode}. 적절하지 않은 값입니다.')
     analysis_number_path = os.path.join(p_kargs['analysis_base_path'], p_kargs['order_number'],
                                         p_kargs['analysis_number'])
     dada2_r_file = os.path.join(analysis_number_path, f'{p_kargs["sample_name"]}_dada2.recipe')

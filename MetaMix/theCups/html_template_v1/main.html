@@ -175,9 +175,23 @@
                         {% endif %}
                             / PC value <a href="./OTU_Results/Beta_diversity/weighted_unifrac_pc.html" target="_blank" class="btn_result">[ HTML ]</a><br>
                     {% endif %}
-                    {% if (page_status.get('upgma_cluster.html') == True) and ('upgma_tree' not in skipped_page) %}
-                        UPGMA tree comparing samples <a href="./OTU_Results/UPGMAtree/upgma_cluster.html" target="_blank" class="btn_result">[ HTML ]</a>
-                                         <a href="./OTU_Results/UPGMAtree/upgma_cluster.tre" target="_blank" class="btn_result">[ .tre ]</a><br>
+                    {% if (page_status.get('unweighted_unifrac_pc_2D_PCoA_plots.html') == True) or (page_status.get('(DIR) Beta Diversity 3D PCoA HTML') == True) %}
+                        PCoA(unweighted unifrac)
+                        {% if (page_status.get('unweighted_unifrac_pc_2D_PCoA_plots.html') == True) and ('2D_PCoA' not in skipped_page) %}
+                            - 2D plot <a href="./OTU_Results/2D_PCoA/unweighted_unifrac_pc_2D_PCoA_plots.html" target="_blank" class="btn_result">[ HTML ]</a>
+                        {% endif %}
+                        {% if (page_status.get('(DIR) Beta Diversity 3D PCoA HTML') == True) and ('3D_PCoA' not in skipped_page) %}
+                            / 3D plot <a href="./OTU_Results/Beta_diversity/unweighted_unifrac_emperor_pcoa_plot/index.html" target="_blank" class="btn_result">[ HTML ]</a>
+                        {% endif %}
+                        / PC value <a href="./OTU_Results/Beta_diversity/unweighted_unifrac_pc.html" target="_blank" class="btn_result">[ HTML ]</a><br>
+                    {% endif %}
+                    {% if (page_status.get('weighted_unifrac_upgma_cluster.html') == True) and ('upgma_tree' not in skipped_page) %}
+                        UPGMA tree comparing samples(weighted unifrac) <a href="./OTU_Results/UPGMAtree/weighted_unifrac_upgma_cluster.html" target="_blank" class="btn_result">[ HTML ]</a>
+                                         <a href="./OTU_Results/UPGMAtree/weighted_unifrac_upgma_cluster.tre" target="_blank" class="btn_result">[ .tre ]</a><br>
+                    {% endif %}
+                    {% if (page_status.get('unweighted_unifrac_upgma_cluster.html') == True) and ('upgma_tree' not in skipped_page) %}
+                        UPGMA tree comparing samples(unweighted unifrac) <a href="./OTU_Results/UPGMAtree/unweighted_unifrac_upgma_cluster.html" target="_blank" class="btn_result">[ HTML ]</a>
+                                         <a href="./OTU_Results/UPGMAtree/unweighted_unifrac_upgma_cluster.tre" target="_blank" class="btn_result">[ .tre ]</a><br>
                     {% endif %}
 					</td>
 				</tr>

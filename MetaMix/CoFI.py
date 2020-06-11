@@ -17,7 +17,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.1.7'
+__version__ = '1.1.8'
 
 # ------------------------------------
 # Ver. 1.1.6  2020.04.28
@@ -26,6 +26,8 @@ __version__ = '1.1.7'
 # Ver. 1.1.7 2020.04.29
 # Taxonomy - remove keep : Archaea 추가
 # ------------------------------------
+# Ver. 1.1.8 2020.05.19
+# R_DADA2 추가
 
 
 import click
@@ -77,6 +79,7 @@ P_TRIM_LEFT_F = CONFIG['CoFI_DADA2']['p_trim_left_f']
 P_TRIM_LEFT_R = CONFIG['CoFI_DADA2']['p_trim_left_r']
 
 QUEUE_LIST = CONFIG['Queue_List']
+DEFAULT_QUEUE = CONFIG['default_queue']
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
@@ -112,6 +115,8 @@ def main(**kargs):
     \b
     \033[1;32;40m<ASVs PipeLine>\033[m
     DADA2
+     ├─── Q2_DADA2
+     └─── R_DADA2
 
     \b
     \033[1;32;40m<분석 순서>\033[m
@@ -121,9 +126,12 @@ def main(**kargs):
        ├─── TAXONOMY
        └─── BIOM
     \b
-    DADA2
+    Q2_DADA2
        ├─── MAFFT_FastTree ── DIVERSITY
        └─── TAXONOMY
+    \b
+    R_DADA2
+
     """
     pass
 
@@ -310,6 +318,9 @@ def primer(**kargs):
               type=click.Choice(['FASTQ', 'FASTA']),
               help='Filtered Read 파일과 Pooled Sample 파일의 형식을 지정.'
                    '--length_filter 과 --pooled_sample 이 모두 False 일 경우, 해당 옵션 적용 안됨.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def flash(**kargs):
     """
     \b
@@ -339,8 +350,11 @@ def flash(**kargs):
     from SpoON.run_time import print_cofi_flash_run_time
 
     # 수주번호 형식 확인
-    if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+    if kargs['no_order_number'] is True:
         pass
+    else:
+        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+            pass
 
     if kargs['length_filter'] is True:
         if kargs['length_min']:
@@ -446,6 +460,9 @@ def flash(**kargs):
               type=click.Choice(['FASTQ', 'FASTA']),
               help='Filtered Read 파일과 Pooled Sample 파일의 형식을 지정.'
                    '--length_filter 과 --pooled_sample 이 모두 False 일 경우, 해당 옵션 적용 안됨.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def length_filter(**kargs):
     """
     \b
@@ -485,13 +502,16 @@ def length_filter(**kargs):
     pprint(kargs)
 
     # 수주번호 형식 확인
-    if kargs['order_number'] != 'None':
-        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
-            pass
-    elif kargs['assembled_dir'] is not None:
+    if kargs['no_order_number'] is True:
         pass
     else:
-        click.secho('Error: Argument & Option 조합 오류.', fg='red')
+        if kargs['order_number'] != 'None':
+            if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+                pass
+        elif kargs['assembled_dir'] is not None:
+            pass
+        else:
+            click.secho('Error: Argument & Option 조합 오류.', fg='red')
 
     if (kargs['mode'] == 'length_filter') or (kargs['mode'] == 'all'):
         if kargs['length_min'] is None:
@@ -554,6 +574,9 @@ def length_filter(**kargs):
               default=PCR_ERROR,
               show_default=True,
               help='per-base PCR error.'.format(PCR_ERROR))
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def cd_hit_otu(**kargs):
     """
     \b
@@ -578,13 +601,16 @@ def cd_hit_otu(**kargs):
         exit()
 
     # 수주번호 형식 확인
-    if kargs['order_number'] != 'None':
-        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
-            pass
-    elif kargs['pooled_sample'] is not None:
+    if kargs['no_order_number'] is True:
         pass
     else:
-        click.secho('Error: Argument & Option 조합 오류.', fg='red')
+        if kargs['order_number'] != 'None':
+            if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+                pass
+        elif kargs['pooled_sample'] is not None:
+            pass
+        else:
+            click.secho('Error: Argument & Option 조합 오류.', fg='red')
 
     cd_hit_runt_time = cd_hit_otu_pipeline(kargs)
     end_time = time()
@@ -659,6 +685,9 @@ def cd_hit_otu(**kargs):
               default=PCR_ERROR,
               show_default=True,
               help='per-base PCR error.'.format(PCR_ERROR))
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def flash_hit(**kargs):
     """
     \b
@@ -682,8 +711,11 @@ def flash_hit(**kargs):
     from SpoON.run_time import print_flash_hit_run_time
 
     # 수주번호 형식 확인
-    if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+    if kargs['no_order_number'] is True:
         pass
+    else:
+        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+            pass
 
     pprint(kargs)
     if check_file_type(os.path.join(*(kargs['analysis_base_path'], kargs['order_number'])), 'exists'):
@@ -752,6 +784,9 @@ def flash_hit(**kargs):
 @click.option('--no_assign',
               is_flag=True,
               help='Taxonomy Assignment 진행 안함.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def closed_otu_picking(**kargs):
     """
     \b
@@ -799,8 +834,11 @@ def closed_otu_picking(**kargs):
 
     # 수주번호 형식 확인
     if kargs['order_number'] != 'None':
-        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+        if kargs['no_order_number'] is True:
             pass
+        else:
+            if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+                pass
     elif kargs['pooled_sample'] is not None:
         pass
     else:
@@ -821,7 +859,7 @@ def closed_otu_picking(**kargs):
     print_cofi_closed_otu_run_time(start_time, closed_otu_run_time, end_time)
 
 
-@main.command('DADA2', short_help='ASVs: Denoising')
+@main.command('Q2_DADA2', short_help='ASVs: Denoising by QIIME2')
 @click.argument('order_number')
 @click.option('--metadata', '-m',
               required=True,
@@ -890,7 +928,10 @@ def closed_otu_picking(**kargs):
               help='Position at which reverse read sequences should be trimmed due to low quality. '
                    'This trims the 5\' end of the input sequences, '
                    'which will be the bases that were sequenced in the first cycles.'.format(P_TRIM_LEFT_R))
-def dada2(**kargs):
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
+def q2_dada2(**kargs):
     """
     \b
     DADA2를 통해 Denoising을 진행하며, ASVs(Amplicon Sequence Variants, 100% OTUs)를 생성합니다.
@@ -910,10 +951,148 @@ def dada2(**kargs):
     """
     from CoFI.core import dada2_pipeline
     # 수주번호 형식 확인
-    if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+    if kargs['no_order_number'] is True:
         pass
+    else:
+        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+            pass
     pprint(kargs)
     dada2_pipeline(kargs)
+
+
+@main.command('R_DADA2', short_help='ASVs: Denoising by R')
+@click.argument('order_number')
+@click.option('--analysis_base_path', '-ap',
+              default=ANALYSIS_BASE_PATH,
+              show_default=True,
+              type=click.Path(exists=True),
+              help='기본값: {}'.format(ANALYSIS_BASE_PATH))
+@click.option('--target_dir_suffix', '-pt',
+              default=TARGET_DIR_SUFFIX,
+              show_default=True,
+              help='Analysis Run Dir')
+@click.option('--R1_suffix', '-r1',
+              default=R1_SUFFIX,
+              show_default=True)
+@click.option('--R2_suffix', '-r2',
+              default=R2_SUFFIX,
+              show_default=True)
+@click.option('--analysis_dir_base_name', '-abn',
+              default=ANALYSIS_DIR_BASE_NAME,
+              show_default=True)
+@click.option('--trim_left_F', '-tmf',
+              required=True,
+              type=click.INT,
+              help='Forward Primer 서열의 길이. Read1에서 Primer 서열 제거. '
+                   'Bakt_341F: 17. ITS_3F: 20.')
+@click.option('--trim_left_R', '-tmr',
+              required=True,
+              type=click.INT,
+              help='Reversed Primer 서열의 길이. Read2에서 Primer 서열 제거. '
+                   'Bakt_805R: 21. ITS_4R: 20.')
+@click.option('--trunc_Len_F', '-tcf',
+              required=True,
+              type=click.INT,
+              help='Read1을 잘라내고 남기고 싶은 Read1의 길이. '
+                   'Read1의 길이가 301bp일 경우, 250bp를 입력하면 301bp를 잘라서 250bp를 만든다.')
+@click.option('--trunc_Len_R', '-tcr',
+              required=True,
+              type=click.INT,
+              help='Read2을 잘라내고 남기고 싶은 Read2의 길이. '
+                   'Read2의 길이가 301bp일 경우, 250bp를 입력하면 301bp를 잘라서 250bp를 만든다.')
+@click.option('--maxN',
+              default=0,
+              show_default=True,
+              type=click.INT,
+              help='')
+@click.option('--maxEE_F',
+              default=5,
+              show_default=True,
+              type=click.INT,
+              help='')
+@click.option('--maxEE_R',
+              default=5,
+              show_default=True,
+              type=click.INT,
+              help='')
+@click.option('--truncQ',
+              default=2,
+              show_default=True,
+              type=click.INT,
+              help='')
+@click.option('--min_overlap',
+              default=15,
+              show_default=True,
+              type=click.INT,
+              help='')
+@click.option('--chimera_method',
+              default='consensus',
+              show_default=True,
+              type=click.Choice(['consensus', 'pooled', 'per-sample']),
+              help='')
+@click.option('--dada2_dir_name', '-dn',
+              default='R_DADA2',
+              show_default=True,
+              help='DADA2 디렉터리 이름.')
+@click.option('--rds_name', '-rn',
+              default='seqtab_noChimera.rds',
+              show_default=True,
+              type=click.Choice(['seqtab_noChimera.rds', 'seqtab.rds']),
+              help='ASVs 정보를 저장한 rds 파일의 이름.')
+@click.option('--queue', '-q',
+              default=DEFAULT_QUEUE,
+              show_default=True,
+              type=click.Choice(QUEUE_LIST),
+              help='DADA2(R)를 실행하기 위한 Queue.')
+@click.option('--slots', '-s',
+              type=click.INT,
+              help='Queue 작업시 사용할 슬롯(CPU)개수. '
+                   'bi3m.q: 56, meta.q: 144, meta.q@denovo06:48, meta.q@denovo11: 144. '
+                   '사용 가능한 CPU 개수 초과시 최대 개수 할당.')
+@click.option('--no_queue',
+              is_flag=True,
+              help='Queue에 작업을 등록하지 않고 현재 서버에서 실행.')
+@click.option('--include',
+              help='분석에 포함할 시료명. --closed, --diversity, --summarize_taxa, --make_story 에만 적용.'
+                   'ex) --include "A B C"')
+@click.option('--exclude',
+              help='분석에 제외할 시료명. --closed, --diversity, --summarize_taxa, --make_story 에만 적용'
+                   'ex) --exclude "D E F"')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
+def r_dada2(**kargs):
+    """
+    \b
+    DADA2 프로그램을 이용하여 ASVs(Amplicon Sequence Variants) 방식으로 분석을 진행한다.
+    DADA2(R 사용)는 직접 작성한 스크립트를 통해 실행된다.
+    \b
+    \033[1;32m16S V3V4 : Bakt_341F-805R & 300bp X 2\033[m
+    --trim_left_F 17
+    --trim_left_R 21
+    --trunc_Len_F 250
+    --trunc_Len_R 250
+    \b
+    \033[1;31m** 주의: 옵션 설정값에 따라 결과의 차이가 심하게 발생한다.\033[m
+    --trunc_Len_F & --trunc_Len_R 옵션은 FASTQ의 Quality Score에 따라 적절하게 선택한다.
+    \b
+    DADA2 옵션
+    --trim_left_F    --trim_left_R
+    --trunc_Len_F    --trunc_Len_R
+    --maxN
+    --maxEE_F        --maxEE_R
+    --truncQ
+    --min_overlap
+    --chimera_method
+    """
+    from CoFI.core import r_dada2_pipeline
+    # 수주번호 형식 확인
+    if kargs['no_order_number'] is True:
+        pass
+    else:
+        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+            pass
+    r_dada2_pipeline(kargs)
 
 
 @main.command('MAFFT_FastTree', short_help='Alignment & Phylogeny')
@@ -970,14 +1149,22 @@ def diversity(**kargs):
               help='otus_rep.fasta')
 @click.option('--out_dir', '-o',
               help='미입릭시 --i_otus_rep 옵션에 전달된 경로를 참조하여 2단계 상위 디렉터리에 자동 생성.')
+@click.option('--otu_method', '-om',
+              type=click.Choice(['denovo', 'closed', 'r_dada2', 'auto']),
+              default='auto',
+              show_default=True,
+              help='구성된 OTU를 생성한 방법. 값에 따라 관련 파일 인식 경로가 달라짐.')
 @click.option('--queue', '-q',
-              default='bi3m.q',
+              default=DEFAULT_QUEUE,
               show_default=True,
               type=click.Choice(QUEUE_LIST),
               help='ALIGNMENT를 실행하기 위한 Queue.')
 @click.option('--no_queue',
               is_flag=True,
               help='Queue에 작업을 등록하지 않고 현재 서버에서 실행.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def alignment_muscle(**kargs):
     """
     \b
@@ -994,8 +1181,11 @@ def alignment_muscle(**kargs):
     pprint(kargs)
     # 수주번호 형식 확인
     if kargs['order_number'] != 'None':
-        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+        if kargs['no_order_number'] is True:
             pass
+        else:
+            if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+                pass
     elif kargs['i_otus_rep'] is not None:
         pass
     else:
@@ -1010,11 +1200,19 @@ def alignment_muscle(**kargs):
               default=ANALYSIS_BASE_PATH,
               show_default=True,
               type=click.Path(exists=True))
+@click.option('--otu_method', '-om',
+              type=click.Choice(['denovo', 'closed', 'r_dada2', 'auto']),
+              default='auto',
+              show_default=True,
+              help='구성된 OTU를 생성한 방법. 값에 따라 관련 파일 인식 경로가 달라짐.')
 @click.option('--i_filtered', '-i',
               required=False,
               help='otus_rep_aligned_pfiltered.fasta')
 @click.option('--out_dir', '-o',
               help='미입릭시 --i_otus_rep 옵션에 전달된 경로를 참조하여 2단계 상위 디렉터리에 자동 생성.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def phylogeny_qiime1(**kargs):
     """
     \b
@@ -1031,8 +1229,11 @@ def phylogeny_qiime1(**kargs):
     pprint(kargs)
     # 수주번호 형식 확인
     if kargs['order_number'] != 'None':
-        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+        if kargs['no_order_number'] is True:
             pass
+        else:
+            if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+                pass
     elif kargs['i_filtered'] is not None:
         pass
     else:
@@ -1051,8 +1252,8 @@ def phylogeny_qiime1(**kargs):
               required=False,
               help='otus_rep.fasta')
 @click.option('--otu_method', '-om',
-              type=click.Choice(['denovo', 'closed']),
-              default='denovo',
+              type=click.Choice(['denovo', 'closed', 'r_dada2', 'auto']),
+              default='auto',
               show_default=True,
               help='구성된 OTU를 생성한 방법. 값에 따라 대표서열을 인식하는 경로가 달라짐.')
 @click.option('--uclust_db', '-udb',
@@ -1103,6 +1304,9 @@ def phylogeny_qiime1(**kargs):
               help='작업을 등록할 Queue.')
 @click.option('--out_dir', '-o',
               help='미입릭시 --i_otus_rep 옵션에 전달된 경로를 참조하여 2단계 상위 디렉터리에 자동 생성.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def taxonomy(**kargs):
     """
     \b
@@ -1130,8 +1334,11 @@ def taxonomy(**kargs):
     pprint(kargs)
     # 수주번호 형식 확인
     if kargs['order_number'] != 'None':
-        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+        if kargs['no_order_number'] is True:
             pass
+        else:
+            if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+                pass
     elif kargs['i_otus_rep'] is not None:
         pass
     else:
@@ -1153,6 +1360,11 @@ def taxonomy(**kargs):
               help='pick_otus.txt')
 # @click.option('--out_dir_suffix', '-o',
 #               help='BIOM 디렉터리뒤에 붙여질 접미사.')
+@click.option('--otu_method', '-om',
+              type=click.Choice(['denovo', 'closed', 'r_dada2', 'auto']),
+              default='auto',
+              show_default=True,
+              help='구성된 OTU를 생성한 방법. 값에 따라 관련 파일 인식 경로가 달라짐.')
 @click.option('--biom', '-b',
               default='otu_table',
               show_default=True,
@@ -1166,9 +1378,14 @@ def taxonomy(**kargs):
 @click.option('--collapse', '-c',
               type=click.Choice(['mean', 'sum', 'random', 'median', 'first']),
               help='metadata 파일에 기재된 각 그룹의 시료들을 지정된 방식으로 하나로 통합.')
+@click.option('--sort_for_collapse', '-s',
+               help='시료통합 후 그룹명(시료명)을 정렬할 순서가 담긴 파일.')
 @click.option('--remove_sample', '-rs',
               multiple=True,
-              help='BIOM 파일에서 특정 시료을 제거. ex) -rs A1 -rs A2')
+              help='BIOM 파일에서 특정 시료을 제거. ex) -rs A1 -rs A2. 동작 안 함.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def biom(**kargs):
     """
     Order Number & Analysis Number Argument 사용시, Taxonomy_assignment 디렉터리내의 모든 결과에 대해서 BIOM 파일을
@@ -1193,8 +1410,11 @@ def biom(**kargs):
     pprint(kargs)
     # 수주번호 형식 확인
     if kargs['order_number'] != 'None':
-        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+        if kargs['no_order_number'] is True:
             pass
+        else:
+            if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+                pass
     elif kargs['otu_map_fp'] is not None:
         pass
     else:
@@ -1209,21 +1429,32 @@ def biom(**kargs):
               default=ANALYSIS_BASE_PATH,
               show_default=True,
               type=click.Path(exists=True))
+@click.option('--otu_method', '-om',
+              type=click.Choice(['denovo', 'closed', 'r_dada2', 'auto']),
+              default='auto',
+              show_default=True,
+              help='구성된 OTU를 생성한 방법. 값에 따라 관련 파일 인식 경로가 달라짐.')
 @click.option('--queue', '-q',
-              default='bi3m.q',
+              default=DEFAULT_QUEUE,
               show_default=True,
               type=click.Choice(QUEUE_LIST),
               help='ALIGNMENT를 실행하기 위한 Queue.')
 @click.option('--no_queue',
               is_flag=True,
               help='Queue에 작업을 등록하지 않고 현재 서버에서 실행.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def alignment_phylogeny(**kargs):
     from CoFI.core import alignment_muscle_pipeline, phylogeny_qiime1_pipeline
     pprint(kargs)
     # 수주번호 형식 확인
     if kargs['order_number'] != 'None':
-        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+        if kargs['no_order_number'] is True:
             pass
+        else:
+            if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+                pass
     else:
         click.secho('Error: Argument 오류.', fg='red')
     alignment_muscle_pipeline(kargs)
@@ -1238,15 +1469,17 @@ def alignment_phylogeny(**kargs):
               show_default=True,
               type=click.Path(exists=True))
 @click.option('--otu_method', '-om',
-              type=click.Choice(['denovo', 'closed']),
-              default='denovo',
+              type=click.Choice(['denovo', 'closed', 'r_dada2', 'auto']),
+              default='auto',
               show_default=True,
-              help='구성된 OTU를 생성한 방법. 값에 따라 대표서열을 인식하는 경로가 달라짐.')
+              help='구성된 OTU를 생성한 방법. 값에 따라 관련 파일 인식 경로가 달라짐.')
 @click.option('--uclust_db', '-udb',
               type=click.Choice(UCLUST_DATABASE_LIST),
+              multiple=True,
               help='RDP DB')
 @click.option('--blast_db', '-bdb',
               type=click.Choice(BLAST_DATABASE_LIST),
+              multiple=True,
               help='BLAST DB. Probiotics DB 미설정(문의요망).')
 @click.option('--mode', '-m',
               default='all',
@@ -1259,7 +1492,7 @@ def alignment_phylogeny(**kargs):
               multiple=True,
               help='taxon 제거 조건. 다중 선택 가능. ex) -rm no_hit -rm filtered')
 @click.option('--keep_taxon', '-k',
-              type=click.Choice(['Cyanobacteria']),
+              type=click.Choice(['Cyanobacteria', 'Archaea']),
               multiple=True,
               help='taxon 유지 조건. 다중 선택 가능. ex) -k Cyanobacteria')
 @click.option('--query_coverage', '-qc',
@@ -1288,13 +1521,19 @@ def alignment_phylogeny(**kargs):
 @click.option('--no_queue',
               is_flag=True,
               help='Queue에 작업을 등록하지 않고 현재 서버에서 실행.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def alignment_phylogeny_taxonomy(**kargs):
     from CoFI.core import alignment_muscle_pipeline, phylogeny_qiime1_pipeline, taxonomy_pipeline
     pprint(kargs)
     # 수주번호 형식 확인
     if kargs['order_number'] != 'None':
-        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+        if kargs['no_order_number'] is True:
             pass
+        else:
+            if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+                pass
     else:
         click.secho('Error: Argument 오류.', fg='red')
     alignment_muscle_pipeline(kargs)

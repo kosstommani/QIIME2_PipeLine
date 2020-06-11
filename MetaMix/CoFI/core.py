@@ -16,7 +16,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.3'
+__version__ = '1.0.5'
 
 # Ver. 1.0.2
 # 2020.04.17
@@ -25,6 +25,14 @@ __version__ = '1.0.3'
 # Ver. 1.0.3
 # 2020.04.28
 # TAXONOMY DB 다중 선택 기능 추가
+# ----------------------------
+# Ver. 1.0.4
+# R_DADA2 명령어 추가
+# ----------------------------
+# Ver. 1.0.5
+# R_DADA2 : Summary Files 통합
+# R_DADA2 : metadata.txt, info.txt 생성
+
 
 import os
 from time import time
@@ -34,15 +42,16 @@ from CoFI.data_handler import find_rawdata, check_duplication, make_metadata_fil
 from CoFI.read_assembly import run_flash, make_excel_for_flash
 from CoFI.OTU import run_cd_hit_otu, make_pick_otus_rep_file, run_closed_reference_otu
 from SpoON.util import glob_dir, check_file_type, make_info_file, read_all_data, make_dir_using_input_file, \
-    parse_config, run_cmd, check_run_cmd, get_target_dir_number
+    parse_config, run_cmd, check_run_cmd, get_target_dir_number, detect_otu_method, read_data
 from SpoON.run_time import compute_run_time
 from SpoON.fastq_handler import filter_length_all, exist_assembled_fastq
 from CoFI.ASVs import run_import_fastq, run_demux_summarize, run_dada2, run_dada2_stats_qzv, \
-     run_feature_table_summarize, run_feature_table_tabulate_seqs
+    run_feature_table_summarize, run_feature_table_tabulate_seqs
 from CoFI.phylogeny import run_align_to_tree_mafft_fasttree, run_phylogeny_qiime1
 from CoFI.alignment import run_alignment_muscle, run_filter_alignment
 from CoFI.taxonomy import run_taxonomy_qiime1, run_standalone_blast2
 from CoFI.biom import run_make_otu_table, run_collapse_samples
+from MicrobeAndMe.data_structure import Microbe, ASVsMerger, FilesCollector
 # from CoFI.diversity import run_core_metrics_phylogenetic
 # from pprint import pprint
 
@@ -57,10 +66,10 @@ def make_sample_list(p_path, p_order_number, p_target_suffix, p_sample_suffix):
 
     :type p_path: str
     :param p_path: 경로
-    
+
     :type p_order_number: str
     :param p_order_number: 수주번호
-    
+
     :type p_target_suffix: str
     :param p_target_suffix: 시료 검출을 위한 대상 디렉터리의 접미사
 
@@ -99,6 +108,97 @@ def make_analysis_dir(p_path, p_order_number, p_dir_base_name):
     secho('>>> 분석 디렉터리 생성', fg='cyan')
     echo(analysis_path)
     return analysis_path
+
+
+def save_metadata_file(kargs):
+    """
+    metadata 파일을 생성하기 위한 데이터 처리 과정을 수행하고 metadata파일을 저장한다.
+    
+    :param kargs:
+        analysis_base_path
+        order_number
+        target_dir_suffix
+        l_nt_run_list
+        analysis_path
+    :return:
+    """
+    work_order_number_dir = os.path.join(kargs['analysis_base_path'], kargs['order_number'])
+    l_group_file = glob_dir(work_order_number_dir, f"{kargs['target_dir_suffix']}/metadata_group.txt", p_mode='many')
+    custom_sort_name = f'{kargs["order_number"]}_custom_sort.txt'
+    custom_sort_file = os.path.join(work_order_number_dir, custom_sort_name)
+    if l_group_file is not None:
+        l_group_dict = list()
+        for group_file in l_group_file:
+            l_group_dict.append(read_metadata_group_file(group_file))
+        d_sample_group = dict()
+        for group_dict in l_group_dict:
+            header_value = d_sample_group.get('#SampleID')
+            if header_value is not None:
+                if header_value == group_dict.get('#SampleID'):
+                    del group_dict['#SampleID']
+                else:
+                    l_keep_header = header_value.split('\t')
+                    l_new_header = group_dict.get('#SampleID').split('\t')
+                    if len(l_keep_header) == len(l_new_header):
+                        for keep, new in zip(l_keep_header, l_new_header):
+                            if keep == new:
+                                continue
+                            else:
+                                secho('Error: metadata_group 파일들의 Header의 이름이 다릅니다.', fg='red', blink=True)
+                                echo(f'l_keep_header: {l_keep_header}')
+                                echo(f'l_new_header: {l_new_header}')
+                                echo(f'Kept Header: {keep}')
+                                echo(f'New Header : {new}')
+                                exit()
+                        else:
+                            del group_dict['#SampleID']
+                    else:
+                        secho('Error: metadata_group 파일들의 Header의 개수가 다릅니다.', fg='red', blink=True)
+                        echo(f'l_keep_header: {l_keep_header}')
+                        echo(f'l_new_header: {l_new_header}')
+                        exit()
+            d_sample_group.update(group_dict)
+        else:
+            t_custom_order = read_custom_order_for_metadata(custom_sort_file)
+            if t_custom_order is None:
+                make_metadata_file(kargs['l_nt_run_list'], kargs['analysis_path'], d_sample_group, None)
+            else:
+                make_metadata_file(kargs['l_nt_run_list'], kargs['analysis_path'], d_sample_group, t_custom_order)
+    else:  # l_group_file 파일이 없는 경우 --> (그룹 정보 없음)
+        t_custom_order = read_custom_order_for_metadata(custom_sort_file)
+        if t_custom_order is None:
+            make_metadata_file(kargs['l_nt_run_list'], kargs['analysis_path'])
+        else:  # 고객맞춤정렬
+            make_metadata_file(kargs['l_nt_run_list'], kargs['analysis_path'], None, t_custom_order)
+
+
+def save_info_file(kargs):
+    """
+    info.txt 파일을 생성하기 위해 필요한 데이터 처리를 진행하고 info.txt 파일을 저장한다.
+    :param kargs:
+            target_info
+            target_region
+            l_nt_run_list
+            analysis_path
+            order_number
+    :return:
+    """
+    if kargs['target_info'] is not None:
+        if kargs['target_region'] == 'Bakt_341F-805R':
+            target_region = 'V3V4(Bakt_341F-805R)'
+        elif kargs['target_region'] == 'ITS_3F-4R':
+            target_region = 'ITS(ITS_3F-4R)'
+        elif kargs['target_region'] == '27F-Bact338':
+            target_region = 'V1V2(27F-Bact338)'
+        else:
+            raise ValueError('입력된 값이 등록된 목록에 없습니다.\n'
+                             '입력값 : {}'.format(kargs['target_region']))
+    else:
+        target_region = None
+    sample_count = 0
+    for run in kargs['l_nt_run_list']:
+        sample_count += len(run.samples)
+    make_info_file(kargs['order_number'], kargs['analysis_path'], sample_count, target_region)
 
 
 def flash_pipeline(kargs, p_target_info=None):
@@ -193,72 +293,90 @@ def flash_pipeline(kargs, p_target_info=None):
     flash_run_time = compute_run_time(flash_start, flash_end)
 
     # metadata.txt 파일 생성
-    work_order_number_dir = os.path.join(kargs['analysis_base_path'], kargs['order_number'])
-    l_group_file = glob_dir(work_order_number_dir, f"{kargs['target_dir_suffix']}/metadata_group.txt", p_mode='many')
-    custom_sort_name = f'{kargs["order_number"]}_custom_sort.txt'
-    custom_sort_file = os.path.join(work_order_number_dir, custom_sort_name)
-    if l_group_file is not None:
-        l_group_dict = list()
-        for group_file in l_group_file:
-            l_group_dict.append(read_metadata_group_file(group_file))
-        d_sample_group = dict()
-        for group_dict in l_group_dict:
-            header_value = d_sample_group.get('#SampleID')
-            if header_value is not None:
-                if header_value == group_dict.get('#SampleID'):
-                    del group_dict['#SampleID']
-                else:
-                    l_keep_header = header_value.split('\t')
-                    l_new_header = group_dict.get('#SampleID').split('\t')
-                    if len(l_keep_header) == len(l_new_header):
-                        for keep, new in zip(l_keep_header, l_new_header):
-                            if keep == new:
-                                continue
-                            else:
-                                secho('Error: metadata_group 파일들의 Header의 이름이 다릅니다.', fg='red', blink=True)
-                                echo(f'l_keep_header: {l_keep_header}')
-                                echo(f'l_new_header: {l_new_header}')
-                                echo(f'Kept Header: {keep}')
-                                echo(f'New Header : {new}')
-                                exit()
-                        else:
-                            del group_dict['#SampleID']
-                    else:
-                        secho('Error: metadata_group 파일들의 Header의 개수가 다릅니다.', fg='red', blink=True)
-                        echo(f'l_keep_header: {l_keep_header}')
-                        echo(f'l_new_header: {l_new_header}')
-                        exit()
-            d_sample_group.update(group_dict)
-        else:
-            t_custom_order = read_custom_order_for_metadata(custom_sort_file)
-            if t_custom_order is None:
-                make_metadata_file(l_nt_run_list, analysis_path, d_sample_group, None)
-            else:
-                make_metadata_file(l_nt_run_list, analysis_path, d_sample_group, t_custom_order)
-    else:  # l_group_file 파일이 없는 경우 --> (그룹 정보 없음)
-        t_custom_order = read_custom_order_for_metadata(custom_sort_file)
-        if t_custom_order is None:
-            make_metadata_file(l_nt_run_list, analysis_path)
-        else:  # 고객맞춤정렬
-            make_metadata_file(l_nt_run_list, analysis_path, None, t_custom_order)
+    save_metadata_file(
+        {
+            'analysis_base_path': kargs['analysis_base_path'],
+            'order_number': kargs['order_number'],
+            'target_dir_suffix': kargs['target_dir_suffix'],
+            'l_nt_run_list': l_nt_run_list,
+            'analysis_path': analysis_path
+        }
+    )
+    # work_order_number_dir = os.path.join(kargs['analysis_base_path'], kargs['order_number'])
+    # l_group_file = glob_dir(work_order_number_dir, f"{kargs['target_dir_suffix']}/metadata_group.txt", p_mode='many')
+    # custom_sort_name = f'{kargs["order_number"]}_custom_sort.txt'
+    # custom_sort_file = os.path.join(work_order_number_dir, custom_sort_name)
+    # if l_group_file is not None:
+    #     l_group_dict = list()
+    #     for group_file in l_group_file:
+    #         l_group_dict.append(read_metadata_group_file(group_file))
+    #     d_sample_group = dict()
+    #     for group_dict in l_group_dict:
+    #         header_value = d_sample_group.get('#SampleID')
+    #         if header_value is not None:
+    #             if header_value == group_dict.get('#SampleID'):
+    #                 del group_dict['#SampleID']
+    #             else:
+    #                 l_keep_header = header_value.split('\t')
+    #                 l_new_header = group_dict.get('#SampleID').split('\t')
+    #                 if len(l_keep_header) == len(l_new_header):
+    #                     for keep, new in zip(l_keep_header, l_new_header):
+    #                         if keep == new:
+    #                             continue
+    #                         else:
+    #                             secho('Error: metadata_group 파일들의 Header의 이름이 다릅니다.', fg='red', blink=True)
+    #                             echo(f'l_keep_header: {l_keep_header}')
+    #                             echo(f'l_new_header: {l_new_header}')
+    #                             echo(f'Kept Header: {keep}')
+    #                             echo(f'New Header : {new}')
+    #                             exit()
+    #                     else:
+    #                         del group_dict['#SampleID']
+    #                 else:
+    #                     secho('Error: metadata_group 파일들의 Header의 개수가 다릅니다.', fg='red', blink=True)
+    #                     echo(f'l_keep_header: {l_keep_header}')
+    #                     echo(f'l_new_header: {l_new_header}')
+    #                     exit()
+    #         d_sample_group.update(group_dict)
+    #     else:
+    #         t_custom_order = read_custom_order_for_metadata(custom_sort_file)
+    #         if t_custom_order is None:
+    #             make_metadata_file(l_nt_run_list, analysis_path, d_sample_group, None)
+    #         else:
+    #             make_metadata_file(l_nt_run_list, analysis_path, d_sample_group, t_custom_order)
+    # else:  # l_group_file 파일이 없는 경우 --> (그룹 정보 없음)
+    #     t_custom_order = read_custom_order_for_metadata(custom_sort_file)
+    #     if t_custom_order is None:
+    #         make_metadata_file(l_nt_run_list, analysis_path)
+    #     else:  # 고객맞춤정렬
+    #         make_metadata_file(l_nt_run_list, analysis_path, None, t_custom_order)
 
     # info.txt 파일 생성
-    if p_target_info is not None:
-        if kargs['target_region'] == 'Bakt_341F-805R':
-            target_region = 'V3V4(Bakt_341F-805R)'
-        elif kargs['target_region'] == 'ITS_3F-4R':
-            target_region = 'ITS(ITS_3F-4R)'
-        elif kargs['target_region'] == '27F-Bact338':
-            target_region = 'V1V2(27F-Bact338)'
-        else:
-            raise ValueError('입력된 값이 등록된 목록에 없습니다.\n'
-                             '입력값 : {}'.format(kargs['target_region']))
-    else:
-        target_region = None
-    sample_count = 0
-    for run in l_nt_run_list:
-        sample_count += len(run.samples)
-    make_info_file(kargs['order_number'], analysis_path, sample_count, target_region)
+    save_info_file(
+        {
+            'target_info': p_target_info,
+            'target_region': kargs['target_region'],
+            'l_nt_run_list': l_nt_run_list,
+            'analysis_path': analysis_path,
+            'order_number': kargs['order_number'],
+        }
+    )
+    # if p_target_info is not None:
+    #     if kargs['target_region'] == 'Bakt_341F-805R':
+    #         target_region = 'V3V4(Bakt_341F-805R)'
+    #     elif kargs['target_region'] == 'ITS_3F-4R':
+    #         target_region = 'ITS(ITS_3F-4R)'
+    #     elif kargs['target_region'] == '27F-Bact338':
+    #         target_region = 'V1V2(27F-Bact338)'
+    #     else:
+    #         raise ValueError('입력된 값이 등록된 목록에 없습니다.\n'
+    #                          '입력값 : {}'.format(kargs['target_region']))
+    # else:
+    #     target_region = None
+    # sample_count = 0
+    # for run in l_nt_run_list:
+    #     sample_count += len(run.samples)
+    # make_info_file(kargs['order_number'], analysis_path, sample_count, target_region)
 
     # Length Filtering & Filtered fastq(Assembled) STAT 파일 생성 & Pooled Sample File 생성
     filter_start = time()
@@ -607,6 +725,79 @@ def dada2_pipeline(kargs):
     )
 
 
+def r_dada2_pipeline(kargs):
+    kargs['cofi_target_dir_suffix'] = kargs['target_dir_suffix']
+    r_dada2 = Microbe(kargs, mode='r_dada2', analysis_type='NGS')
+    r_dada2.make_analysis_number_dir()
+    r_dada2.set_path()
+    r_dada2.make_sample_list()
+    r_dada2.run_dada2_using_r()
+    r_dada2.check_jobs()
+    # Make Order Number File: ex) HN00124490   Analysis_1
+    order_number_name = f'{r_dada2.order_number}_ASVs.txt'
+    order_number_file = os.path.join(r_dada2.i_path.analysis_number_path, order_number_name)
+    with open(order_number_file, 'w') as o_file:
+        o_file.write(f'{r_dada2.order_number}\t{r_dada2.analysis_number}\n')
+
+    # metadata.txt 파일 생성
+    save_metadata_file(
+        {
+            'analysis_base_path': kargs['analysis_base_path'],
+            'order_number': r_dada2.order_number,
+            'target_dir_suffix': kargs['target_dir_suffix'],
+            'l_nt_run_list': r_dada2.l_nt_run_list,
+            'analysis_path': r_dada2.i_path.analysis_number_path,
+        }
+    )
+
+    # info.txt 파일 생성
+    save_info_file(
+        {
+            'target_info': None,
+            'target_region': None,
+            'l_nt_run_list': r_dada2.l_nt_run_list,
+            'analysis_path': r_dada2.i_path.analysis_number_path,
+            'order_number': r_dada2.order_number,
+        }
+    )
+
+    # Merge ASVs
+    kargs['order_number_file'] = order_number_file
+    kargs['out_dir'] = r_dada2.i_path.analysis_number_path
+    asv_merge = ASVsMerger(kargs)
+    asv_merge.read_order_number_file()
+    asv_merge.glob_samples()
+    asv_merge.check_rds_files()
+    all_rds_dir_path = asv_merge.copy_rds_files('rds_files')
+    asv_merge.run_merge_asvs(all_rds_dir_path)
+
+    # Merge DADA2 Summary Files
+    kargs['file_name'] = 'dada2.summary'
+    summary_collector = FilesCollector(kargs)
+    summary_collector.read_order_number_file()
+    summary_collector.glob_samples()
+    summary_collector.check_files()
+    summary_dir_path = summary_collector.copy_files('R_DADA2_Summary')
+    # Save all summary files
+    all_summary_file = os.path.join(summary_dir_path, 'all_dada2.summary')
+    with open(all_summary_file, 'w') as o_all:
+        first_sample = True
+        for nt_run in summary_collector.l_nt_analysis_list:
+            for sample in nt_run.samples:
+                sample_summary_file = os.path.join(summary_dir_path, f'{sample.name}_dada2.summary')
+                summary_data = read_data(sample_summary_file)
+                if first_sample is True:
+                    o_all.write('\t'.join(summary_data[0]))
+                    o_all.write('\n')
+                    o_all.write('\t'.join(summary_data[1]))
+                    o_all.write('\n')
+                    first_sample = False
+                else:
+                    o_all.write('\t'.join(summary_data[1]))
+                    o_all.write('\n')
+    secho('>>> all_data2.summary 파일 생성 완료', fg='cyan')
+
+
 def maff_fasttree_pipeline(kargs):
     """
     This pipeline will start by creating a sequence alignment using MAFFT, after which any alignment columns
@@ -657,20 +848,34 @@ def alignment_muscle_pipeline(kargs):
     # order_number & analysis_number 지정 방식
     if (kargs['order_number'] != 'None') and (kargs['analysis_number'] != 'None'):
         analysis_dir_path = os.path.join(kargs['analysis_base_path'], kargs['order_number'], kargs['analysis_number'])
-        cd_hit_otu_dir_path = os.path.join(analysis_dir_path, ANALYSIS_DIR_NAME['cd_hit_otu'])
-        closed_dir_path = os.path.join(analysis_dir_path, ANALYSIS_DIR_NAME['closed'])
-        cd_hit_otu_dir_status, closed_dir_status = check_clustering_dir(cd_hit_otu_dir_path, closed_dir_path)
+        if kargs['otu_method'] == 'auto':
+            otu_method = detect_otu_method(analysis_dir_path)
+        elif kargs['otu_method'] == 'denovo':
+            otu_method = 'denovo'
+        elif kargs['otu_method'] == 'closed':
+            otu_method = 'closed'
+        elif kargs['otu_method'] == 'r_dada2':
+            otu_method = 'r_dada2'
+        else:
+            secho(f'Error: --otu_method의 값이 잘못되었습니다.', fg='read', blink=True)
+            echo(f'kargs["otu_method"]: {kargs["otu_method"]}')
+            exit()
+
         # CD-HIT-OTU
-        if (cd_hit_otu_dir_status is True) and (closed_dir_status is False):
-            secho('>>> CD-HIT-OTU DIR 확인', fg='cyan')
+        if otu_method == 'denovo':
+            cd_hit_otu_dir_path = os.path.join(analysis_dir_path, ANALYSIS_DIR_NAME['cd_hit_otu'])
             clustering_dir_path = glob_dir(cd_hit_otu_dir_path, f'{kargs["order_number"]}*[!.log]',
                                            p_mode='only', p_verbose=False)
             otus_rep_file = os.path.join(clustering_dir_path, 'otus_rep.fasta')
         # CLOSED
-        elif (cd_hit_otu_dir_status is False) and (closed_dir_status is True):
-            secho('>>> CLOSED DIR 확인', fg='cyan')
+        elif otu_method == 'closed':
+            closed_dir_path = os.path.join(analysis_dir_path, ANALYSIS_DIR_NAME['closed'])
             rep_set_dir_path = os.path.join(closed_dir_path, 'rep_set')
             otus_rep_file = os.path.join(rep_set_dir_path, 'otus_rep.fasta')
+        # ASVs
+        elif otu_method == 'r_dada2':
+            r_dada2_dir_path = os.path.join(analysis_dir_path, ANALYSIS_DIR_NAME['r_dada2'])
+            otus_rep_file = os.path.join(r_dada2_dir_path, 'all_ASVs.fasta')
         align_path = make_dir_using_input_file(analysis_dir_path, out_dir_name, 0, p_check=False)
     # 파일 지정 방식
     elif (kargs['i_otus_rep'] != 'None') or (kargs['i_otus_rep'] is not None):
@@ -695,8 +900,24 @@ def phylogeny_qiime1_pipeline(kargs):
     out_dir_name = ANALYSIS_DIR_NAME['phylogeny']
     if (kargs['order_number'] != 'None') and (kargs['analysis_number'] != 'None'):
         analysis_dir_path = os.path.join(kargs['analysis_base_path'], kargs['order_number'], kargs['analysis_number'])
+        if kargs['otu_method'] == 'auto':
+            otu_method = detect_otu_method(analysis_dir_path)
+        elif kargs['otu_method'] == 'denovo':
+            otu_method = 'denovo'
+        elif kargs['otu_method'] == 'closed':
+            otu_method = 'closed'
+        elif kargs['otu_method'] == 'r_dada2':
+            otu_method = 'r_dada2'
+        else:
+            secho(f'Error: --otu_method의 값이 잘못되었습니다.', fg='read', blink=True)
+            echo(f'kargs["otu_method"]: {kargs["otu_method"]}')
+            exit()
+        if otu_method == 'r_dada2':
+            aligned_fasta = 'all_ASVs_aligned_pfiltered.fasta'
+        else:
+            aligned_fasta = 'otus_rep_aligned_pfiltered.fasta'
         filtered_aligned_fasta_file = os.path.join(analysis_dir_path, ANALYSIS_DIR_NAME['alignment'],
-                                                   'filtered_alignment', 'otus_rep_aligned_pfiltered.fasta')
+                                                   'filtered_alignment', aligned_fasta)
         phylo_path = make_dir_using_input_file(analysis_dir_path, out_dir_name, 0, p_check=False)
     elif (kargs['i_filtered'] != 'None') or (kargs['i_filtered'] is not None):
         filtered_aligned_fasta_file = kargs['i_filtered']
@@ -717,22 +938,37 @@ def taxonomy_pipeline(kargs):
 
     global ANALYSIS_DIR_NAME
     out_dir_name = ANALYSIS_DIR_NAME['taxonomy_assignment']
-    if kargs['otu_method'] == 'denovo':
-        otu_dir = ANALYSIS_DIR_NAME['cd_hit_otu']
-        sub_otu_dir = f'{kargs["order_number"]}*[!.log]'
-    elif kargs['otu_method'] == 'closed':
-        otu_dir = ANALYSIS_DIR_NAME['closed']
-        sub_otu_dir = 'rep_set'
-    else:
-        secho(f'Error: --otu_method의 값이 잘못되었습니다.', fg='read', blink=True)
-        echo(f'kargs["otu_method"]: {kargs["otu_method"]}')
-        exit()
-
     if (kargs['order_number'] != 'None') and (kargs['analysis_number'] != 'None'):
         analysis_dir_path = os.path.join(kargs['analysis_base_path'], kargs['order_number'], kargs['analysis_number'])
+        if kargs['otu_method'] == 'auto':
+            otu_method = detect_otu_method(analysis_dir_path)
+        elif kargs['otu_method'] == 'denovo':
+            otu_method = 'denovo'
+        elif kargs['otu_method'] == 'closed':
+            otu_method = 'closed'
+        elif kargs['otu_method'] == 'r_dada2':
+            otu_method = 'r_dada2'
+        else:
+            secho(f'Error: --otu_method의 값이 잘못되었습니다.', fg='read', blink=True)
+            echo(f'kargs["otu_method"]: {kargs["otu_method"]}')
+            exit()
+        if otu_method == 'denovo':
+            otu_dir = ANALYSIS_DIR_NAME['cd_hit_otu']
+            sub_otu_dir = f'{kargs["order_number"]}*[!.log]'
+        elif otu_method == 'closed':
+            otu_dir = ANALYSIS_DIR_NAME['closed']
+            sub_otu_dir = 'rep_set'
+        elif otu_method == 'r_dada2':
+            otu_dir = ANALYSIS_DIR_NAME['r_dada2']
+            sub_otu_dir = None
+        else:
+            raise ValueError(f'otu_method: {otu_method} 알맞지 않은 값입니다. ')
         otu_dir_path = os.path.join(analysis_dir_path, otu_dir)
-        clustering_dir_path = glob_dir(otu_dir_path, sub_otu_dir, p_mode='only', p_verbose=False)
-        otus_rep_file = os.path.join(clustering_dir_path, 'otus_rep.fasta')
+        if otu_method == 'r_dada2':
+            otus_rep_file = os.path.join(otu_dir_path, 'all_ASVs.fasta')
+        else:
+            clustering_dir_path = glob_dir(otu_dir_path, sub_otu_dir, p_mode='only', p_verbose=False)
+            otus_rep_file = os.path.join(clustering_dir_path, 'otus_rep.fasta')
         taxa_path = make_dir_using_input_file(analysis_dir_path, out_dir_name, 0, p_check=False)
     elif (kargs['i_otus_rep'] != 'None') or (kargs['i_otus_rep'] is not None):
         otus_rep_file = kargs['i_otus_rep']
@@ -878,19 +1114,29 @@ def biom_pipeline(kargs):
         out_dir_name_base = None
         out_dir_name = ANALYSIS_DIR_NAME['biom']
         if (kargs['order_number'] != 'None') and (kargs['analysis_number'] != 'None'):
+            if kargs['otu_method'] == 'auto':
+                otu_method = detect_otu_method(analysis_dir_path)
+            elif kargs['otu_method'] == 'denovo':
+                otu_method = 'denovo'
+            elif kargs['otu_method'] == 'closed':
+                otu_method = 'closed'
+            elif kargs['otu_method'] == 'r_dada2':
+                otu_method = 'r_dada2'
+            else:
+                secho(f'Error: --otu_method의 값이 잘못되었습니다.', fg='read', blink=True)
+                echo(f'kargs["otu_method"]: {kargs["otu_method"]}')
+                exit()
             taxonomy_dir_path = os.path.join(analysis_dir_path, ANALYSIS_DIR_NAME['taxonomy_assignment'])
             cd_hit_otu_dir_path = os.path.join(analysis_dir_path, ANALYSIS_DIR_NAME['cd_hit_otu'])
             closed_dir_path = os.path.join(analysis_dir_path, ANALYSIS_DIR_NAME['closed'])
             biom_dir_path = make_dir_using_input_file(analysis_dir_path, out_dir_name, 0, False)
             metadata_file = glob_dir(analysis_dir_path, 'metadata.txt', p_mode='only', p_verbose=True)
-            cd_hit_otu_dir_status, closed_dir_status = check_clustering_dir(cd_hit_otu_dir_path, closed_dir_path)
             # Taxonomy_Assignment 디렉터리 목록 확인
             l_glob_taxonomy = glob_dir(taxonomy_dir_path, '*', p_mode='many', p_verbose=False)
             if l_glob_taxonomy is not None:
                 l_assignment_dir, not_dir = check_file_type(l_glob_taxonomy, 'isdir')
             # CD-HIT-OTU
-            if (cd_hit_otu_dir_status is True) and (closed_dir_status is False):
-                secho('>>> CD-HIT-OTU DIR 확인', fg='cyan')
+            if otu_method == 'denovo':
                 clustering_dir_path = glob_dir(cd_hit_otu_dir_path, f'{kargs["order_number"]}*[!.log]',
                                                p_mode='only', p_verbose=False)
                 pick_otus_file = os.path.join(clustering_dir_path, 'pick_otus.txt')
@@ -902,18 +1148,33 @@ def biom_pipeline(kargs):
                     taxonomy_file = os.path.join(db_dir_path, 'otus_rep_tax_assignments.txt')
                     run_make_otu_table(biom_dir_path, pick_otus_file, biom_name, taxonomy_file, metadata_file)
             # CLOSED
-            elif (cd_hit_otu_dir_status is False) and (closed_dir_status is True):
-                secho('>>> CLOSED DIR 확인', fg='cyan')
+            elif otu_method == 'closed':
                 pick_otus_name = f'{kargs["order_number"]}.pooled_otus.txt'
                 pick_otus_file = os.path.join(closed_dir_path, 'uclust_ref_picked_otus', pick_otus_name)
                 echo('+++ BASE BIOM')
                 run_make_otu_table(biom_dir_path, pick_otus_file, kargs['biom'], None, metadata_file)
-
                 for db_dir_path in l_assignment_dir:
                     echo(f'+++ CLOSED: {os.path.basename(db_dir_path)}')
                     biom_name = f'{kargs["biom"]}.{os.path.basename(db_dir_path)}'
                     taxonomy_file = os.path.join(db_dir_path, 'otus_rep_tax_assignments.txt')
                     run_make_otu_table(biom_dir_path, pick_otus_file, biom_name, taxonomy_file, metadata_file)
+            # ASVs
+            elif otu_method == 'r_dada2':
+                l_db = list()
+                for db_dir_path in l_assignment_dir:
+                    db_dir_name = os.path.basename(db_dir_path)
+                    if db_dir_name.startswith('blast'):
+                        db_name = os.path.basename(db_dir_name).replace('blast_', '')
+                        l_db.append(db_name)
+                    elif db_dir_name.startswith('uclust'):
+                        secho('Error: 개발 중입니다.', fg='red')
+                        exit()
+                kargs['database'] = l_db
+                kargs['metadata'] = metadata_file
+                i_biom = Microbe(kargs, mode='biom', analysis_type='NGS')
+                i_biom.set_path()
+                i_biom.make_biom()
+
         elif (kargs['otu_map_fp'] != 'None') or (kargs['otu_map_fp'] is not None):
             if out_dir_name_base is None:
                 # 분석디렉터리경로/수주번호/Analysis_?
@@ -936,23 +1197,23 @@ def biom_pipeline(kargs):
             raise RuntimeError('예기치 않은 오류. Argument & Option 조합 오류.')
 
 
-def check_clustering_dir(p_cd_hit_otu_dir_path, p_closed_dir_path):
-    """
-    분석 디렉터리에 CD-HIT-OTU 디렉터리와 CLOSED 디렉터리의 존재 유무를 확인한다.
-    두 개의 디렉터리 모두 존재할 경우, Error 메시지를 출력하고 프로그램을 종료한다.
-    1개만 존재할 경우, 각 디렉터리의 존재유무를 bool 로 반환한다.
-
-    :param p_cd_hit_otu_dir_path: CD-HIT-OTU 디렉터리 경로
-    :param p_closed_dir_path: CLOSED 디렉터리 경로
-    :return: cd_hit_otu_dir_status, closed_dir_status
-    """
-    cd_hit_otu_dir_status = check_file_type(p_cd_hit_otu_dir_path, 'exists')
-    closed_dir_status = check_file_type(p_closed_dir_path, 'exists')
-    if (cd_hit_otu_dir_status is True) and (closed_dir_status is True):
-        secho('Error: CD-HIT-OTU 디렉터리와 CLOSED 디렉터리가 모두 존재합니다.', fg='red')
-        secho('       분석 파이프라인 설계상 같이 존재할 수 없습니다.', fg='red')
-        secho('\t --> Analysis_? 디렉터리를 생성하여, Clustering 디렉터리를 분리하세요.\n'
-              '       참고용일 경우, 디렉터리 이름을 변경하세요.', fg='magenta')
-        exit()
-    else:
-        return cd_hit_otu_dir_status, closed_dir_status
+# def check_clustering_dir(p_cd_hit_otu_dir_path, p_closed_dir_path):
+#     """
+#     분석 디렉터리에 CD-HIT-OTU 디렉터리와 CLOSED 디렉터리의 존재 유무를 확인한다.
+#     두 개의 디렉터리 모두 존재할 경우, Error 메시지를 출력하고 프로그램을 종료한다.
+#     1개만 존재할 경우, 각 디렉터리의 존재유무를 bool 로 반환한다.
+#
+#     :param p_cd_hit_otu_dir_path: CD-HIT-OTU 디렉터리 경로
+#     :param p_closed_dir_path: CLOSED 디렉터리 경로
+#     :return: cd_hit_otu_dir_status, closed_dir_status
+#     """
+#     cd_hit_otu_dir_status = check_file_type(p_cd_hit_otu_dir_path, 'exists')
+#     closed_dir_status = check_file_type(p_closed_dir_path, 'exists')
+#     if (cd_hit_otu_dir_status is True) and (closed_dir_status is True):
+#         secho('Error: CD-HIT-OTU 디렉터리와 CLOSED 디렉터리가 모두 존재합니다.', fg='red')
+#         secho('       분석 파이프라인 설계상 같이 존재할 수 없습니다.', fg='red')
+#         secho('\t --> Analysis_? 디렉터리를 생성하여, Clustering 디렉터리를 분리하세요.\n'
+#               '       참고용일 경우, 디렉터리 이름을 변경하세요.', fg='magenta')
+#         exit()
+#     else:
+#         return cd_hit_otu_dir_status, closed_dir_status

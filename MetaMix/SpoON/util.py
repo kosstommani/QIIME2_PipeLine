@@ -17,7 +17,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.1.2'  # 2020.04.24
+__version__ = '1.1.3'  # 2020.05.08
 
 from click import secho, echo, style
 import glob
@@ -25,6 +25,8 @@ import subprocess
 import os
 from shutil import rmtree
 from multiprocessing import current_process, Pool
+import csv
+from pprint import pprint
 
 
 def glob_dir(p_path, p_pattern, p_mode='only', p_verbose=True):
@@ -177,7 +179,7 @@ def get_order_json(p_order_number, p_service='NGS'):
     인터넷 연결 필수!
 
     :param p_order_number: 수주번호
-    :param p_service: [NSG | myBiomeStory] 서비스 종류.
+    :param p_service: [NSG | myBiomeStory | MicrobeAndMe] 서비스 종류.
     :rtype: tuple
     :return: (order_num_type, json_data)
              order_num_type: LIMS2 or LIMS3
@@ -198,12 +200,14 @@ def get_order_json(p_order_number, p_service='NGS'):
             json_prefix = 'http://lims02.macrogen.com/LIMSMOD/ngsDataMod2.jsp?on='
     elif p_service == 'myBiomeStory':
         json_prefix = 'https://lims3.macrogen.com/ngs/openapi/demulti/retrieveMiBioCsvInfo.do?cmpnyCd=1000&ordNo='
+    elif p_service == 'MicrobeAndMe':
+        json_prefix = 'https://lims3.macrogen.com/ngs/openapi/demulti/retrieveMiBioCsvInfo.do?cmpnyCd=1000&ordNo='
     else:
         raise ValueError(f'p_service: {p_service}')
 
     # 실행 서버의 인터넷 연결 여부에 따라 LIMS JSON 파일 획득 방법 다름.
     # 인터넷 연결 여부와 상관 없음. - 2020.03.10
-    if platform.node() in ['denovo06', 'denovo07', 'denovo08', 'denovo09', 'denovo10']:
+    if platform.node() in ['denovo10']:
         response = request.urlopen(json_prefix + p_order_number, context=ssl._create_unverified_context())
         if response:
             try:
@@ -272,32 +276,6 @@ e_mail: {e_mail}
         o_output.write(info_format)
     secho('>>> info.txt 생성 완료', fg='cyan')
     return
-
-
-def read_data(p_file, p_sep=None):
-    """
-    행단위로 Text 파일을 읽음.
-
-    :param p_file: 입력 파일
-    :param p_sep: 행단위 텍스트를 나눌 구분자.
-    :return: 행단위 데이터를 구분자로 구분한 원소를 리스트로 가지고, 해당 리스트를 원소로 가지는 리스트 (중첩 리스트)
-    """
-    data = list()
-    with open(p_file, 'r') as o_input:
-        for text in o_input:
-            data.append(text.strip().split(p_sep))
-    echo('>>> 파일 읽기 완료')
-    echo(p_file)
-    return data
-
-
-def read_all_data(p_file, p_verbose=True):
-    with open(p_file, 'r') as o_input:
-        data = o_input.read()
-    if p_verbose:
-        echo('>>> 파일 읽기 완료')
-        echo(p_file)
-    return data
 
 
 def typeWrite(p_worksheet, p_row, p_col, p_string, p_int_format=None):
@@ -696,13 +674,13 @@ def check_queue_node() -> tuple:
     """
     import platform
     node = platform.node()
-    if node in ['denovo06', 'denovo10', 'cm456']:
+    if node in ['denovo06', 'denovo07', 'denovo10', 'denovo11', 'cm456']:
         return True, node
     else:
         return False, node
 
 
-def run_cmd_qsub(kargs: dict):
+def run_cmd_qsub(kargs: dict, p_qsub_base_name='qsub', p_verbose=True, p_exit=True):
     """
 
     :param kargs: dict
@@ -711,10 +689,13 @@ def run_cmd_qsub(kargs: dict):
             interpreter: command interpreter to be used
             cmd: command or file
             out_path: qsub.run, qsub.log, qsub.recipe 저장 위치
-    :return:
+    :param p_qsub_base_name
+    :param p_verbose
+    :param p_exit
+    :return: return_code
     """
-    qsub_out = os.path.join(kargs['out_path'], 'qsub.run')
-    qsub_log = os.path.join(kargs['out_path'], 'qsub.log')
+    qsub_out = os.path.join(kargs['out_path'], f'{p_qsub_base_name}.run')
+    qsub_log = os.path.join(kargs['out_path'], f'{p_qsub_base_name}.log')
     cmd = 'qsub ' \
           '-V ' \
           f'-j {kargs["stream"]} ' \
@@ -725,46 +706,108 @@ def run_cmd_qsub(kargs: dict):
     queue_state, node = check_queue_node()
     if queue_state is True:
         run = run_cmd(cmd)
+        if p_verbose is True:
+            true_text = 'Queue 작업 등록 완료'
+            false_text = 'run_cmd_qsub'
+        else:
+            true_text = None
+            false_text = None
         check_run_cmd(
             {
                 'run': run,
-                'true_meg': 'Queue 작업 등록 완료',
-                'false_meg': 'run_cmd_qsub',
-            }
+                'true_meg': true_text,
+                'false_meg': false_text,
+            }, p_exit=p_exit
         )
     else:
         secho('Error: Queue 사용할 수 없는 서버입니다.', fg='red', blink=True, err=True)
         echo(f'서버: {node}', err=True)
-    qsub_recipe_file = os.path.join(kargs['out_path'], 'qsub.recipe')
+    qsub_recipe_file = os.path.join(kargs['out_path'], f'{p_qsub_base_name}.recipe')
     with open(qsub_recipe_file, 'w') as o_recipe:
         o_recipe.write(cmd)
         o_recipe.write('\n')
         o_recipe.write('\n')
+    return run.returncode
 
 
-def read_qsub_log(p_log):
+def print_qsub_status_message(p_l_returncode):
+    success_job = [code for code in p_l_returncode if code == 0]
+    failed_job = [code for code in p_l_returncode if code != 0]
+    success_text = style(f'완료: {len(success_job)}', fg='cyan')
+    failed_text = style(f'실패: {len(failed_job)}',
+                        fg='cyan' if len(failed_job) == 0 else 'red',
+                        blink=False if len(failed_job) == 0 else True)
+    echo(f'>>> Queue 작업 등록 - {success_text}, {failed_text}')
+
+
+def read_qsub_log(p_log: str, p_mode: str):
+    """
+    qsub.log 파일을 읽어 Job ID를 추출한다.
+
+    :type p_log: str
+    :param p_log: qsub.log 파일
+    :type p_mode: str
+    :param p_mode: [first | last | all] qsub.log 파일에 기재된 Job ID의 추출 개수.
+                다음과 같이 qsub.log 파일에 Job 등록 정보가 여러개 있을 경우 몇 개의 Job ID를 출력할 것인지 선택.
+                qsub.log 파일 내용
+                Your job 5125107 ("Job_MBS191230NE001") has been submitted
+                Your job 5125108 ("Job_MBS191230NE001") has been submitted
+    :return:
+    """
+    l_job_id_str = list()
     with open(p_log, 'r') as o_log:
         # log_text : Your job 5125107 ("Job_MBS191230NE001") has been submitted
-        job_id = o_log.read().strip().replace('Your job ', '').split()[0]
-    return int(job_id)
+        for line in o_log:
+            job_id = line.strip().replace('Your job ', '').split()[0]
+            l_job_id_str.append(job_id)
+    l_job_id = [int(id_str) for id_str in l_job_id_str]
+    if p_mode == 'first':
+        return l_job_id[0]
+    elif p_mode == 'last':
+        return l_job_id[-1]
+    elif p_mode == 'all':
+        return l_job_id
+    else:
+        raise ValueError(f'p_mode의 값이 알맞지 않습니다. p_mode: {p_mode}')
 
 
-def parse_job_id(p_path, p_pattern, glob_type):
-    qsub_log = glob_dir(p_path, p_pattern, glob_type)
+def parse_job_id(p_path, p_pattern, p_glob_type, p_mode='last', p_verbose=True):
+    """
+    특정 경로에서 패턴과 일치하는 파일을 검색한다. 검색되어진 파일에서 Job ID를 추출하고 추출된 ID를 반환한다.
+    
+    :param p_path: 경로
+    :param p_pattern: 검출 패턴
+    :param p_glob_type: [many | only]
+    :param p_mode: [first | last | all]
+    :param p_verbose: bool
+    :return: p_glob_type이 many인 경우 - list
+             p_glob_type이 only인 경우 - int
+    """
+    qsub_log = glob_dir(p_path, p_pattern, p_glob_type, p_verbose)
     if qsub_log is None:
         secho('Error: qsub.log 파일이 없습니다.', fg='red', blink=True, err=True)
         echo(p_path)
-    if glob_type == 'many':
+    if p_glob_type == 'many':
         l_job_id = list()
         for log in qsub_log:
-            job_id = read_qsub_log(log)
-            l_job_id.append(int(job_id))
+            job_id = read_qsub_log(log, p_mode)
+            if p_mode == 'all':
+                job_id = read_qsub_log(log, p_mode)
+                l_job_id.extend(job_id)
+            else:
+                l_job_id.append(job_id)
         return l_job_id
-    elif glob_type == 'only':
-        return read_qsub_log(qsub_log)
+    elif p_glob_type == 'only':
+        return read_qsub_log(qsub_log, p_mode)
 
 
 def check_jobs_in_queue(l_job_id: list):
+    """
+    Queue에 등록된 작업의 번호를 검색하여 작업의 진행 정보를 추적한다.
+
+    :param l_job_id: 작업번호(int)를 원소로가지는 리스트
+    :return:
+    """
     from sgeparse import get_jobs
     from time import time, sleep
     from SpoON.run_time import compute_run_time
@@ -794,6 +837,35 @@ def check_jobs_in_queue(l_job_id: list):
         echo(f'\rrunning: {len(s_running_job)},  {wait_job_text}, {done_job_text}'
              f' -- {run_time} 경과, 상태확인: {status_check}회', nl=False)
         sleep(1)
+    echo()  # 빈 줄
+
+
+def read_data(p_file, p_sep=None, p_verbose=True):
+    """
+    행단위로 Text 파일을 읽음.
+
+    :param p_file: 입력 파일
+    :param p_sep: 행단위 텍스트를 나눌 구분자.
+    :param p_verbose:
+    :return: 행단위 데이터를 구분자로 구분한 원소를 리스트로 가지고, 해당 리스트를 원소로 가지는 리스트 (중첩 리스트)
+    """
+    data = list()
+    with open(p_file, 'r') as o_input:
+        for text in o_input:
+            data.append(text.strip().split(p_sep))
+    if p_verbose:
+        echo('>>> 파일 읽기 완료')
+        echo(p_file)
+    return data
+
+
+def read_all_data(p_file, p_verbose=True):
+    with open(p_file, 'r') as o_input:
+        data = o_input.read()
+    if p_verbose:
+        echo('>>> 파일 읽기 완료')
+        echo(p_file)
+    return data
 
 
 def read_yaml(p_file):
@@ -808,3 +880,164 @@ def read_yaml(p_file):
         data = yaml.safe_load(o_yaml)
     return data
 
+
+def read_csv(p_file, p_verbose=True):
+    """
+    CSV 파일을 읽고 데이터를 리스트로 반환한다.
+
+    :param p_file:
+    :param p_verbose: 안내메시지 출력 여부
+    :return: csv_data
+    """
+    with open(p_file, 'r') as o_csv:
+        o_csv_data = csv.reader(o_csv)
+        csv_data = [x for x in o_csv_data]
+    if p_verbose:
+        secho('>>> csv 파일 읽기 완료', fg='cyan')
+        echo(p_file)
+    return csv_data
+
+
+def read_csv_to_dict(p_file, p_verbose=True):
+    """
+    CSV 파일을 읽고 데이터를 딕션너리를 원소로 가지는 리스트로 반환한다.
+
+    :param p_file:
+    :type p_verbose: bool
+    :param p_verbose: 안내메시지 출력 여부
+    :rtype list
+    :return csv_data - 딕션너리를 원소로 가지는 리스트
+    """
+    with open(p_file, 'r') as o_csv:
+        o_csv_data = csv.DictReader(o_csv)
+        csv_data = [x for x in o_csv_data]
+    if p_verbose:
+        secho('>>> SampleInfo.csv 읽기 완료', fg='cyan')
+        echo(p_file)
+    return csv_data
+
+
+def check_db_version(p_list):
+    l_version = [x[-1] for x in p_list]
+    s_version = set(l_version)
+    if len(s_version) == 1:
+        return s_version.pop()
+    else:
+        secho(f'DB version: {s_version}')
+        return False
+
+
+def get_samples_info(p_order_number, p_output):
+    """
+    마이크로브앤미 수주에 대한 시료들의 정보를 림스에 접근하여 JSON 형태로 가져와서 파일로 저장한다.
+    
+    :param p_order_number: 수주번호
+    :param p_output: 파일이름. '.csv'로 끝나지 않으면. 입력값에 '.csv'을 붙여서 저장.
+    :return:
+    """
+    order_num_type, json_data = get_order_json(p_order_number, p_service='MicrobeAndMe')
+    if json_data['resultCode'] == 200:
+        if p_output.endswith('.csv'):
+            output_file = p_output
+        else:
+            output_file = f'{p_output}.csv'
+        with open(output_file, 'w') as o_output:
+            fieldnames = ['KitId', 'client_name', 'Sex', 'Birth', 'sample_source',
+                          'sample_kit', 'sample_type', 'date_received', 'date_collected', 'code_reseller',
+                          'sample_note', 'client_id_number']
+            csv_writer = csv.DictWriter(o_output, fieldnames=fieldnames)
+            csv_writer.writeheader()
+            csv_writer.writerows(json_data['resultData'])
+        secho('>>> SamplesInfo.csv 생성 완료', fg='cyan')
+        return True
+
+    elif json_data['resultCode'] == -1:
+        secho('Error: 고객정보 JSON 에 문제가 있습니다.', fg='red', err=True)
+        echo(f'resultCode: {json_data["resultCode"]}', err=True)
+        echo(f'resultMsg: {json_data["resultMsg"]}', err=True)
+        exit(1)
+    else:
+        secho('Error: 고객정보 JSON 에 알 수 없는 문제가 발생했습니다.', fg='red', blink=True, err=True)
+        pprint(json_data)
+        exit(1)
+
+
+def write_sample_info(p_data, p_output):
+    """
+    MicrobeAndMe
+    시료 1개에 대한 SampleInfo 파일을 생성한다.
+
+    :type p_data: OrderedDict
+    :param p_data: 시료 정보
+    :param p_output:
+    :return:
+    """
+    if p_output.endswith('.csv'):
+        output_file = p_output
+    else:
+        output_file = f'{p_output}.csv'
+
+    with open(output_file, 'w') as o_output:
+        fieldnames = ['KitId', 'client_name', 'Sex', 'Birth', 'sample_source',
+                      'sample_kit', 'sample_type', 'date_received', 'date_collected', 'code_reseller',
+                      'sample_note', 'client_id_number']
+        csv_writer = csv.DictWriter(o_output, fieldnames=fieldnames)
+        csv_writer.writeheader()
+        csv_writer.writerow(p_data)
+    # secho('>>> SamplesInfo.csv 생성 완료', fg='cyan')
+
+
+def make_sample_list(*args):
+    from CoFI.core import make_sample_list
+    return make_sample_list(*args)
+
+
+def make_analysis_dir(*args):
+    from CoFI.core import make_analysis_dir
+    return make_analysis_dir(*args)
+
+
+def detect_otu_method(analysis_dir_path: str) -> str:
+    """
+    Analysis_number 디렉터리를 검색하여 OTU 생성 방식이 무엇인지 확인한다.
+    OTU 생성 방식별 확인하는 디렉터리
+    denovo: CD-HIT-OTU
+    clsoed: CLOSED
+    ASVs  : R_DADA2
+    
+    :param analysis_dir_path: 
+    :return: OTU 생성 방식
+    """
+    config = parse_config()
+    analysis_dir_name = config['Analysis_Dir_Name']
+    echo('>>> OTU 생성 방식 검출')
+    l_subdir = glob_dir(analysis_dir_path, '*', p_mode='many')
+    l_dir, _ = check_file_type(l_subdir, 'isdir')
+    l_dir_name = [os.path.basename(ele) for ele in l_dir]
+    d_checked_method = {'denovo': 0, 'closed': 0, 'r_dada2': 0}
+    if analysis_dir_name['cd_hit_otu'] in l_dir_name:
+        d_checked_method['denovo'] = 1
+    if analysis_dir_name['closed'] in l_dir_name:
+        d_checked_method['closed'] = 1
+    if analysis_dir_name['r_dada2'] in l_dir_name:
+        d_checked_method['r_dada2'] = 1
+    if sum(d_checked_method.values()) == 1:
+        for method, status in d_checked_method.items():
+            if status == 1:
+                otu_method = method
+            else:
+                continue
+        else:
+            secho(f'>>> OTU 생성 방식 검출 완료', fg='cyan')
+            secho(f'OTU 생성 방식: {otu_method}', fg='yellow', bold=True)
+            return otu_method
+    else:
+        secho('Error: 분석 디렉터리에 OTU 생성 방식이 여러 개 존재합니다.', fg='red', blink=True, err=True)
+        secho('       분석 파이프라인 설계상 같이 존재할 수 없습니다.', fg='red', blink=True, err=True)
+        echo(f'검출된 OTU 생성 방식')
+        [echo(f'{method}: {status}') for method, status in d_checked_method.items()]
+        secho('\t --> 다음 중 하나의 방법을 선택하여 분석을 진행하세요.\n'
+              '\t     --otu_method 옵션을 사용하세요.\n'
+              '\t     Analysis_? 디렉터리를 생성하여, Clustering 디렉터리를 분리하세요.\n'
+              '\t     참고용일 경우, 디렉터리 이름을 변경하거나 삭제하세요.', fg='magenta')
+        exit()

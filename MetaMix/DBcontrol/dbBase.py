@@ -86,8 +86,6 @@ class DBbase:
 
         :param p_sql:
         :param p_data:
-        :type p_mode: str
-        :param p_mode: [ only | many ]
         :return:
         """
         import pymysql

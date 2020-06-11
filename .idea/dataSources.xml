@@ -8,5 +8,12 @@
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mariadb://172.19.87.50:3306</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="MyGenome" uuid="4296700e-b954-4610-8580-c434dcf6de14">
+      <driver-ref>mariadb</driver-ref>
+      <synchronize>true</synchronize>
+      <remarks>마이지놈스토리 데이터베이스</remarks>
+      <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mariadb://211.192.85.219:3307/mygenome</jdbc-url>
+    </data-source>
   </component>
 </project>

@@ -53,10 +53,10 @@ samples.name <- sapply(strsplit(basename(rds.files), paste0('_', args$rds_name))
 names(rds.files) <- samples.name
 fileCat(infoText('파일 개수\n'), file=log.file, append=TRUE)
 fileCat(length(rds.files), file=log.file, append=TRUE)
-fileCat('\n')
+fileCat('\n', file=log.file, append=TRUE)
 fileCat(infoText('파일명 개수\n'), file=log.file, append=TRUE)
 fileCat(length(samples.name), file=log.file, append=TRUE)
-fileCat('\n')
+fileCat('\n', file=log.file, append=TRUE)
 fileCat(successText('RDS 파일 목록화 완료\n'), file=log.file, append=TRUE)
 
 # RDS 파일 읽기
@@ -92,7 +92,7 @@ fileCat(successText(paste(seqtab_all.rds_name, '저장 완료\n')))
 trans_st.all <- t(seqtab_all)
 
 # FASTA 파일 생성
-dada2_output.fasta <- file.path(out_path, 'all_ASVs.fasta')
+dada2_output.fasta <- file.path(dada2.dir, 'all_ASVs.fasta')
 asv_id <- paste0('ASV', seq(1, length(colnames(seqtab_all))))
 uniquesToFasta(seqtab_all, dada2_output.fasta, id=asv_id)
 fileCat(successText(paste(dada2_output.fasta, '저장 완료\n')), file=log.file, append=TRUE)
@@ -101,7 +101,7 @@ fileCat(successText(paste(dada2_output.fasta, '저장 완료\n')), file=log.file
 col.names <- samples.name
 col.names[[1]] <- paste0('#ASVs_ID\t', col.names[[1]])
 row.names <-  paste0('ASV', seq(1, length(rownames(trans_st.all))))
-dada2_output.tsv <- file.path(out_path, 'all_ASVs.tsv')
+dada2_output.tsv <- file.path(dada2.dir, 'all_ASVs.tsv')
 write.table(trans_st.all, dada2_output.tsv,
             sep='\t', row.names=row.names, col.names=col.names, quote=FALSE)
 fileCat(successText(paste(dada2_output.tsv, '저장 완료\n')), file=log.file, append=TRUE)

@@ -27,7 +27,7 @@ from urllib import request
 import ssl
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('172.19.85.10', 8877)  # denovo07
+server_address = ('172.19.85.10', 8877)  # denovo10
 echo('staring up on %s port %s' % server_address)
 server.bind(server_address)
 server.listen(10)

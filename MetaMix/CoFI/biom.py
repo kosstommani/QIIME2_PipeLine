@@ -72,7 +72,7 @@ def get_biom_summarize_cmd(p_in, p_out):
         '-o {summary}'.format(
             biom=p_in,
             summary=p_out
-    )
+        )
     return cmd
 
 
@@ -224,11 +224,13 @@ def run_collapse_samples(p_kargs):
                 out_path:
                 out_biom_base: collapsed biom 파일명의 기준이름.
                 out_metadata
+                sort_for_collapse: 시료통합분석시 시료명(그룹명)을 정렬할 순서가 담긴 파일
     :return:
     """
     global RECIPE
     out_path = p_kargs.pop('out_path')
     out_biom_base = p_kargs.pop('out_biom_base')
+    sorting_file = p_kargs.pop('sort_for_collapse')
     collapsed_biom = f'{out_biom_base}.HDF5.biom'
     collapsed_biom_fp = os.path.join(out_path, collapsed_biom)
     p_kargs.update({'out_biom': collapsed_biom_fp})
@@ -242,9 +244,21 @@ def run_collapse_samples(p_kargs):
         }
     )
 
+    sorted_biom = f'{out_biom_base}.sorted.biom'
+    sorted_biom_fp = os.path.join(out_path, sorted_biom)
+    sorted_biom_cmd = get_sort_otu_table_cmd(collapsed_biom, sorted_biom_fp, sorting_file)
+    run = run_cmd(sorted_biom_cmd)
+    check_run_cmd(
+        {
+            'run': run,
+            'true_meg': 'QIIME1 Sort OTU Table(Collapsed BIOM) 완료',
+            'false_meg': 'QIIM1 sort_otu_table(Collapsed BIOM)'
+        }
+    )
+
     json_biom = f'{out_biom_base}.biom'
     json_biom_fp = os.path.join(out_path, json_biom)
-    json_biom_cmd = get_biom_convert_cmd(collapsed_biom_fp, json_biom_fp)
+    json_biom_cmd = get_biom_convert_cmd(sorted_biom_cmd, json_biom_fp)
     run = run_cmd(json_biom_cmd)
     check_run_cmd(
         {

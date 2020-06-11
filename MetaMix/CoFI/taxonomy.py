@@ -16,9 +16,15 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.3'
+__version__ = '1.0.4'
+# ----------------------------
 # 2020.04.17
 # Taxonomy Paser 변경 - XML
+# ----------------------------
+# 2020.05.20
+# Queue Job 확인 간격 변경 - NT
+# ----------------------------
+
 
 import os
 import sys
@@ -419,7 +425,7 @@ class BLAST:
         if self.db == 'NCBI_16S':
             self.blast_option['qstat_check_time'] = 15
         elif self.db == 'NCBI_NT':
-            self.blast_option['qstat_check_time'] = 60 * 5
+            self.blast_option['qstat_check_time'] = 60 * 1
             self.read_per_job = math.ceil(self.otus_count_for_query / self.nt_max_job)
             secho(f'>>> read_per_job 설정 : {self.read_per_job}', fg='cyan')
         else:

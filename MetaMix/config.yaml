@@ -9,7 +9,7 @@
 # 888       888  "Y8888   "Y888 "Y888888 888       888 888 888  888
 #
 # 작성자 : 박정원(JungWon Park, KOSST)
-# Version : 1.1.3
+# Version : 1.1.6
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -105,11 +105,11 @@ CoFI_OTU:
 #        version: &UNITE01 'UNITE 7.2 2017-12-01'
 #        fasta: &UNITE02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/UNITE_public_01.12.2017.id.fasta
 #        taxon: &UNITE03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/UNITE_public_01.12.2017.id.tax.txt
-      UNITE_Fungi:
+      UNITE_Fungi_99:
         version: &UNITE_fungi01 'UNITE Fungi2 99% Clustering Ver.8.2 2020-02-20'
         fasta: &UNITE_fungi02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_Fungi2/sh_refs_qiime_ver8_99_s_04.02.2020.fasta
         taxon: &UNITE_fungi03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_Fungi2/sh_taxonomy_qiime_ver8_99_s_04.02.2020.txt
-      UNITE_All_eukaryotes:
+      UNITE_All_eukaryotes_99:
         version: &UNITE_eukaryotes01 'UNITE All Eukaryotes2 99% Clustering Ver.8.2 2020-02-20'
         fasta: &UNITE_eukaryotes02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_All_eukaryotes2/sh_refs_qiime_ver8_99_s_all_04.02.2020.fasta
         taxon: &UNITE_eukaryotes03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_All_eukaryotes2/sh_taxonomy_qiime_ver8_99_s_all_04.02.2020.txt
@@ -122,13 +122,13 @@ CoFI_OTU:
         fasta: &UNITE_INSD_All_eukaryotes02 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes/UNITE_INSD_eukaryotes.fasta
         taxon: &UNITE_INSD_All_eukaryotes03 /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes/UNITE_INSD_eukaryotes.taxon
       MIDORI_LONGEST:
-        version: 20180221_LONGEST
-        fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_LONGEST_20180221_COI.fasta
-        taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_LONGEST_20180221_COI.taxon
+        version: &MIDORI_LONGEST MIDORI_LONGEST_20180221
+        fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_LONGEST_COI.fasta
+        taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_LONGEST_COI.taxon
       MIDORI_UNIQUE:
-        version: 20180221_UNIQUE
-        fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_UNIQUE_20180221_COI.fasta
-        taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_UNIQUE_20180221_COI.taxon
+        version: &MIDORI_UNIQUE  MIDORI_UNIQUE_20180221
+        fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_UNIQUE_COI.fasta
+        taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_UNIQUE_COI.taxon
       NCBI_NT:
         version: NCBI_NT_20200306
         fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/NCBI_NT_20200306/nt.fasta
@@ -149,8 +149,8 @@ CoFI_TAXONOMY:
   blast_parser_excel_path: /garnet/Tools/Amplicon_MetaGenome/InHouse_Program/16S_MetaGenome_BLAST_Parser
   blast_path: /garnet/Tools/Amplicon_MetaGenome/blast/ncbi-blast-2.9.0+/bin
   queue:
-    name: bi3m.q
-    nt_max_job: 20
+    name: meta.q
+    nt_max_job: 50
     read_per_job: 300
   blast_option:
     e_value: '1.0E-3'
@@ -172,6 +172,14 @@ CoFI_TAXONOMY:
       version: *Probiotics21_01
       db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics21_20200305/Probiotics21
       taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/NCBI_DB/Probiotics21_20200305/Probiotics21_taxon
+    UNITE_Fungi_99:
+      version: *UNITE_fungi01
+      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_Fungi2_BLAST/UNITE_Fungi2_99
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_Fungi2_BLAST/UNITE_Fungi2_99_taxon
+    UNITE_All_eukaryotes_99:
+      version: *UNITE_eukaryotes01
+      db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_All_eukaryotes2_BLAST/UNITE_All_eukaryotes2_99
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE/20200220_Ver8.2_All_eukaryotes2_BLAST/UNITE_All_eukaryotes2_99_taxon
     UNITE_INSD_Fungi:
       version: *UNITE_INSD_Fungi01
       db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200204_Ver8.2_Fungi_BLAST/UNITE_INSD_Fungi
@@ -180,6 +188,14 @@ CoFI_TAXONOMY:
       version: *UNITE_INSD_All_eukaryotes01
       db_name: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes_BLAST/UNITE_INSD_eukaryotes
       taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/UNITE_INSD/20200203_Ver.8.2_All_eukaryotes_BLAST/UNITE_INSD_eukaryotes_taxon
+    MIDORI_LONGEST:
+      version: *MIDORI_LONGEST
+      fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_LONGEST_COI
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_LONGEST_COI_taxon
+    MIDORI_UNIQUE:
+      version: *MIDORI_UNIQUE
+      fasta: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_UNIQUE_COI
+      taxon: /garnet/Tools/Amplicon_MetaGenome/Ref.DB/COI_MIDORI/20180221/MIDORI_UNIQUE_COI_taxon
   uclust_db:
     RDP:
       version: 'RDP Release 11 Update 4 :: May 26, 2015'
@@ -252,7 +268,7 @@ theCups:
   MiSeq_V1:
     template_path: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/html_template_v1
   MiSeq_V2:
-    template_path: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/html_template_v2
+    template_path: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/html_template_v2_1
   Probiotics:
     V1V2_report_dir: &V1V2_dir Analysis_1_Report
     V1V2_report_num: &V1V2_num Report_1
@@ -287,7 +303,29 @@ mamMetaMix:
   analysis_base_path: /garnet/Analysis/BI/AmpliconMetaGenome_MAM
 #  analysis_base_path: /garnet/Tools/Amplicon_MetaGenome/MicrobeAndMe
   Rscript: /garnet/Tools/Amplicon_MetaGenome/QIIME2/Miniconda3/qiime2_dada2_bin/Rscript
-
+  items_and_bacteria: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/MicrobeAndMe/items_and_bacteria.yaml
+  dist_db: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/MicrobeAndMe/MicrobeAndMe_Ref_V2.1.yaml
+  tax_id: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/MicrobeAndMe/tax_id_for_probiotics21.yaml
+  DB:
+    ip: 172.19.87.50
+    user: mybiome
+    password: akdlzmfhqmdosal!
+    db: my-biomestory_2.1
+  db_table:
+    - all
+    - sample
+    - sample_analysis
+    - sample_point
+    - sample_microbiome
+    - analysis_version
+  DB_DownloadSite:
+    ip: 211.192.85.219
+    user: mygenome
+    password: mg!Q2w3e4r
+    db: mygenome
+    port: 3307
+    charset: utf-8
+  HashKey: 'amysdfsho441wmygenfvdnmeame4597omehathes%1^money%!&is%storkimy97h6ji70605han$@!hareqhawha'
 
 Analysis_Dir_Name:
   read_assembly: Read_Assembly
@@ -298,6 +336,7 @@ Analysis_Dir_Name:
   phylogeny: Phylogeny
   biom: BIOM
   r_dada2: R_DADA2
+  r_dada2_summary: R_DADA2_Summary
   q2_dada2: Q2_DADA2
 
 Excel_VBA:
@@ -305,5 +344,7 @@ Excel_VBA:
   vba_stat: /garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/theCups/vba_saveChart_stat.bin
 
 Queue_List:
-  - bi3m.q
   - meta.q
+  - meta.q@denovo06
+  - meta.q@denovo11
+default_queue: meta.q

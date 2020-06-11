@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        * {
+            font-family: Oxygen;
+        }
+
+        /*nav.navbar > p {*/
+        /*    color: red;*/
+        /*    font-size: 5px;*/
+        /*}*/
+
+        /* 네비케이션 바 */
+        nav > div#left { position: fixed; left: 10px; }
+        nav > div#right { position: fixed; right: 10px; }
+        a.navbar-brand { font-size: 1.5em; }
+        #logo_text { color: #002063; }
+        nav > span { font-weight: bold; }
+        #usage { color: red; font-size: 10px; }
+        a.nav-link { margin: 0; padding: 0; }
+
+        /* 다운로드 */
+        #download {
+            background: #006cc5;
+            color: white;
+            height: 280px;
+        }
+        #download > h1 {
+            padding-top: 48px;
+            padding-bottom: 10px;
+            font-size: 6ex;
+        }
+        #download > p {
+            margin: 0; padding: 0;
+        }
+        #date { color: #0bdbca; }
+        button.bt_download {
+            width: 300px;
+            background: #0bdbca;
+            color: white;
+            border-radius: 20px;
+            border-color: #0bdbca;
+        }
+        #nav_result {
+        }
+        button.bt_result {
+            width: 100px;
+            background: #0bdbca;
+            color: white;
+            border-radius: 20px;
+            font-size: 10px;
+            border-color: #0bdbca;
+        }
+
+        #download_close {
+            background: #006cc5;
+            height: 35px;
+        }
+        .bt_close {
+            color: #0bdbca;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            line-height: 35px;
+            background: #006cc5;
+        }
+
+        .result_title {
+            color: #006cc5;
+        }
+
+        /*#bt_close::selection {*/
+        /*    border-style: none;*/
+        /*}*/
+
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-xl justify-content-center bg-light navbar-light">
+    <div id="left">
+        <a class="navbar-brand" href="https://www.macrogen.com"><span id="logo_text">macrogen</span></a>
+        <span id="usage" class="navbar-text">Research Use Only</span>
+    </div>
+    <span class="navbar-text center h5">Amplicon Metagenome Analysis</span>
+    <div id="right">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="#"><img src="https://placehold.it/30X30" alt="icon"></a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><img src="https://placehold.it/30X30" alt="icon"></a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><img src="https://placehold.it/30X30" alt="icon"></a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><img src="https://placehold.it/30X30" alt="icon"></a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><img src="https://placehold.it/30X30" alt="icon"></a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div id="download" class="jumbotron-fluid text-center collapse show navbar-collapse">
+    <h1>Download your raw data!</h1>
+    <h4>Download is available until <span id="date">October 30</span>.</h4>
+    <p>Your data will be retained in our server for 3 months.</p>
+    <p>Should you wish to extend the retention period, please contact us.</p>
+    <br>
+    <button class="btn btn-info bt_download" type="button">DOWNLOAD</button>
+</div>
+<div id="download_close" class="jumbotron-fluid text-center">
+    <button type="button" data-toggle="collapse" data-target="#download" class="navbar-toggler bt_close">CLOSE</button>
+</div>
+<br>
+<br>
+<br>
+<div id="nav_result" class="container">
+    <h3 class="text-center result_title">BASIC ANALYSIS</h3>
+    <br>
+    <ul class="nav nav-tabs nav-pills nav-justified" role="tablist">
+        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#preprocessing">Preprocessing</a></li>
+        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#otu_picking">OTU Picking</a></li>
+        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#taxonomy_assignment">Taxonomy Assignment</a></li>
+        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#community_diversity">Community Diversity</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane container active" id="preprocessing">
+            <ul class="list-unstyled">
+                <li>
+                    <div class="container">
+                        <div class="row row-cols-5">
+                            <div class="col icon_group">
+                                <br>
+                                <p>Raw Data</p>
+                                <p><img src="https://placehold.it/100X100"></p>
+                                <p><button class="bt_result btn btn-info" type="button">VIEW RESULT</button></p>
+                            </div>
+                            <div class="col">
+                                <br>
+                                <p>Adapter Trimming</p>
+                                <p><img src="https://placehold.it/100X100"></p>
+                                <p><button class="bt_result btn btn-info" type="button" class="btn">VIEW</button></p>
+                            </div>
+                            <div class="col">
+                                <br>
+                                <p>Read Assembly</p>
+                                <p><img src="https://placehold.it/100X100"></p>
+                                <p><button class="bt_result btn btn-info" type="button">LEARN MORE</button></p>
+                            </div>
+                            <div class="col">
+                                <br>
+                                <p>Length Filter</p>
+                                <p><img src="https://placehold.it/100X100"></p>
+                                <p><button class="bt_result btn btn-info" type="button">LEARN MORE</button></p>
+                            </div>
+                            <div class="col">
+                                <br>
+                                <p>Length Filter</p>
+                                <p><img src="https://placehold.it/100X100"></p>
+                                <p><button class="bt_result btn btn-info" type="button" class="btn">LEARN MORE</button></p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="tab-pane container fade" id="otu_picking">
+            <ul class="list-unstyled">
+                <li>
+                    <div class="container">
+                        <div class="row row-cols-5">
+                            <div class="col center">
+                                <p>Raw Data</p>
+                                <p><img src="https://placehold.it/80X80"></p>
+                                <p><button class="bt_result" type="button" class="btn">LEARN MORE</button></p>
+                            </div>
+                            <div class="col">
+                                <p>Adapter Trimming</p>
+                                <p><img src="https://placehold.it/80X80"></p>
+                                <p><button class="bt_result" type="button" class="btn">LEARN MORE</button></p>
+                            </div>
+                            <div class="col">
+                                <p>Read Assembly</p>
+                                <p><img src="https://placehold.it/80X80"></p>
+                                <p><button class="bt_result" type="button" class="btn">LEARN MORE</button></p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="tab-pane container fade" id="taxonomy_assignment">
+            <ul class="list-unstyled">
+                <li>
+                    <div class="container">
+                        <div class="row row-cols-5">
+                            <div class="col center">
+                                <br>
+                                <p>NCBI 16S</p>
+                                <p><img src="https://placehold.it/100X100"></p>
+                                <p><button class="bt_result" type="button" class="btn">LEARN MORE</button></p>
+                            </div>
+                            <div class="col">
+                                <br>
+                                <p>NCBI NT</p>
+                                <p><img src="https://placehold.it/100X100"></p>
+                                <p><button class="bt_result" type="button" class="btn">LEARN MORE</button></p>
+                            </div>
+                            <div class="col">
+                                <br>
+                                <p>UNITE</p>
+                                <p><img src="https://placehold.it/100X100"></p>
+                                <p><button class="bt_result" type="button" class="btn">LEARN MORE</button></p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+<div class="container">
+    <h3 class="text-center">FURTHER ANALYSIS</h3>
+    <ul class="nav nav-tabs nav-justified" role="tablist">
+        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#heatmap">HeatMap</a></li>
+        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#statistics">Statistics</a></li>
+    </ul>
+</div>
+<br>
+<br>
+
+<script>
+    $(window).resize(function() {
+
+    })
+</script>
+</body>
+</html>

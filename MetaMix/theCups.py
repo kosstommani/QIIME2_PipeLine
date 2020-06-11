@@ -18,7 +18,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.3'
+__version__ = '1.1.0'
 
 # ------------------------------------
 # 1.0.2 : 2020.04.24
@@ -28,11 +28,16 @@ __version__ = '1.0.3'
 # ------------------------------------
 # Ver. 1.0.3 : 2020.04.28
 # Probiotics21 DB 추가 --> 보고서 추가
+# ------------------------------------
+# Ver. 1.0.4 : 2020.05.19
+# --no_order_number 추가
+# --no_3d_pcoa 추가
+# ------------------------------------
+# Ver. 1.1.0 : 2020.06.04
+# ASVs 보고서 추가
 
 import click
 from pprint import pprint
-# import os
-# from time import time
 from SpoON.util import parse_config, check_order_number_system
 
 
@@ -102,6 +107,10 @@ def main(**kargs):
 @click.option('--beta_diversity_3d',
               is_flag=True,
               help='')
+@click.option('--no_3d_pcoa',
+              is_flag=True,
+              help='3D PCoA 생성 안 함. 3D PCoA 생성이 안 되는 경우인데 2D PCoA를 생성하거나 2D PCoA 결과가 있을 경우 '
+                   'PC Value 페이지 생성이 필요할 경우 사용.')
 @click.option('--pcoa_2d',
               is_flag=True,
               help='beta diversity 데이터가 있어야 결과가 생성됩니다.')
@@ -116,7 +125,13 @@ def main(**kargs):
               help='')
 @click.option('--taxonomy_assignment',
               is_flag=True,
-              help='')
+              help='가장 긴 시료명 길이에 따라 그래프의 y축 크기 결정(max, max+1 길이의 그래프 생성). '
+                   'max(시료명 길이) < 6 : 6. 시료의 개수 > 30: 6.')
+@click.option('--taxonomy_y_size', '-y',
+              type=click.INT,
+              multiple=True,
+              help='Taxonomy Assignment의 결과 중 Bar & Area Plot의 y축의 크기 조절. 시료명이 잘리는 경우 사용. '
+                   '다중 선택 가능. ex) -y 6 -y 7')
 @click.option('--upgma_tree',
               is_flag=True,
               help='')
@@ -126,6 +141,9 @@ def main(**kargs):
 @click.option('--taste',
               is_flag=True,
               help='생성된 분석 보고서의 이상 여부를 확인.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def miseq_report_1(**kargs):
     """
     \b
@@ -147,13 +165,94 @@ def miseq_report_1(**kargs):
     """
     pprint(kargs)
     # 수주번호 형식 확인
-    if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+    if kargs['no_order_number'] is True:
         pass
+    else:
+        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+            pass
     if (kargs['drink'] is True) and (kargs['report_number'] is not None):
         click.secho('Error: --drink 와 --report_number 옵션을 동시에 사용하지 못합니다.', fg='red')
         exit()
     from theCups.core import miseq_report_pipeline_v1
     miseq_report_pipeline_v1(kargs)
+
+
+@main.command('ASVs_V1', short_help='ASVs Report Version 1. (DADA2 + QIIME 1.9)')
+@click.argument('order_number')
+@click.argument('analysis_number')
+@click.option('--report_number', '-rn',
+              help='Report_? 디렉터리명')
+@click.option('--analysis_base_path', '-ap',
+              default=ANALYSIS_BASE_PATH,
+              show_default=True,
+              type=click.Path(exists=True),
+              help='기본값: {}'.format(ANALYSIS_BASE_PATH))
+@click.option('--drink',
+              is_flag=True,
+              help='모든 결과에 대한 분석 보고서를 작성.')
+@click.option('--summary',
+              is_flag=True,
+              help='OTU Picking Summary. Summary.html')
+@click.option('--alpha_rarefaction',
+              is_flag=True,
+              help='')
+@click.option('--max_rare_depth',
+              default=None,
+              type=click.INT,
+              help='--alpha_rarefaction 옵션과 함께 사용. the upper limit of rarefaction depths')
+@click.option('--beta_diversity_3d',
+              is_flag=True,
+              help='')
+@click.option('--no_3d_pcoa',
+              is_flag=True,
+              help='3D PCoA 생성 안 함. 3D PCoA 생성이 안 되는 경우인데 2D PCoA를 생성하거나 2D PCoA 결과가 있을 경우 '
+                   'PC Value 페이지 생성이 필요할 경우 사용.')
+@click.option('--pcoa_2d',
+              is_flag=True,
+              help='beta diversity 데이터가 있어야 결과가 생성됩니다.')
+@click.option('--pcoa_2d_x_size',
+              type=click.FLOAT,
+              help='2D PCoA Y축 제목이 짤릴 경우 사용. 그래프의 X축 크기 조절(기본값 4.5).')
+@click.option('--pcoa_2d_y_size',
+              type=click.FLOAT,
+              help='2D PCoA Y축 제목이 짤릴 경우 사용. 그래프의 Y축 크기 조절(기본값 4.5).')
+@click.option('--diversity_index',
+              is_flag=True,
+              help='')
+@click.option('--taxonomy_assignment',
+              is_flag=True,
+              help='가장 긴 시료명 길이에 따라 그래프의 y축 크기 결정(max, max+1 길이의 그래프 생성). '
+                   'max(시료명 길이) < 6 : 6. 시료의 개수 > 30: 6.')
+@click.option('--taxonomy_y_size', '-y',
+              type=click.INT,
+              multiple=True,
+              help='Taxonomy Assignment의 결과 중 Bar & Area Plot의 y축의 크기 조절. 시료명이 잘리는 경우 사용. '
+                   '다중 선택 가능. ex) -y 6 -y 7')
+@click.option('--upgma_tree',
+              is_flag=True,
+              help='')
+@click.option('--main',
+              is_flag=True,
+              help='OTUanalysis.html 생성.')
+@click.option('--taste',
+              is_flag=True,
+              help='생성된 분석 보고서의 이상 여부를 확인.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
+def asvs_report_1(**kargs):
+    pprint(kargs)
+    # 수주번호 형식 확인
+    if kargs['no_order_number'] is True:
+        pass
+    else:
+        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+            pass
+    if (kargs['drink'] is True) and (kargs['report_number'] is not None):
+        click.secho('Error: --drink 와 --report_number 옵션을 동시에 사용하지 못합니다.', fg='red')
+        exit()
+    from theCups.core import asvs_report_pipeline_v1
+    asvs_report_pipeline_v1(kargs)
 
 
 @main.command('MiSeq_V2', short_help='MiSeq Report Version 2. (QIIME 1.9 + Alpha)')
@@ -240,6 +339,9 @@ def miseq_report_2(**kargs):
                    '\'#\'문자로 시작하면 해당 열은 제외.'
                    '시로명 입력시 v12, V1V2, v34, v3v4 등 목표 영역을 나타내는 접미사는 제거하고 입력한다. '
                    'ex1) A1 유산균제품A 1 2 10 ex2) B1 None 1 2')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def probiotics(**kargs):
     """
     \b
@@ -272,8 +374,11 @@ def probiotics(**kargs):
     """
     pprint(kargs)
     # 수주번호 형식 확인
-    if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+    if kargs['no_order_number'] is True:
         pass
+    else:
+        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+            pass
     if kargs['v1v2_dir'] == 'None':
         kargs['v1v2_dir'] = None
     if kargs['v1v2_num'] == 'None':
@@ -319,6 +424,9 @@ def probiotics(**kargs):
                    '\'#\'문자로 시작하면 해당 열은 제외.'
                    '시로명 입력시 v12, V1V2, v34, v3v4 등 목표 영역을 나타내는 접미사는 제거하고 입력한다. '
                    'ex1) A1 유산균제품A 1 2 10 ex2) B1 None 1 2')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def probiotics21(**kargs):
     """
     \b
@@ -351,8 +459,11 @@ def probiotics21(**kargs):
     """
     pprint(kargs)
     # 수주번호 형식 확인
-    if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+    if kargs['no_order_number'] is True:
         pass
+    else:
+        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+            pass
     if kargs['v1v2_dir'] == 'None':
         kargs['v1v2_dir'] = None
     if kargs['v1v2_num'] == 'None':

@@ -19,7 +19,7 @@
 __author__ = 'JungWon Park(KOSST)'
 __version__ = '1.0.1'
 
-from click import secho, echo
+from click import echo
 import time
 import string
 import random
@@ -589,3 +589,49 @@ def print_metamix_run_time(p_start, p_prema_end, p_pipeline, p_end):
             'total': total_run_time,
             'end': end_time
         }))
+
+
+def print_mam_metamix_run_time(p_start, p_pipeline, p_end):
+    global DATE_FMT
+    start_time = time.strftime(DATE_FMT, time.localtime(p_start))
+    dada2_time = compute_run_time(p_pipeline['make_sample'], p_pipeline['dada2'])
+    assign_taxonomy_time = compute_run_time(p_pipeline['dada2'], p_pipeline['assign_taxonomy'])
+    biom_time = compute_run_time(p_pipeline['assign_taxonomy'], p_pipeline['biom'])
+    alpha_diversity_time = compute_run_time(p_pipeline['biom'], p_pipeline['summarize_taxa'])
+    score_time = compute_run_time(p_pipeline['summarize_taxa'], p_pipeline['score'])
+    info_time = compute_run_time(p_pipeline['score'], p_pipeline['info'])
+    insert_score_time = compute_run_time(p_pipeline['info'], p_pipeline['insert_score'])
+    find_score_time = compute_run_time(p_pipeline['insert_score'], p_end)
+    end_time = time.strftime(DATE_FMT, time.localtime(p_end))
+    total_time = compute_run_time(p_start, p_end)
+    K = '\033[1;32;40mK\033[m'
+    O = '\033[1;32;40mO\033[m'
+    S = '\033[1;32;40mS\033[m'
+    T = '\033[1;32;40mT\033[m'
+    mgs = f'''
+,---,---,---,---,---,---,---,---,---,---,---,---,---,-------,
+| ~ | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 | [ | ] | <-    |
+|---'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-----|
+| ->| | " | , | . | P | Y | F | G | C | R | L | / | = |  \\  |
+|-----',--',--',--',--',--',--',--',--',--',--',--',--'-----|
+| Caps | A | {O} | E | U | I | D | H | {T} | N | {S} | - |  Enter |
+|------'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'--------|
+|        | ; | Q | J | {K} | X | B | M | W | V | Z |          |
+|------,-',--'--,'---'---'---'---'---'---'-,-'---',--,------|
+| ctrl |  | alt |           \033[1;32;40mKOSST\033[m          | alt  |  | ctrl |
+'------'  '-----'--------------------------'------'  '------'
+키보드 입력 시작 시간: {start_time}
+    DADA2          : {dada2_time}
+    Assign Taxonomy: {assign_taxonomy_time}
+    BIOM           : {biom_time}
+    Alpha Diversity: {alpha_diversity_time}
+    Score          : {score_time}
+    Sample Info    : {info_time}
+    Insert Score   : {insert_score_time}
+    Find SCore     : {find_score_time}
+    ===============================
+    Total          : {total_time} 
+입력 완료 시간: {end_time}
+'''
+    echo(mgs)
+

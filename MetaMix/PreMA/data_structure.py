@@ -141,7 +141,7 @@ class PreMA_Pack:
                 l_new_name.append(new_name)
                 l_group.append(group)
             del name, new_name, group
-
+        
         # 시료명 중복 및 시료명 미변경 확인
         set_name = set(l_name)
         set_new_name = set(l_new_name)
@@ -221,6 +221,11 @@ class PreMA_Pack:
                 o_group.write('\n')
                 for nt_sample in self.l_nt_sample_list:
                     group_text = self.__dic_metadata_group[nt_sample.cur_name]
+                    if group_text == '':
+                        secho('Error: 시료명 & 그룹정보 입력 파일에 기재된 시료명과 실제 생산된 시료명이 다릅니다.',
+                              fg='red', blink=True, err=True)
+                        echo(f'name: {nt_sample.cur_name}')
+                        exit()
                     if group_text[0] is None:
                         o_group.write(nt_sample.new_name)
                         o_group.write('\n')

@@ -259,8 +259,8 @@ def get_fastp_mam_cmd(kargs):
     적용 옵션
     '--trim_tail1 50 ' 
     '--trim_tail2 70 ' 
-    '--trim_front1 20 ' 
-    '--trim_front2 20 ' 
+    '--trim_front1 17 '
+    '--trim_front2 21 '
 
     :type kargs: dict
     :param kargs: 다음을 key로 가지는 Dictionary.

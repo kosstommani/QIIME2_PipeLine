@@ -13,16 +13,18 @@
 
 MicrobeAndMe_Ref:
   version: 1.0
-  data: 2020.04.24
+  date: 2020.04.24
+  report_version: myBiome.v.2.1
 
 # 다양성 점수
-shannon:
-  min: 1.184168046
-  max: 8.253117291
-  korean_mean: 57.90727241
-  # 주의/보통/안심 = 49.2|58.5
-  criterion_1: 49.2
-  criterion_2: 58.5
+diversity_index:
+  shannon:
+    min: 1.184168046
+    max: 8.253117291
+    korean_mean: 57.90727241
+    # 주의/보통/안심 = 49.2|58.5
+    criterion_1: 49.2
+    criterion_2: 58.5
 
 # 장 건강
 intestinal_health:
@@ -45,7 +47,7 @@ intestinal_health:
     # 주의/보통/안심 =  23.6|65
     criterion_1: 23.6
     criterion_2: 65
-  bloating:  # 복부팽만감
+  abdominal_distension:  # 복부팽만감
     negative:
       min: 0
       max: 0.001198562
@@ -100,7 +102,7 @@ wellness:
     # 주의/보통/안심 = 37.3|53
     criterion_1: 37.3
     criterion_2: 53
-  immune_index:  # 면역 지수
+  immunity_index:  # 면역 지수
     negative:
       min: 0
       max: 0.014604968
@@ -148,19 +150,21 @@ wellness:
   # 장 환경 더 보기
 more_bowel_environments:
   beneficial_bacteria:  # 유익균
-    min: 0.522472668
-    max: 1.323982684
-    korean_mean: 44.942831
-    # 주의/보통/안심 = 13.7|40.2
-    criterion_1: 13.7
-    criterion_2: 40.2
+    positive:
+      min: 0.522472668
+      max: 1.323982684
+      korean_mean: 44.942831
+      # 주의/보통/안심 = 13.7|40.2
+      criterion_1: 13.7
+      criterion_2: 40.2
   harmful_bacteria:  # 유해균
-    min: 0.002916452
-    max: 0.087931234
-    korean_mean: 70.814006
-    # 주의/보통/안심 = 48.4|82.7
-    criterion_1: 48.4
-    criterion_2: 82.7
+    negative:
+      min: 0.002916452
+      max: 0.087931234
+      korean_mean: 70.814006
+      # 주의/보통/안심 = 48.4|82.7
+      criterion_1: 48.4
+      criterion_2: 82.7
 
 # 부록
 supplement:

@@ -17,7 +17,11 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.0'
+__version__ = '1.1.0'
+
+# ------------------------------------------
+# Ver. 1.1.0 : 2020.06.04
+# R_DADA2 추가
 
 import os
 import shutil
@@ -163,6 +167,32 @@ class Report:
             l_files_state.append(files_state)
         self.analysis_data.set_closed_data(dirs_text, dirs_state, l_files, l_files_state)
         return
+
+    def check_r_dada2_dir(self):
+        r_dada2_dir_path = self.analysis_paths.r_dada2_path
+        fasta_file = 'all_ASVs.fasta'
+        table_file = 'all_ASVs.tsv'
+        rds_file = 'all_seqtab_noChimera.rds'
+        dir_text, dir_state = self.check_something([r_dada2_dir_path])
+        l_target_files = [[os.path.join(r_dada2_dir_path, fasta_file),
+                           os.path.join(r_dada2_dir_path, table_file),
+                           os.path.join(r_dada2_dir_path, rds_file)]]
+        l_files = list()
+        l_files_state = list()
+        for file in l_target_files:
+            file_text, file_state = self.check_something(file)
+            l_files.append(file_text)
+            l_files_state.append(file_state)
+        self.analysis_data.set_r_dada2_data(dir_text, dir_state, l_files, l_files_state)
+        return
+
+    def check_r_dada2_summary_dir(self):
+        r_dada2_summary_dir_path = self.analysis_paths.r_dada2_summary_path
+        summary_file = os.path.join(r_dada2_summary_dir_path, 'all_dada2.summary')
+        dir_text, dir_state = self.check_something([r_dada2_summary_dir_path])
+        file_text, file_state = self.check_something([summary_file])
+        self.analysis_data.set_r_dada2_summary_data(dir_text, dir_state, file_text, file_state)
+        return 
 
     def check_alignment_dir(self):
         alignment_dir_path = self.analysis_paths.alignment_path

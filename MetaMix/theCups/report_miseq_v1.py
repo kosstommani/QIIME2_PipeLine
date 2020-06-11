@@ -17,10 +17,14 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.4'
+__version__ = '1.1.0'
 
+# -------------------------------------------------------
 # 1.0.4 - 2020.04.24
 # 2D PCoA Y축 제목 짤림 현상 해결 - x, y 크기 조절 옵션 추가
+# -------------------------------------------------------
+# 1.1.0 - 2020.06.04
+# R_DADA2 추가
 
 import os
 from click import secho, echo, style
@@ -47,6 +51,7 @@ MiSeq_V1_TEMPLATE_PATH = CONFIG['theCups']['MiSeq_V1']['template_path']
 class MiSeqReportV1(Report):
     def __init__(self, kargs):
         super().__init__(kargs, 'MiSeq')
+        self.y_size = kargs['taxonomy_y_size']
         self.report_paths = ReportPathV1(self.base_path, self.order_number, self.analysis_number)
 
     @property
@@ -99,10 +104,12 @@ class MiSeqReportV1(Report):
         self.check_metadata_file()
         cd_hit_otu_dir_name, cd_hit_otu_dir_state = self.exists(self.analysis_paths.cd_hit_otu_path)
         closed_dir_name, closed_dir_state = self.exists(self.analysis_paths.closed_otu_path)
+        r_dada2_dir_name, r_dada2_dir_state = self.exists(self.analysis_paths.r_dada2_path)
 
         # OTU Picking 방식 확인: Denovo(CD-HIT-OTU), CLOSED(UCLUST)
-        if all([cd_hit_otu_dir_state, closed_dir_state]):
-            secho(f'Error: 분석 디렉터리에 {cd_hit_otu_dir_name} 와 {closed_dir_name} 디렉터리가 모두 존재합니다.\n'
+        if all([cd_hit_otu_dir_state, closed_dir_state, r_dada2_dir_state]):
+            secho(f'Error: 분석 디렉터리에 {cd_hit_otu_dir_name}, {closed_dir_name} 와 '
+                  f'{r_dada2_dir_name} 디렉터리가 모두 존재합니다.\n'
                   f'       설계 개념상 같이 존재하면 안 됩니다.', fg='red')
             secho('\t---> Analysis_? 디렉터리 생성하여, 두 디렉터리를 분리하세요.', fg='magenta')
             secho('\t---> 분석 데이터 검증을 위해 생성한 디렉터리일 경우 해당 디렉터리의 이름을 변경하세요.', fg='magenta')
@@ -115,11 +122,18 @@ class MiSeqReportV1(Report):
             self.check_read_assembly_dir(p_type='fasta')
             self.check_closed_otu_dir()
             self.otu_picking_method = 'CLOSED'
+        elif r_dada2_dir_state is True:
+            self.check_r_dada2_dir()
+            self.check_r_dada2_summary_dir()
+            self.otu_picking_method = 'R_DADA2'
+            pass
         else:
             self.check_read_assembly_dir(p_type='fastq')
             self.check_read_assembly_dir(p_type='fasta')
             self.check_cd_hit_otu_dir()
             self.check_closed_otu_dir()
+            self.check_r_dada2_dir()
+            self.check_r_dada2_summary_dir()
         self.check_alignment_dir()
         self.check_phylogeny_dir()
         self.check_taxonomy_assignment_dir()
@@ -216,9 +230,10 @@ class MiSeqReportV1(Report):
             if dir_name == 'upgma_tree_path':
                 if group_count > 0:
                     for group in l_header:
-                        tre_file = os.path.join(dir_path, f'upgma_cluster.{group}.tre')
-                        returned_name, returned_status = self.exists(tre_file)
-                        checked_data.append((returned_name, 'sub', returned_status, ''))
+                        for unifrac in ['weighted_unifrac', 'unweighted_unifrac']:
+                            tre_file = os.path.join(dir_path, f'{unifrac}_upgma_cluster.{group}.tre')
+                            returned_name, returned_status = self.exists(tre_file)
+                            checked_data.append((returned_name, 'sub', returned_status, ''))
                     del returned_name, returned_status
 
         # Taxonomy Assignment 결과 확인
@@ -1063,30 +1078,31 @@ class MiSeqReportV1(Report):
             run_status = run_beta_diversity_through_plots(
                 biom_file, metadata_file, self.report_paths.beta_diversity_path, tre_file, p_no_3d)
             if run_status:
-                unifrac_pc_file = os.path.join(self.report_paths.beta_diversity_path, 'weighted_unifrac_pc.txt')
-                l_pc_data = list()
-                with open(unifrac_pc_file, 'r') as o_pc:
-                    num = None
-                    for i in o_pc:
-                        if i.startswith('Site'):
-                            num = int(i.strip().split()[1])
-                            continue
-                        if num is None:
-                            continue
-                        else:
-                            if num == 0:
-                                break
+                for unifrac in ['weighted_unifrac_pc', 'unweighted_unifrac_pc']:
+                    unifrac_pc_file = os.path.join(self.report_paths.beta_diversity_path, f'{unifrac}.txt')
+                    l_pc_data = list()
+                    with open(unifrac_pc_file, 'r') as o_pc:
+                        num = None
+                        for i in o_pc:
+                            if i.startswith('Site'):
+                                num = int(i.strip().split()[1])
+                                continue
+                            if num is None:
+                                continue
                             else:
-                                l_pc_data.append(i.strip().split())
-                                num -= 1
-                # HTML 생성
-                template = self.template_env.get_template('beta_diversity.html')
-                pc_html = os.path.join(self.report_paths.beta_diversity_path, 'weighted_unifrac_pc.html')
-                with open(pc_html, 'w') as o_pc_html:
-                    o_pc_html.write(template.render(pc_list=l_pc_data))
-                self.page_status[echo_html] = True
-                secho('>>> Beta Diversity 3D PCoA 생성 완료', fg='cyan')
-                echo()  # 빈 줄
+                                if num == 0:
+                                    break
+                                else:
+                                    l_pc_data.append(i.strip().split())
+                                    num -= 1
+                    # HTML 생성
+                    template = self.template_env.get_template('beta_diversity.html')
+                    pc_html = os.path.join(self.report_paths.beta_diversity_path, f'{unifrac}.html')
+                    with open(pc_html, 'w') as o_pc_html:
+                        o_pc_html.write(template.render(pc_list=l_pc_data))
+                    self.page_status[echo_html] = True
+                    secho('>>> Beta Diversity 3D PCoA 생성 완료', fg='cyan')
+                    echo()  # 빈 줄
                 return True
             else:
                 self.page_status[echo_html] = False
@@ -1104,6 +1120,8 @@ class MiSeqReportV1(Report):
         make_beta_diversity_page() 실행 후, 실행.
 
         :param p_unifrac:
+        :param p_x_size:
+        :param p_y_size:
         :return:
         """
         echo(f'>>> 2D PCoA Plot({p_unifrac}) 생성 시작')
@@ -1167,7 +1185,7 @@ class MiSeqReportV1(Report):
             echo()  # 빈 줄
             return False
 
-    def make_beta_diversity_2d_3d_plot_page(self, p_sample_count):
+    def make_beta_diversity_2d_3d_plot_page(self, p_sample_count, p_no_3d):
         if p_sample_count <= 2:
             secho(f'Warning: 시료의 개수가 적어(<=2) Beta Diversity(2D & 3D PCoA)의 생성을 생략합니다.', fg='yellow')
             self.skipped_page.append('2D_PCoA')
@@ -1177,14 +1195,16 @@ class MiSeqReportV1(Report):
             self.skipped_page.append('3D_PCoA')
             self.make_beta_diversity_page(p_no_3d=True)
             self.make_2d_pcoa_plot_page('weighted')
+            self.make_2d_pcoa_plot_page('unweighted')
         else:
-            self.make_beta_diversity_page(p_no_3d=False)
+            self.make_beta_diversity_page(p_no_3d=p_no_3d)
             self.make_2d_pcoa_plot_page('weighted')
+            self.make_2d_pcoa_plot_page('unweighted')
 
     def make_upgma_tree_page(self, p_unifrac='weighted'):
         echo(f'>>> UPGMA Tree({p_unifrac}) 생성 시작')
         unifrac_dm = f'{p_unifrac}_unifrac_dm.txt'
-        echo_html = 'upgma_cluster.html'
+        echo_html = f'{p_unifrac}_unifrac_upgma_cluster.html'
         unifrac_dm_file = os.path.join(self.report_paths.beta_diversity_path, unifrac_dm)
 
         # metadata.txt 파일 확인
@@ -1195,7 +1215,7 @@ class MiSeqReportV1(Report):
             return False
 
         if check_file_type(unifrac_dm_file, 'exists'):
-            upgma_tre = os.path.join(self.report_paths.upgma_tree_path, 'upgma_cluster.tre')
+            upgma_tre = os.path.join(self.report_paths.upgma_tree_path, f'{p_unifrac}_unifrac_upgma_cluster.tre')
             self.make_dir(self.report_paths.upgma_tree_path)
             run_status = run_upgma_tree(unifrac_dm_file, upgma_tre)
             if run_status:
@@ -1230,12 +1250,13 @@ class MiSeqReportV1(Report):
                         del tree
 
                 # HTML 생성
-                template = self.template_env.get_template(echo_html)
+                template = self.template_env.get_template('upgma_cluster.html')
                 upgma_html_file = os.path.join(self.report_paths.upgma_tree_path, echo_html)
                 with open(upgma_html_file, 'w') as o_upgma_html:
                     o_upgma_html.write(template.render(
                         l_tree=l_tree,
                         new_tre_file='',
+                        unifrc=p_unifrac,
                     ))
                 self.page_status[echo_html] = True
                 secho(f'>>> UPGMA Tree({p_unifrac}) 생성 완료', fg='cyan')
@@ -1335,12 +1356,16 @@ class MiSeqReportV1(Report):
                 echo()  # 빈 줄
             l_table = [os.path.join(out_dir_path, f'otu_table.{dir_name}_L{level}.txt') for level in l_level]
             max_sample_name_length = max([len(x) for x in metadata_order])
-            if max_sample_name_length < 6:
-                l_y_size = [6]
-            elif len(metadata_order) > 30:
-                l_y_size = [6]
+            # Bar & Area Plot y size 결정: 시료명 짤림 문제 해결
+            if not self.y_size :  # self.y_size 옵션 미선택시 --> ()
+                if max_sample_name_length < 6:
+                    l_y_size = [6]
+                elif len(metadata_order) > 30:
+                    l_y_size = [6]
+                else:
+                    l_y_size = [max_sample_name_length-1, max_sample_name_length]
             else:
-                l_y_size = [max_sample_name_length-1, max_sample_name_length]
+                l_y_size = self.y_size
             l_plot_run_status = list()
             for y_size in l_y_size:
                 plot_dir = os.path.join(out_dir_path, f'taxa_summary_plots_{y_size}')
@@ -1620,3 +1645,63 @@ class MiSeqReportV1(Report):
                 secho('Error: src 디렉터리 복사 유무를 확인하세요.', fg='red', blink=True)
                 secho(f'명령어: {cmd}', fg='magenta')
                 return False
+
+
+class ASVsReportV1(MiSeqReportV1):
+    def check_biom_dir(self):
+        biom_dir_path = self.analysis_paths.biom_path
+        dirs_text, dirs_state = self.check_something([biom_dir_path])
+        if all(dirs_state):
+            l_files = [os.path.join(biom_dir_path, 'all_ASVs.biom'),
+                       os.path.join(biom_dir_path, 'all_ASVs_summary.txt')]
+            try:
+                taxonomy_assignment_keys = self.analysis_data.taxonomy_assignment.keys()
+            except KeyError:
+                secho('Error: check_taxonomy_assignment_dir 메소드를 먼저 실행해주세요.', fg='red', blink=True)
+                exit()
+            for dir_name in taxonomy_assignment_keys:
+                if dir_name == self.analysis_paths.analysis_dir_name['taxonomy_assignment']:
+                    continue
+                else:
+                    biom_name = f'all_ASVs.{dir_name}.biom'
+                    # summary_name = f'all_ASVs.{dir_name}_summary.txt'
+                    l_glob_biom = glob_dir(biom_dir_path, biom_name, p_mode='many', p_verbose=False)
+                    # l_glob_summary = glob_dir(biom_dir_path, summary_name, p_mode='many', p_verbose=False)
+                    if l_glob_biom is not None:
+                        l_files.extend(l_glob_biom)
+                    else:
+                        l_files.append(os.path.join(biom_dir_path, biom_name))
+                    # if l_glob_summary is not None:
+                    #     l_files.extend(l_glob_summary)
+                    # else:
+                    #     l_files.append(os.path.join(biom_dir_path, summary_name))
+            files_text, files_state = self.check_something(l_files)
+            self.analysis_data.set_biom_data(dirs_text, dirs_state, files_text, files_state)
+        else:
+            self.analysis_data.set_biom_data(dirs_text, dirs_state, ['None'], [False])
+        return
+
+    def check_alignment_dir(self):
+        alignment_dir_path = self.analysis_paths.alignment_path
+        filtered_dir_path = os.path.join(alignment_dir_path, 'filtered_alignment')
+        filtered_fasta = os.path.join(filtered_dir_path, 'all_ASVs_aligned_pfiltered.fasta')
+        dirs_text, dirs_state = self.check_something([alignment_dir_path, filtered_dir_path])
+        files_text, files_state = self.check_something([filtered_fasta])
+        self.analysis_data.set_alignment_data(dirs_text, dirs_state, [files_text], [files_state])
+        return
+
+    def check_r_dada2_data(self, p_echo_html):
+        analysis_dir_name = self.analysis_paths.analysis_dir_name
+        r_dada2_dir_status = self.analysis_data.r_dada2[analysis_dir_name['r_dada2']]['dir']
+        if r_dada2_dir_status is False:
+            self.page_status[p_echo_html] = False
+            secho(f'Error: {analysis_dir_name["r_dada2"]} 디렉터리가 없습니다.', fg='red', blink=True)
+            secho(f'\t--> {p_echo_html} 생성 중단', fg='yellow')
+            echo()  # 빈 줄
+            return False
+        # TODO
+
+    def make_summary_page_for_r_dada2(self):
+        echo_html = 'summary.html'
+        echo(f'>>> Summary for R_DADA2: {echo_html} 생성 시작')
+        d_files = self.check_r_dada2_data()

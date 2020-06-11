@@ -169,6 +169,9 @@ def main(**kargs):
 @click.option('--microbe_and_me',
               is_flag=True,
               help='MicrobeAndMe - fastp QC 기준 다름.')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def core(**kargs):
     """
     \b
@@ -177,8 +180,11 @@ def core(**kargs):
     """
     # 수주번호 형식 확인
     start_time = time()
-    if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+    if kargs['no_order_number'] is True:
         pass
+    else:
+        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+            pass
 
     pprint(kargs)
     if all([kargs['my_story'], kargs['microbe_and_me']]):
@@ -272,6 +278,9 @@ def dir_del(**kargs):
               default=R2_SUFFIX,
               show_default=True,
               help='')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def check_name(**kargs):
     """
     \b
@@ -279,8 +288,11 @@ def check_name(**kargs):
     시료명 중복 여부, 누락 여부, 최종 예상 시료명 출력.
     """
     # 수주번호 형식 확인
-    if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+    if kargs['no_order_number'] is True:
         pass
+    else:
+        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+            pass
 
     check_custom_name(kargs)
 
@@ -316,6 +328,9 @@ def check_name(**kargs):
               show_default=True,
               type=click.Choice(['fastp', 'SeqPurge', 'Scythe']),
               help='')
+@click.option('--no_order_number',
+              is_flag=True,
+              help='수주번호가 아닌 디렉터리를 실행할 경우.')
 def length_trim(**kargs):
     """
     Adapter Trimming 이후에 Length Trimming을 진행할 경우 사용할 수 있다.
@@ -333,8 +348,11 @@ def length_trim(**kargs):
     from SpoON.fastq_handler import exist_fastq
     from SpoON.run_time import print_legnth_trim_time
     # 수주번호 형식 확인
-    if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+    if kargs['no_order_number'] is True:
         pass
+    else:
+        if check_order_number_system(kargs['order_number']) == 'LIMS2' or 'LIMS3':
+            pass
     pprint(kargs)
     if check_file_type(os.path.join(kargs['analysis_base_path'], kargs['order_number']), 'exists'):
         l_nt_run_list = make_sample_list(

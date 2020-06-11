@@ -17,7 +17,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 __author__ = 'JungWon Park(KOSST)'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 import os
 from click import secho, echo, style
@@ -62,6 +62,14 @@ class Path:
     @property
     def closed_otu_path(self):
         return os.path.join(self.analysis_number_path, self.analysis_dir_name['closed'])
+
+    @property
+    def r_dada2_path(self):
+        return os.path.join(self.analysis_number_path, self.analysis_dir_name['r_dada2'])
+
+    @property
+    def r_dada2_summary_path(self):
+        return os.path.join(self.analysis_number_path, self.analysis_dir_name['r_dada2_summary'])
 
     @property
     def taxonomy_assignment_path(self):
@@ -146,7 +154,7 @@ class ReportPathV1(ReportPath):
 
     @property
     def check_list_for_pcoa_2d(self):
-        item = ['weighted_unifrac_pc_2D_PCoA_plots.html']
+        item = ['weighted_unifrac_pc_2D_PCoA_plots.html', 'unweighted_unifrac_pc_2D_PCoA_plots.html']
         return item
 
     @property
@@ -214,7 +222,8 @@ class ReportPathV1(ReportPath):
 
     @property
     def check_list_for_upgma_tree(self):
-        item = ['upgma_cluster.html', 'upgma_cluster.tre']
+        item = ['weighted_unifrac_upgma_cluster.html', 'weighted_unifrac_upgma_cluster.tre',
+                'unweighted_unifrac_upgma_cluster.html', 'unweighted_unifrac_upgma_cluster.tre']
         return item
 
 
@@ -271,6 +280,8 @@ class AnalysisDataTable:
         self.__read_assembly = None
         self.__cd_hit_otu = None
         self.__closed = None
+        self.__r_dada2 = None
+        self.__r_dada2_summary = None
         self.__alignment = None
         self.__phylogeny = None
         self.__taxonomy_assignment = None
@@ -446,6 +457,20 @@ class AnalysisDataTable:
 
     def set_closed_data(self, p_l_dir, p_l_dir_state, p_l_file, p_l_file_state):
         self.__closed = self.__set_data_many(p_l_dir, p_l_dir_state, p_l_file, p_l_file_state)
+
+    @property
+    def r_dada2(self):
+        return self.__r_dada2
+
+    def set_r_dada2_data(self, p_l_dir, p_l_dir_state, p_l_file, p_l_file_state):
+        self.__r_dada2 = self.__set_data_many(p_l_dir, p_l_dir_state, p_l_file, p_l_file_state)
+
+    @property
+    def r_dada2_summary(self):
+        return self.__r_dada2_summary
+
+    def set_r_dada2_summary_data(self, p_l_dir, p_l_dir_state, p_l_file, p_l_file_state):
+        self.__r_dada2_summary = self.__set_data_only(p_l_dir, p_l_dir_state, p_l_file, p_l_file_state)
 
     @property
     def alignment(self):

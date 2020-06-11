@@ -1,0 +1,80 @@
+# ----------------------------------------------------------------------------------------------------------------------
+#                                      888b     d888          888             888b     d888 d8b
+#                                      8888b   d8888          888             8888b   d8888 Y8P
+#                                      88888b.d88888          888             88888b.d88888
+# 88888b.d88b.   8888b.  88888b.d88b.  888Y88888P888  .d88b.  888888  8888b.  888Y88888P888 888 888  888
+# 888 "888 "88b     "88b 888 "888 "88b 888 Y888P 888 d8P  Y8b 888        "88b 888 Y888P 888 888 `Y8bd8P'
+# 888  888  888 .d888888 888  888  888 888  Y8P  888 88888888 888    .d888888 888  Y8P  888 888   X88K
+# 888  888  888 888  888 888  888  888 888   "   888 Y8b.     Y88b.  888  888 888   "   888 888 .d8""8b.
+# 888  888  888 "Y888888 888  888  888 888       888  "Y8888   "Y888 "Y888888 888       888 888 888  888
+#
+# 작성자 : 박정원(JungWon Park, KOSST)
+# ----------------------------------------------------------------------------------------------------------------------
+
+tax_id_for_probiotics21:
+  version: 1.0
+  date: 2020.05.11
+
+'Lactobacillus acidophilus':
+  tax_id: 1
+  kor_name: '락토바실러스 애시도필러스'
+'Lactobacillus casei':
+  tax_id: 2
+  kor_name: '락토바실러스 카제이'
+'Lactobacillus bulgaricus':
+  tax_id: 3
+  kor_name: '락토바실러스 불가리쿠스'
+'Lactobacillus gasseri':
+  tax_id: 4
+  kor_name: '락토바실러스 가세리'
+'Lactobacillus fermentum':
+  tax_id: 5
+  kor_name: '락토바실러스 퍼멘텀'
+'Lactobacillus plantarum':
+  tax_id: 6
+  kor_name: '락토바실러스 플란타룸'
+'Lactobacillus reuteri':
+  tax_id: 7
+  kor_name: '락토바실러스 루테리'
+'Lactobacillus rhamnosus':
+  tax_id: 8
+  kor_name: '락토바실러스 람노서스'
+'Lactobacillus salivarius':
+  tax_id: 9
+  kor_name: '락토바실러스 살리바리우스'
+'Lactobacillus sakei':
+  tax_id: 10
+  kor_name: '락토바실러스 사케이'
+'Bifidobacterium bifidum':
+  tax_id: 11
+  kor_name: '비피도박테리움 비피덤'
+'Bifidobacterium breve':
+  tax_id: 12
+  kor_name: '비피도박테리움 브레브'
+'Bifidobacterium longum':
+  tax_id: 13
+  kor_name: '비피도박테리움 롱검'
+'Bifidobacterium animalis':
+  tax_id: 14
+  kor_name: '비피도박테리움 아니말리스'
+'Bifidobacterium adolescentis':
+  tax_id: 15
+  kor_name: '비피도박테리움 아돌레센티스'
+'Lactococcus lactis':
+  tax_id: 16
+  kor_name: '락토코커스 락티스'
+'Streptococcus thermophilus':
+  tax_id: 17
+  kor_name: '스트렙토코커스 써모필러스'
+'Enterococcus faecium':
+  tax_id: 18
+  kor_name: '엔테로코커스 패시움'
+'Enterococcus faecalis':
+  tax_id: 19
+  kor_name: '엔테로코커스 패칼리스'
+'Lactobacillus paracasei':
+  tax_id: 20
+  kor_name: '락토바실러스 파라카제이'
+'Lactobacillus helveticus':
+  tax_id: 21
+  kor_name: '락토바실러스 헬베티쿠스'

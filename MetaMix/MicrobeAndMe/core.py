@@ -14,11 +14,11 @@
 __author__ = 'JungWon Park(KOSST)'
 __version__ = '1.0.0'
 
-import sys
-import os
-from click import echo, secho
+from click import secho
 from SpoON.util import parse_config
 from MicrobeAndMe.data_structure import Microbe, ASVsMerger, FilesCollector
+from SpoON.run_time import print_mam_metamix_run_time
+import time
 
 # 기본값 설정
 CONFIG = parse_config()
@@ -27,24 +27,59 @@ COFI = CONFIG['MetaMix']['CoFI']
 
 
 def all_pipeline(kargs):
+    start_time = time.time()
     microbe = Microbe(kargs, mode='all', analysis_type='MicrobeAndMe')
-    microbe.run_prema()
     if (kargs['copy_rawdata'] is False) and (kargs['no_prema'] is False):
+        microbe.run_prema()
         exit()
+    elif (kargs['copy_rawdata'] is True) and (kargs['no_prema'] is False):
+        microbe.run_prema()
+    elif (kargs['copy_rawdata'] is False) and (kargs['no_prema'] is True):
+        pass
+    elif (kargs['copy_rawdata'] is True) and (kargs['no_prema'] is True):
+        secho('Error: --copy_rawdata 와 --no_prema 옵션을 같이 사용할 수 없습니다.', fg='red')
+    else:
+        raise ValueError(f'예기치 않은 오류입니다. copy_rawdata:{kargs["copy_rawdata"]}, no_prema:{kargs["no_prema"]}')
     microbe.make_analysis_number_dir()
     microbe.set_path()
     microbe.make_sample_list()
+    sample_end_time = time.time()
     microbe.run_dada2_using_r()
     microbe.check_jobs()
+    dada2_end_time = time.time()
     microbe.assign_taxonomy()
+    taxonomy_end_time = time.time()
     microbe.make_biom_by_db()
+    biom_end_time = time.time()
     microbe.run_alpha_diversity()
-    microbe.summrize_taxa()
+    diverstiy_end_time = time.time()
+    microbe.summarize_taxa()
+    summarize_end_time = time.time()
+    microbe.run_score()
+    score_end_time = time.time()
+    microbe.make_info()
+    info_end_time = time.time()
+    microbe.insert_score()
+    insert_end_time = time.time()
+    microbe.find_score()
+    end_time = time.time()
+    pipeline_end_time = {
+        'make_sample': sample_end_time,
+        'dada2': dada2_end_time,
+        'assign_taxonomy': taxonomy_end_time,
+        'biom': biom_end_time,
+        'alpha_diversity': diverstiy_end_time,
+        'summarize_taxa': summarize_end_time,
+        'score': score_end_time,
+        'info': info_end_time,
+        'insert_score': insert_end_time,
+    }
+    print_mam_metamix_run_time(start_time, pipeline_end_time, end_time)
 
 
 def dada2_using_r(kargs):
-    # microbe = Microbe(kargs, mode='r_dada2', analysis_type='MicrobeAndMe')
-    microbe = Microbe(kargs, mode='r_dada2', analysis_type='NGS')
+    microbe = Microbe(kargs, mode='r_dada2', analysis_type='MicrobeAndMe')
+    # microbe = Microbe(kargs, mode='r_dada2', analysis_type='NGS')
     microbe.make_analysis_number_dir()
     microbe.set_path()
     microbe.make_sample_list()
@@ -94,31 +129,54 @@ def summarize_taxa(kargs):
     microbe = Microbe(kargs, mode='summarize_taxa', analysis_type='MicrobeAndMe')
     microbe.set_path()
     microbe.make_sample_list()
-    microbe.summrize_taxa()
+    microbe.summarize_taxa()
 
 
-def score():
-    from MicrobeAndMe.score import AndMe
-    path = '/garnet/Analysis/BI/AmpliconMetaGenome_MAM/HN00122513/Analysis_1/35.8/Summarized_Taxa'
-    and_me = AndMe(
-        {
-            'bact_file': '/garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/MicrobeAndMe/items_and_bacteria.yaml',
-            'dist_db_file': '/garnet/Tools/Amplicon_MetaGenome/PipeLine_Dev/MetaMix/MicrobeAndMe/MicrobeAndMe_Ref_V2.1.yaml',
-            'phylum_file': os.path.join(path, 'ASVs.NCBI_16S_L2.txt'),
-            'family_file': os.path.join(path, 'ASVs.NCBI_16S_L5.txt'),
-            'genus_file': os.path.join(path, 'ASVs.NCBI_16S_L6.txt'),
-            'species_file': os.path.join(path, 'ASVs.NCBI_16S_L7.txt'),
-            'sample_name': '35.8'
-        })
-    and_me.read_bacteria_file()
-    and_me.read_dist_db_file()
-    and_me.read_genus_file()
-    and_me.read_species_file()
-    and_me.compute_intestinal_health()
-    and_me.compute_wellness()
-    # DiversityIndex('/garnet/Analysis/BI/AmpliconMetaGenome_MAM/HN00122513/Analysis_1/35.8/Alpha_Diversity/adiv.txt')
+def score(kargs):
+    microbe = Microbe(kargs, mode='score', analysis_type='MicrobeAndMe')
+    microbe.set_path()
+    microbe.make_sample_list()
+    microbe.run_score()
 
 
-def insert():
-    pass
+def db_insert(kargs):
+    microbe = Microbe(kargs, mode='db_insert', analysis_type='MicrobeAndMe')
+    microbe.set_path()
+    microbe.make_sample_list()
+    microbe.insert_score()
+
+
+def db_find(kargs):
+    microbe = Microbe(kargs, mode='db_find', analysis_type='MicrobeAndMe')
+    microbe.set_path()
+    microbe.make_sample_list()
+    microbe.find_score()
+
+
+def db_del(kargs):
+    microbe = Microbe(kargs, mode='db_del', analysis_type='MicrobeAndMe')
+    microbe.set_path()
+    microbe.make_sample_list()
+    microbe.del_score()
+
+
+def info(kargs):
+    microbe = Microbe(kargs, mode='info', analysis_type='MicrobeAndMe')
+    microbe.set_path()
+    microbe.make_sample_list()
+    microbe.make_info()
+
+
+def delete(kargs):
+    microbe = Microbe(kargs, mode='delete', analysis_type='MicrobeAndMe')
+    microbe.set_path()
+    microbe.make_sample_list()
+    microbe.run_delete()
+
+
+def qdel(kargs):
+    microbe = Microbe(kargs, mode='qdel', analysis_type='MicrobeAndMe')
+    microbe.set_path()
+    microbe.make_sample_list()
+    microbe.run_qdel()
 

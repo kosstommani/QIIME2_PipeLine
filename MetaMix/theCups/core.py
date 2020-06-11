@@ -46,7 +46,7 @@ def miseq_report_pipeline_v1(kargs):
     if any(
             [
                 kargs['drink'], kargs['read_assembly'], kargs['main'],
-                kargs['summary'], kargs['alpha_rarefaction'], kargs['summary'],
+                kargs['summary'], kargs['alpha_rarefaction'],
                 kargs['alpha_rarefaction'], kargs['beta_diversity_3d'], kargs['pcoa_2d'],
                 kargs['diversity_index'], kargs['taxonomy_assignment'], kargs['upgma_tree'],
             ]
@@ -83,7 +83,7 @@ def miseq_report_pipeline_v1(kargs):
     if (kargs['drink'] is True) or (kargs['alpha_rarefaction'] is True):
         report.make_alpha_rarefaction_page()
     if kargs['drink'] is True:
-        report.make_beta_diversity_2d_3d_plot_page(sample_count)
+        report.make_beta_diversity_2d_3d_plot_page(sample_count, kargs['no_3d_pcoa'])
 
     if kargs['beta_diversity_3d'] is True:
         if sample_count <= 2:
@@ -93,7 +93,7 @@ def miseq_report_pipeline_v1(kargs):
             secho(f'Warning: 시료의 개수가 적어(==3) 3D PCoA의 생성을 생략합니다.', fg='yellow')
             report.make_beta_diversity_page(p_no_3d=True)
         else:
-            report.make_beta_diversity_page(p_no_3d=False)
+            report.make_beta_diversity_page(p_no_3d=kargs['no_3d_pcoa'])
     if kargs['pcoa_2d'] is True:
         if sample_count <= 2:
             secho('Error: 시료의 개수가 적어(<=2) 2D PCoA를 생성할 수 없습니다.', fg='red')
@@ -101,8 +101,12 @@ def miseq_report_pipeline_v1(kargs):
         else:
             if (kargs['pcoa_2d_x_size'] is None) and (kargs['pcoa_2d_y_size'] is None):
                 report.make_2d_pcoa_plot_page(p_unifrac='weighted')
+                report.make_2d_pcoa_plot_page(p_unifrac='unweighted')
             else:
                 report.make_2d_pcoa_plot_page(p_unifrac='weighted',
+                                              p_x_size=kargs['pcoa_2d_x_size'],
+                                              p_y_size=kargs['pcoa_2d_y_size'])
+                report.make_2d_pcoa_plot_page(p_unifrac='unweighted',
                                               p_x_size=kargs['pcoa_2d_x_size'],
                                               p_y_size=kargs['pcoa_2d_y_size'])
 
@@ -112,6 +116,7 @@ def miseq_report_pipeline_v1(kargs):
             report.skipped_page.append('upgma_tree')
         else:
             report.make_upgma_tree_page(p_unifrac='weighted')
+            report.make_upgma_tree_page(p_unifrac='unweighted')
     if (kargs['drink'] is True) or (kargs['taxonomy_assignment'] is True):
         if sample_count == 1:
             secho(f'Warning: 시료의 개수가 적어(==1) Area Plot의 생성을 생략합니다.', fg='yellow')
@@ -167,6 +172,142 @@ def miseq_report_pipeline_v1(kargs):
                     kargs['alpha_rarefaction'], kargs['beta_diversity_3d'], kargs['pcoa_2d'],
                     kargs['diversity_index'], kargs['taxonomy_assignment'], kargs['upgma_tree'],
                 ]
+            ) is False:
+                secho('Warning: --report_number 옵션을 사용하세요.', fg='')
+                echo('--taste 옵션을 무시합니다.')
+            else:
+                report.taste_cofi()
+        else:
+            report.taste_cofi()
+
+
+def asvs_report_pipeline_v1(kargs):
+    from theCups.report_miseq_v1 import ASVsReportV1
+    report = ASVsReportV1(kargs)
+    report.check_analysis_data()
+    if any(
+            [
+                kargs['drink'], kargs['main'],
+                kargs['summary'], kargs['alpha_rarefaction'],
+                kargs['alpha_rarefaction'], kargs['beta_diversity_3d'], kargs['pcoa_2d'],
+                kargs['diversity_index'], kargs['taxonomy_assignment'], kargs['upgma_tree'],
+            ]
+    ) is False:
+        if all([kargs['taste'], kargs['report_number']]) is True:
+            pass
+        else:
+            exit()
+
+    report.check_and_set_for_report_path()
+    sample_count = report.check_sample_count()
+    if kargs['report_number'] is None:
+        report.make_dir(report.report_paths.report_base_path)
+        report.make_dir(report.report_paths.report_dir_path)
+        report.make_dir(report.report_paths.otu_results_path)
+    report.set_report_template()
+    if (kargs['drink'] is True) or (kargs['summary'] is True):
+        # OTU Picking 방식 확인: Denovo(CD-HIT-OTU), CLOSED(UCLUST)
+        if report.analysis_data.cd_hit_otu is not None:
+            report.make_summary_page_for_cd_hit_otu()
+        elif report.analysis_data.closed is not None:
+            report.make_summary_page_for_closed()
+        elif report.analysis_data.r_dada2 is not None:
+            # TODO
+            pass
+    if (kargs['drink'] is True) or (kargs['diversity_index'] is True):
+        report.make_alpha_diversity_page()
+    if (kargs['drink'] is True) or (kargs['alpha_rarefaction'] is True):
+        report.make_alpha_rarefaction_page()
+    if kargs['drink'] is True:
+        report.make_beta_diversity_2d_3d_plot_page(sample_count, kargs['no_3d_pcoa'])
+
+    if kargs['beta_diversity_3d'] is True:
+        if sample_count <= 2:
+            secho('Error: 시료의 개수가 적어(<=2) Beta Diversity(2D & 3D PCoA)를 생성할 수 없습니다.', fg='red')
+            exit()
+        elif sample_count == 3:
+            secho(f'Warning: 시료의 개수가 적어(==3) 3D PCoA의 생성을 생략합니다.', fg='yellow')
+            report.make_beta_diversity_page(p_no_3d=True)
+        else:
+            report.make_beta_diversity_page(p_no_3d=kargs['no_3d_pcoa'])
+    if kargs['pcoa_2d'] is True:
+        if sample_count <= 2:
+            secho('Error: 시료의 개수가 적어(<=2) 2D PCoA를 생성할 수 없습니다.', fg='red')
+            exit()
+        else:
+            if (kargs['pcoa_2d_x_size'] is None) and (kargs['pcoa_2d_y_size'] is None):
+                report.make_2d_pcoa_plot_page(p_unifrac='weighted')
+                report.make_2d_pcoa_plot_page(p_unifrac='unweighted')
+            else:
+                report.make_2d_pcoa_plot_page(p_unifrac='weighted',
+                                              p_x_size=kargs['pcoa_2d_x_size'],
+                                              p_y_size=kargs['pcoa_2d_y_size'])
+                report.make_2d_pcoa_plot_page(p_unifrac='unweighted',
+                                              p_x_size=kargs['pcoa_2d_x_size'],
+                                              p_y_size=kargs['pcoa_2d_y_size'])
+
+    if (kargs['drink'] is True) or (kargs['upgma_tree'] is True):
+        if sample_count <= 2:
+            secho(f'Warning: 시료의 개수가 적어(<=2) UPGMA Tree(Beta Diversity)의 생성을 생략합니다.', fg='yellow')
+            report.skipped_page.append('upgma_tree')
+        else:
+            report.make_upgma_tree_page(p_unifrac='weighted')
+            report.make_upgma_tree_page(p_unifrac='unweighted')
+    if (kargs['drink'] is True) or (kargs['taxonomy_assignment'] is True):
+        if sample_count == 1:
+            secho(f'Warning: 시료의 개수가 적어(==1) Area Plot의 생성을 생략합니다.', fg='yellow')
+            report.skipped_page.append('area')
+            report.make_taxonomy_assignment_page('bar')
+        else:
+            report.make_taxonomy_assignment_page('bar,area')
+
+    # Main HTML 작성
+    if kargs['drink'] is True:
+        report.make_main_page()
+        report.copy_src()
+
+    elif kargs['main'] is True:
+        if kargs['report_number'] is not None:
+            report.taste_cofi()
+            report.convert_checked_results_to_page_status()
+            report.make_main_page()
+            report.copy_src()
+        else:
+            report.make_main_page()
+            report.copy_src()
+
+    # 생성된 HTML 확인
+    # TODO: 함수화
+    echo()  # 빈줄 추가
+    try:
+        max_length = max([len(x) for x in report.page_status.keys()])
+    except ValueError:  # max() arg is an empty sequence
+        max_length = 0
+    l_echo_text = list()
+    for key in report.page_status.keys():
+        status = report.page_status[key]
+        status_color = 'cyan' if status else 'red'
+        status_text = style(f'{status}', fg=status_color)
+        l_echo_text.append(f'  {key:{max_length}}\t[ {status_text} ]')
+    secho('- 보고서 페이지 생성 여부 확인 -'.center(max_length+6), fg='white', bg='cyan', bold=True)
+    if l_echo_text:
+        secho('\n'.join(l_echo_text))
+    else:
+        secho('None'.center(33), fg='red', bold=True)
+        echo()  # 빈 줄
+    if report.skipped_page:
+        secho(f'생략 페이지: {", ".join(report.skipped_page)}', fg='yellow')
+    # TODO: 보고서 생성이 중단된 디렉터리 및 파일에 대한 삭제 코드 생성
+
+    if kargs['taste'] is True:
+        if kargs['report_number'] is None:
+            if any(
+                    [
+                        kargs['drink'], kargs['taste'],
+                        kargs['summary'], kargs['alpha_rarefaction'], kargs['summary'],
+                        kargs['alpha_rarefaction'], kargs['beta_diversity_3d'], kargs['pcoa_2d'],
+                        kargs['diversity_index'], kargs['taxonomy_assignment'], kargs['upgma_tree'],
+                    ]
             ) is False:
                 secho('Warning: --report_number 옵션을 사용하세요.', fg='')
                 echo('--taste 옵션을 무시합니다.')
